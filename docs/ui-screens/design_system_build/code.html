@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Botanica UI Library - Nocturnal Botanical</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary": "#feff9a",
+                      "surface-container-high": "#1c2116",
+                      "surface-container-highest": "#22281c",
+                      "surface-variant": "#22281c",
+                      "tertiary-fixed-dim": "#edef5f",
+                      "surface-container-lowest": "#000000",
+                      "surface-tint": "#93bc10",
+                      "tertiary-fixed": "#fbfe6b",
+                      "surface-container": "#161b11",
+                      "tertiary-container": "#f0f261",
+                      "secondary-container": "#536600",
+                      "surface": "#0b0f08",
+                      "primary-container": "#8dc104",
+                      "error-container": "#b92902",
+                      "secondary-fixed-dim": "#c4e05e",
+                      "primary-fixed": "#93bc10",
+                      "error": "#ff7351",
+                      "error-dim": "#d53d18",
+                      "inverse-on-surface": "#52574c",
+                      "outline-variant": "#45493f",
+                      "on-primary-container": "#253600",
+                      "tertiary-dim": "#edef5f",
+                      "on-surface": "#f2f5e7",
+                      "on-primary-fixed": "#354b00",
+                      "secondary-fixed": "#d2ef6a",
+                      "outline": "#73776b",
+                      "primary-dim": "#bce848",
+                      "on-error-container": "#ffd2c8",
+                      "secondary": "#d2ef6a",
+                      "on-error": "#450900",
+                      "primary-fixed-dim": "#bce848",
+                      "on-tertiary-fixed-variant": "#6a6c00",
+                      "on-secondary-fixed": "#374400",
+                      "on-background": "#f2f5e7",
+                      "on-surface-variant": "#a9ada0",
+                      "inverse-surface": "#f7fbec",
+                      "on-tertiary-container": "#595a00",
+                      "on-tertiary": "#616300",
+                      "inverse-primary": "#4b6800",
+                      "surface-bright": "#282e21",
+                      "on-tertiary-fixed": "#4d4e00",
+                      "primary": "#93bc10",
+                      "on-primary-fixed-variant": "#4c6a00",
+                      "on-secondary-fixed-variant": "#516200",
+                      "on-primary": "#121212",
+                      "on-secondary-container": "#f0ffb6",
+                      "surface-dim": "#0b0f08",
+                      "secondary-dim": "#c4e05e",
+                      "background": "#0b0f08",
+                      "surface-container-low": "#10150c",
+                      "on-secondary": "#485800"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Plus Jakarta Sans"],
+                      "body": ["Manrope"],
+                      "label": ["Manrope"]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; background-color: #0b0f08; color: #f2f5e7; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-forest-glow {
+            background: radial-gradient(circle at center, rgba(147, 188, 16, 0.15) 0%, rgba(11, 15, 8, 0) 70%);
+        }
+        .glow-pulse {
+            animation: glow-pulse 3s infinite ease-in-out;
+        }
+        @keyframes glow-pulse {
+            0%, 100% { filter: drop-shadow(0 0 2px rgba(147, 188, 16, 0.4)); }
+            50% { filter: drop-shadow(0 0 12px rgba(147, 188, 16, 0.8)); }
+        }
+        .shimmer {
+            background: linear-gradient(90deg, #1c2116 25%, #22281c 50%, #1c2116 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .tonal-gradient {
+            background: linear-gradient(180deg, rgba(11, 15, 8, 0) 0%, rgba(11, 15, 8, 0.9) 100%);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen pb-32 overflow-x-hidden">
+<!-- Top Navigation Anchor -->
+<header class="bg-[#0b0f08] dark:bg-[#0b0f08] w-full top-0 px-6 py-4 sticky z-40 border-b border-outline-variant/10">
+<div class="flex justify-between items-center w-full max-w-screen-xl mx-auto">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border border-outline-variant/20">
+<img alt="User profile photo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACl-00y_roR0Kn6VAxw_zCZLNSK9gyqEvskRKKiae0t00j_fy286ufpkaxLZpqi7GiQtWtweFRcgn947a_vYgswS13lkl_quMBKvWShbxsYH6IUkExhf5_ZOola-K7EJ_91h07-eFwK61dIaFWEeOKRNoPZFgGDCFAMmxF8lpGJvKnFoGtrMp2NjUwc39CdY_4pwqCO4v0kpwzVIzT5YB_WfQ6RDCiIdVCsVJ7_JkXIqdQn6sHZs1A_5S4w96j4zTVbxUlwcf_Uek"/>
+</div>
+<h1 class="font-['Plus_Jakarta_Sans'] font-bold text-2xl tracking-tight text-[#93bc10]">Botanica UI</h1>
+</div>
+<button class="text-[#93bc10] hover:opacity-80 transition-opacity active:scale-95 active:duration-150">
+<span class="material-symbols-outlined text-2xl" data-icon="settings">settings</span>
+</button>
+</div>
+</header>
+<main class="max-w-screen-xl mx-auto px-6 pt-8 space-y-24 relative">
+<!-- Background Ambient Glows -->
+<div class="absolute top-0 right-0 w-[500px] h-[500px] bg-forest-glow -z-10 pointer-events-none opacity-50"></div>
+<div class="absolute top-1/2 left-0 w-[600px] h-[600px] bg-forest-glow -z-10 pointer-events-none opacity-30 translate-y-[-50%]"></div>
+<!-- Section: Intro -->
+<section>
+<p class="font-label text-primary uppercase tracking-[0.2em] text-xs mb-2">UI LIBRARY V2</p>
+<h2 class="font-headline text-5xl font-extrabold tracking-tighter mb-4 max-w-2xl">The Nocturnal Naturalist Design System</h2>
+<div class="w-16 h-1 bg-primary rounded-full"></div>
+</section>
+<!-- Section: Typography -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+<div class="space-y-8">
+<div>
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-4 block">Typography Scale</span>
+<h3 class="font-headline text-[3.5rem] leading-[1.1] font-bold tracking-tight mb-2">Monstera Deliciosa</h3>
+<p class="text-on-surface-variant text-sm">Display Large / Plus Jakarta Sans</p>
+</div>
+<div>
+<h4 class="font-headline text-2xl font-bold mb-2">Discover Rare Flora</h4>
+<p class="text-on-surface-variant text-sm">Headline Small / Plus Jakarta Sans</p>
+</div>
+<div>
+<p class="font-body text-lg leading-relaxed text-on-surface/80 max-w-md">
+                        Explore the bioluminescent wonders of the deep forest floor, where every leaf tells a story of survival and light.
+                    </p>
+<p class="text-on-surface-variant text-sm mt-2">Body Large / Manrope</p>
+</div>
+</div>
+<div class="space-y-12">
+<div class="bg-surface-container-low p-8 rounded-xl">
+<span class="font-label text-primary uppercase tracking-widest text-xs font-bold block mb-4">Metadata Styling</span>
+<div class="grid grid-cols-2 gap-8">
+<div>
+<p class="font-label text-[10px] uppercase tracking-widest text-outline mb-1">RARITY</p>
+<p class="font-headline text-lg font-bold">EXOTIC</p>
+</div>
+<div>
+<p class="font-label text-[10px] uppercase tracking-widest text-outline mb-1">LAST FOUND</p>
+<p class="font-headline text-lg font-bold">2H AGO</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- NEW SECTION: Collection & Discovery Cards -->
+<section class="space-y-12">
+<div>
+<span class="font-label text-primary uppercase tracking-[0.2em] text-xs mb-2">COLLECTION &amp; DISCOVERY CARDS</span>
+<h3 class="font-headline text-3xl font-bold tracking-tight">Herbarium &amp; Profile Items</h3>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+<!-- 1. Herbarium Collection Cards (Ref: IMAGE_3) -->
+<div class="space-y-6">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant block">Herbarium Collection List Items</span>
+<div class="space-y-4">
+<!-- Card 1 -->
+<div class="bg-surface-container-low p-5 rounded-[2rem] border border-outline-variant/10 flex items-center gap-5 hover:bg-surface-container-high transition-colors group cursor-pointer">
+<div class="w-24 h-24 rounded-2xl bg-white overflow-hidden flex-shrink-0">
+<img alt="Plant" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKTjBmBXhXW4mLm8WLEFvWrF2xog3UG-7VUoLftlqZH69JJxubfDzep_jYC-g2jR4vkfsgGpWAmSM-IOJArRP7hvh80gC_9Gt9oFnhGC1rY-tVUlkc_uJpZer9tSzQkAJuhiM3ck_QMxrysnDh5AqUrVhUp4R58dnwuy87A3Ib9kIp2P1EMDeKAn6rpfzE0HWm9KqkqNuizMQJPXDo5PwHTrXZM2s_Puh3fdP6a_phus_cihiQ_ZiqD56roA6H6XFjrafebBTzlJM"/>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-headline text-xl font-bold mb-1 truncate">Monstera Deliciosa</h4>
+<p class="text-primary font-label text-sm font-bold">Found 2 days ago</p>
+<p class="text-on-surface-variant text-sm font-label">Tropical Forest Area</p>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">chevron_right</span>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-low p-5 rounded-[2rem] border border-outline-variant/10 flex items-center gap-5 hover:bg-surface-container-high transition-colors group cursor-pointer">
+<div class="w-24 h-24 rounded-2xl bg-[#1c2116] overflow-hidden flex-shrink-0">
+<img alt="Plant" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqbvAIM9v9RfhIXxQpmpaQPBFd_j14MRwjcNmsSIsO9ox-ckpe9Ujjhsw3JUt2wSX7y_CfOy5ZPqt5HaHfZlYmBlqirBIQArH9tEbkFXIqG_FPmhGPu5O_YWJVx52S9X5ToMEf7IE_ALOg_EAzW5K0VMynFWRgkCdnt4fZTZCKea7vLwj5n2trB1orC1fsp1oVD1-clIALdR-KJ07n09AV0ZeMqU0Wb8kMxVUS2W83sNDBDqM-nGuWVWq8Xhw4A0n1abUM7EVAtNc"/>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-headline text-xl font-bold mb-1 truncate">Ficus Lyrata</h4>
+<p class="text-primary font-label text-sm font-bold">Found 1 week ago</p>
+<p class="text-on-surface-variant text-sm font-label">Indoor Conservatory</p>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- 2. Profile Discovery Items (Ref: IMAGE_4) -->
+<div class="space-y-6">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant block">Profile Discovery &amp; Activity Items</span>
+<div class="space-y-3">
+<div class="bg-surface-container-low p-5 rounded-3xl border border-outline-variant/10 flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<div>
+<h5 class="font-headline font-bold text-sm">Greenhouse Guru</h5>
+<p class="text-on-surface-variant text-xs font-label">Achievement unlocked</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-3xl border border-outline-variant/10 flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<div>
+<h5 class="font-headline font-bold text-sm">Monstera Deliciosa</h5>
+<p class="text-on-surface-variant text-xs font-label">Added to collection</p>
+</div>
+</div>
+<!-- Profile Stat Preview -->
+<div class="bg-surface-container-low p-6 rounded-[2rem] border border-outline-variant/10 flex justify-between items-center mt-6">
+<div class="text-center flex-1">
+<p class="text-primary font-headline text-2xl font-black">1,284</p>
+<p class="text-outline text-[10px] uppercase tracking-widest">Plants</p>
+</div>
+<div class="w-px h-10 bg-outline-variant/20 mx-4"></div>
+<div class="text-center flex-1">
+<p class="text-primary font-headline text-2xl font-black">412</p>
+<p class="text-outline text-[10px] uppercase tracking-widest">Species</p>
+</div>
+<div class="w-px h-10 bg-outline-variant/20 mx-4"></div>
+<div class="text-center flex-1">
+<p class="text-primary font-headline text-2xl font-black">673</p>
+<p class="text-outline text-[10px] uppercase tracking-widest">Scans</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 3. Full-Screen Immersive Layout (Ref: SCREEN_6, IMAGE_5) -->
+<div class="space-y-6">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant block">Full-Screen Immersive Layout View</span>
+<div class="bg-surface-container-lowest rounded-[3rem] overflow-hidden border border-outline-variant/20 grid grid-cols-1 md:grid-cols-2">
+<div class="relative h-[600px] overflow-hidden">
+<img alt="Botanical Background" class="absolute inset-0 w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqbvAIM9v9RfhIXxQpmpaQPBFd_j14MRwjcNmsSIsO9ox-ckpe9Ujjhsw3JUt2wSX7y_CfOy5ZPqt5HaHfZlYmBlqirBIQArH9tEbkFXIqG_FPmhGPu5O_YWJVx52S9X5ToMEf7IE_ALOg_EAzW5K0VMynFWRgkCdnt4fZTZCKea7vLwj5n2trB1orC1fsp1oVD1-clIALdR-KJ07n09AV0ZeMqU0Wb8kMxVUS2W83sNDBDqM-nGuWVWq8Xhw4A0n1abUM7EVAtNc"/>
+<div class="absolute inset-0 tonal-gradient"></div>
+<div class="absolute inset-0 p-10 flex flex-col justify-end pb-24">
+<span class="text-primary font-label text-[10px] uppercase tracking-[0.2em] font-bold mb-2">Scientific Identification</span>
+<h2 class="font-headline text-5xl font-extrabold tracking-tighter text-on-surface mb-3">Quercus Robur</h2>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<span class="text-on-surface-variant font-label text-sm uppercase tracking-widest font-semibold">United Kingdom</span>
+</div>
+<div class="mt-6">
+<span class="bg-primary text-on-primary px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">English Oak</span>
+</div>
+</div>
+<!-- UI Elements in card -->
+<div class="absolute top-8 right-8 flex flex-col gap-4">
+<button class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white"><span class="material-symbols-outlined">close</span></button>
+<button class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white"><span class="material-symbols-outlined">sync</span></button>
+</div>
+</div>
+<div class="p-10 lg:p-16 space-y-8 flex flex-col justify-center">
+<p class="font-label text-primary uppercase tracking-[0.2em] text-[10px] font-bold">PROPERTIES PANEL</p>
+<div class="space-y-4">
+<div class="bg-surface-container-low p-5 rounded-2xl flex justify-between items-center border border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary/60">eco</span>
+<span class="font-headline font-bold">Type</span>
+</div>
+<span class="text-on-surface-variant">Deciduous</span>
+</div>
+<div class="bg-surface-container-low p-5 rounded-2xl flex justify-between items-center border border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary/60">trending_up</span>
+<span class="font-headline font-bold">Height</span>
+</div>
+<span class="text-on-surface-variant">20-40m</span>
+</div>
+</div>
+<div class="bg-primary/5 p-8 rounded-3xl border border-primary/20">
+<p class="text-primary font-label text-[10px] uppercase tracking-widest mb-3 font-bold">CURIOSITY</p>
+<p class="text-on-surface-variant leading-relaxed">Ancient Druids considered this tree sacred, often conducting their most important rituals beneath its sprawling canopy.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Action States -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-16">
+<div class="space-y-12">
+<div class="space-y-6">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant block">Primary Action States</span>
+<button class="w-full bg-primary text-on-primary font-headline font-bold py-4 rounded-full hover:opacity-90 transition-all active:scale-95">
+                        Continue
+                    </button>
+<button class="w-full bg-surface-container-highest text-on-surface font-headline font-bold py-4 rounded-full border border-outline-variant/20 hover:bg-surface-bright transition-all active:scale-95">
+                        Continue with Email
+                    </button>
+<button class="w-full bg-on-surface text-surface font-headline font-bold py-4 rounded-full flex items-center justify-center gap-3 hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">ios</span>
+                        Continue with Apple
+                    </button>
+</div>
+<div class="space-y-6">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant block">Secondary Action States</span>
+<div class="flex flex-wrap gap-6 items-center">
+<button class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all active:scale-90 group">
+<span class="material-symbols-outlined text-white group-hover:rotate-180 transition-transform duration-500" data-icon="sync">sync</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all active:scale-90 group">
+<span class="material-symbols-outlined text-white group-hover:scale-110 transition-transform" data-icon="share">share</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all active:scale-90 group">
+<span class="material-symbols-outlined text-white" data-icon="close">close</span>
+</button>
+<p class="font-label text-[10px] text-outline uppercase tracking-widest ml-2">Circular Flip Style</p>
+</div>
+</div>
+</div>
+<!-- Toggle & Selection -->
+<div class="space-y-12">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant block">Toggle &amp; Selection</span>
+<div class="bg-surface-container-low p-8 rounded-[2rem] space-y-8">
+<div class="flex items-center justify-between">
+<div>
+<p class="font-headline font-bold">Bioluminescent Mode</p>
+<p class="text-xs text-on-surface-variant">Optimize display for night</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-14 h-7 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:start-[4px] after:bg-on-surface-variant after:border-none after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary peer-checked:after:bg-on-primary"></div>
+</label>
+</div>
+<div class="space-y-4">
+<p class="font-label text-[10px] uppercase tracking-widest text-outline">Category Selection</p>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full bg-primary text-on-primary text-xs font-bold font-headline">Fungi</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-highest text-on-surface text-xs font-bold font-headline border border-outline-variant/20">Moss</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-highest text-on-surface text-xs font-bold font-headline border border-outline-variant/20">Ferns</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-highest text-on-surface text-xs font-bold font-headline border border-outline-variant/20">Flora</button>
+</div>
+</div>
+</div>
+<div class="space-y-6">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant block">Input Fields</span>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-none rounded-xl py-4 px-6 text-on-surface placeholder:text-outline focus:ring-1 focus:ring-primary/30 transition-all" placeholder="Search for species..." type="text"/>
+<span class="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Signature Components -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-16">
+<div class="space-y-12">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant block">Signature Components</span>
+<!-- SCAN BUTTON -->
+<div class="flex flex-col items-center justify-center space-y-4 py-8 bg-surface-container-low rounded-3xl relative overflow-hidden">
+<div class="absolute inset-0 bg-forest-glow opacity-30"></div>
+<div class="relative">
+<div class="absolute inset-0 bg-primary/20 blur-[40px] rounded-full scale-150"></div>
+<button class="relative w-32 h-32 rounded-full bg-gradient-to-tr from-primary to-primary-container flex flex-col items-center justify-center text-on-primary-container shadow-[0_0_50px_rgba(147,188,16,0.3)] active:scale-90 duration-200 group">
+<span class="material-symbols-outlined text-5xl mb-1 group-hover:scale-110 transition-transform" data-icon="center_focus_strong">center_focus_strong</span>
+<span class="font-label font-black text-[10px] uppercase tracking-widest">SCAN</span>
+</button>
+</div>
+<p class="font-label text-outline text-[10px] uppercase tracking-[0.2em]">Identify Flora</p>
+</div>
+</div>
+<div class="space-y-12">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant block">Discovery Context</span>
+<!-- INFO CARD (Bento Style) -->
+<div class="bg-surface-container-highest p-6 rounded-[2rem] relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+<div class="flex justify-between items-start mb-6">
+<div>
+<p class="font-label text-primary uppercase tracking-widest text-[10px] font-bold mb-1">Last Found</p>
+<h4 class="font-headline text-2xl font-bold">Fern Canyon</h4>
+</div>
+<span class="bg-primary/10 text-primary p-2 rounded-xl">
+<span class="material-symbols-outlined" data-icon="location_on">location_on</span>
+</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-surface-container-highest bg-surface-container overflow-hidden">
+<img alt="Explorer profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6YNIQKU3XzDvtFBpZ2qGoI4UgpTflkmaO8wM7r5wDfyRjxFISPwViIFct3Bb9_sgQTtsmblBDeboS3C7HFEQfhecpbRQc8UTwPGbl_yBFpg1hgLbZvb4PxkX80DxeQ1RPGT4im1h2TybpEpTNjrbeEgRTjPtIJQagXgSB3W5khG09_sMi14qAnQ46ZgC50aB5x9gY62FnuoLS6XzJZzQUsbpzScvqOsta_gnWKB_Lriy7w0rMaPIpXjoGi4xM77bbkGtOnuxcT64"/>
+</div>
+<div class="w-8 h-8 rounded-full border-2 border-surface-container-highest bg-surface-container overflow-hidden">
+<img alt="Explorer profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3N1RXevNHjxzK9feQjolj1QEzSUHpi0jmYI7D-ROuxRDHVapLZ2CbKLOE-jnRycN_3ovjYBBvKJ29DfA2iB7CWO6xlg60RdXVEF-45U-hg15dlBnTlhrECQUdwIexJSTn7PXdmGZBpUtdNtaRX_urY91qF-fRdLbIIwVSOvO9B5C9hPrarNIPHl-QLrhldZxMawtkVUcYbX8ukb4S1N4hRRN-Y18wfhSGufNX9yMttow2rdNkfXpWFyx3yzE9EvnEyNC9sXwyn0Q"/>
+</div>
+</div>
+<p class="text-[10px] text-on-surface-variant font-label uppercase tracking-wider">+14 others discovered this here</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body></html>

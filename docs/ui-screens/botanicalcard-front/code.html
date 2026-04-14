@@ -1,0 +1,157 @@
+<html class="dark"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-dim": "#0b0f08",
+            "primary-container": "#8dc104",
+            "tertiary-fixed-dim": "#edef5f",
+            "outline-variant": "#45493f",
+            "on-error-container": "#ffd2c8",
+            "surface-container-highest": "#22281c",
+            "on-tertiary-fixed-variant": "#6a6c00",
+            "on-secondary-fixed-variant": "#516200",
+            "on-tertiary-fixed": "#4d4e00",
+            "on-tertiary": "#616300",
+            "secondary": "#d2ef6a",
+            "on-primary-container": "#253600",
+            "surface-container": "#161b11",
+            "secondary-fixed": "#d2ef6a",
+            "outline": "#73776b",
+            "error": "#ff7351",
+            "primary-fixed": "#93bc10",
+            "on-tertiary-container": "#595a00",
+            "tertiary": "#feff9a",
+            "surface-tint": "#93bc10",
+            "secondary-dim": "#c4e05e",
+            "surface-bright": "#282e21",
+            "on-surface-variant": "#a9ada0",
+            "on-primary-fixed-variant": "#4c6a00",
+            "on-primary": "#121212",
+            "tertiary-container": "#f0f261",
+            "surface-container-low": "#10150c",
+            "on-secondary-fixed": "#374400",
+            "secondary-container": "#536600",
+            "primary": "#93bc10",
+            "inverse-primary": "#4b6800",
+            "surface": "#0b0f08",
+            "on-secondary-container": "#f0ffb6",
+            "on-surface": "#f2f5e7",
+            "on-secondary": "#485800",
+            "error-dim": "#d53d18",
+            "inverse-surface": "#f7fbec",
+            "secondary-fixed-dim": "#c4e05e",
+            "tertiary-dim": "#edef5f",
+            "surface-container-lowest": "#000000",
+            "surface-variant": "#22281c",
+            "on-error": "#450900",
+            "error-container": "#b92902",
+            "background": "#0b0f08",
+            "surface-container-high": "#1c2116",
+            "on-primary-fixed": "#354b00",
+            "on-background": "#f2f5e7",
+            "tertiary-fixed": "#fbfe6b",
+            "primary-fixed-dim": "#bce848",
+            "primary-dim": "#bce848",
+            "inverse-on-surface": "#52574c"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Manrope"],
+            "label": ["Manrope"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .text-glow {
+      text-shadow: 0 0 12px rgba(147, 188, 16, 0.4);
+    }
+    .tonal-gradient {
+      background: linear-gradient(180deg, rgba(11, 15, 8, 0) 0%, rgba(11, 15, 8, 0.9) 100%);
+    }
+    .device-shadow {
+      box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5), 0 30px 60px -30px rgba(0,0,0,0.6), inset 0 -2px 20px 0 rgba(255,255,255,0.05);
+    }
+    body {
+      min-height: 100dvh;
+    }
+  </style>
+</head>
+<body class="bg-[#050704] text-on-surface font-body min-h-screen flex items-center justify-center p-4">
+<!-- Device Frame/Shell -->
+<div class="relative w-[375px] h-[812px] bg-black rounded-[60px] p-[12px] border-[8px] border-[#1a1a1a] device-shadow overflow-hidden">
+<!-- Inner Screen Container -->
+<div class="relative w-full h-full bg-surface-container-high rounded-[48px] overflow-hidden">
+<!-- Status Bar -->
+<div class="absolute top-0 left-0 w-full h-11 px-8 flex items-center justify-between z-50 pointer-events-none">
+<div class="text-[14px] font-bold text-white/90">9:41</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-white/90">signal_cellular_4_bar</span>
+<span class="material-symbols-outlined text-[18px] text-white/90">wifi</span>
+<span class="material-symbols-outlined text-[20px] text-white/90 rotate-90">battery_full</span>
+</div>
+</div>
+<!-- Main Content Canvas -->
+<main class="relative w-full h-full flex flex-col items-center justify-center">
+<!-- Botanical Detail Card -->
+<div class="relative w-full h-full group border border-outline-variant/10">
+<!-- High Quality Botanical Image -->
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" data-alt="Close-up of a vibrant green English Oak leaf Quercus Robur with intricate vein patterns under soft, moody twilight forest lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqbvAIM9v9RfhIXxQpmpaQPBFd_j14MRwjcNmsSIsO9ox-ckpe9Ujjhsw3JUt2wSX7y_CfOy5ZPqt5HaHfZlYmBlqirBIQArH9tEbkFXIqG_FPmhGPu5O_YWJVx52S9X5ToMEf7IE_ALOg_EAzW5K0VMynFWRgkCdnt4fZTZCKea7vLwj5n2trB1orC1fsp1oVD1-clIALdR-KJ07n09AV0ZeMqU0Wb8kMxVUS2W83sNDBDqM-nGuWVWq8Xhw4A0n1abUM7EVAtNc"/>
+<!-- Dark Tonal Overlay -->
+<div class="absolute inset-0 tonal-gradient"></div>
+<!-- Top Control: Close button -->
+<div class="absolute top-14 right-6 z-20">
+<button class="bg-surface-container-high/60 backdrop-blur-md text-on-surface p-2.5 rounded-full hover:bg-surface-container-highest transition-all active:scale-95 border border-outline-variant/20">
+<span class="material-symbols-outlined block text-[20px]">close</span>
+</button>
+</div>
+<!-- Information Overlay -->
+<div class="absolute bottom-0 left-0 w-full p-10 pb-28 space-y-2">
+<div class="flex flex-col">
+<span class="text-primary font-label text-[10px] uppercase tracking-[0.2em] font-bold mb-2">Scientific Identification</span>
+<h1 class="text-on-surface font-headline text-4xl font-extrabold tracking-tight leading-tight">
+              Monstera Deliciosa
+            </h1>
+</div>
+<div class="flex items-center gap-2 pt-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<span class="text-on-surface-variant font-label text-sm uppercase tracking-widest font-semibold">Mexico</span>
+</div>
+<!-- Rarity Indicator -->
+<div class="absolute -top-12 right-10 bg-primary text-on-primary px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-tighter shadow-[0_4px_20px_rgba(147,188,16,0.3)]">
+            Native Species
+          </div>
+</div>
+<!-- Bottom Control: Flip button -->
+<div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
+<button class="bg-primary text-on-primary p-4 rounded-full hover:opacity-90 transition-all active:scale-90 shadow-[0_0_20px_rgba(147,188,16,0.3)] flex items-center justify-center">
+<span class="material-symbols-outlined block text-2xl font-bold">refresh</span>
+</button>
+</div>
+</div>
+<!-- Home Indicator -->
+<div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-white/30 rounded-full z-50"></div>
+</main>
+</div>
+</div>
+<!-- Background Ambience -->
+<div class="absolute -z-10 w-96 h-96 bg-primary/5 rounded-full blur-[120px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+</body></html>
