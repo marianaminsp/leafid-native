@@ -11,6 +11,9 @@ private struct ScanFlowOutcome: Identifiable {
     let id = UUID()
     let result: IdentifyPreviewResult
     let imageJPEGData: Data?
+    let latitude: Double?
+    let longitude: Double?
+    let locality: String?
 }
 
 /// Homepage.png — wide capsule, dark charcoal fill, lime upload glyph, white label.
@@ -91,6 +94,7 @@ struct HomeView: View {
 
     @State private var activeScanSession: ScanSession?
     @State private var scanOutcome: ScanFlowOutcome?
+    @State private var lastFoundImmersiveScan: Scan?
 
     @State private var showCameraPicker = false
     @State private var showLibraryPicker = false
@@ -109,8 +113,17 @@ struct HomeView: View {
     @ViewBuilder
     private var homeLastFoundSection: some View {
         if let specimen = herbarium.mostRecentSavedSpecimen {
-            CompactSpecimenCard(lastFound: specimen)
-                .frame(maxWidth: .infinity)
+            Button {
+                lastFoundImmersiveScan = specimen
+            } label: {
+                CompactSpecimenCard(lastFound: specimen)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.plain)
+            // Hit testing matches the card silhouette (HIG: tappable area follows the visible control).
+            .contentShape(RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous))
+            .accessibilityLabel("Last found, \(specimen.commonName)")
+            .accessibilityHint(String(localized: "Opens the full specimen card"))
         } else {
             HomeEmptyLastFoundCard()
                 .frame(maxWidth: .infinity)
@@ -118,54 +131,62 @@ struct HomeView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            LeafIDTheme.surface.ignoresSafeArea()
+        GeometryReader { geo in
+            ZStack(alignment: .top) {
+                LeafIDTheme.surface.ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                VStack(alignment: .leading, spacing: LeafIDTheme.space10) {
-                    Text(greetingTitle)
-                        .font(LeafIDFont.plusJakarta(size: 34, weight: .bold))
-                        .tracking(-0.55)
-                        .foregroundStyle(LeafIDTheme.onSurface)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .multilineTextAlignment(.leading)
-                    Text("Ready to explore nature?")
-                        .font(LeafIDFont.manrope(size: 16, weight: .medium))
-                        .foregroundStyle(LeafIDTheme.onSurfaceVariant)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .multilineTextAlignment(.leading)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
-                .padding(.top, LeafIDTheme.space12)
-
-                Spacer(minLength: 0)
-
-                homeLastFoundSection
+                VStack(spacing: 0) {
+                    VStack(alignment: .leading, spacing: LeafIDTheme.space8) {
+                        Text(greetingTitle)
+                            .font(LeafIDFont.plusJakarta(size: 34, weight: .bold))
+                            .tracking(-0.55)
+                            .foregroundStyle(LeafIDTheme.onSurface)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .multilineTextAlignment(.leading)
+                            .minimumScaleFactor(0.82)
+                            .lineLimit(2)
+                        Text("Ready to explore nature?")
+                            .font(LeafIDFont.manrope(size: 16, weight: .medium))
+                            .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .multilineTextAlignment(.leading)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.9)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
-                    .padding(.bottom, LeafIDTheme.space8)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .overlay(alignment: .center) {
-                VStack(spacing: LeafIDTheme.space20) {
-                    HStack(spacing: 0) {
-                        Spacer(minLength: 0)
-                        GalleryScanButton {
-                            if ImagePickerAvailability.cameraAvailable() {
-                                showCameraPicker = true
-                            } else {
-                                cameraUnavailable = true
+                    .padding(.top, geo.safeAreaInsets.top + LeafIDTheme.space4)
+
+                    Spacer(minLength: 0)
+
+                    VStack(spacing: LeafIDTheme.space12) {
+                        HStack(spacing: 0) {
+                            Spacer(minLength: 0)
+                            GalleryScanButton {
+                                if ImagePickerAvailability.cameraAvailable() {
+                                    showCameraPicker = true
+                                } else {
+                                    cameraUnavailable = true
+                                }
+                            }
+                            Spacer(minLength: 0)
+                        }
+
+                        HomeUploadGalleryButton {
+                            if ImagePickerAvailability.photoLibraryAvailable() {
+                                showLibraryPicker = true
                             }
                         }
-                        Spacer(minLength: 0)
+                        .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
                     }
-                    HomeUploadGalleryButton {
-                        if ImagePickerAvailability.photoLibraryAvailable() {
-                            showLibraryPicker = true
-                        }
-                    }
+
+                    Spacer(minLength: 0)
+
+                    homeLastFoundSection
+                        .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
+                        .padding(.bottom, LeafIDTheme.space8)
                 }
-                .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
         }
         .preferredColorScheme(.dark)
@@ -175,21 +196,30 @@ struct HomeView: View {
             Text("This device has no camera (e.g. Simulator). Use Upload from Gallery or run on a physical iPhone.")
         }
         .fullScreenCover(isPresented: $showCameraPicker) {
-            ImagePickerBridge(
-                sourceType: .camera,
-                isPresented: $showCameraPicker,
-                onPickedJPEG: { data in
-                    activeScanSession = ScanSession(jpegData: data)
+            ScannerView(
+                onClose: { showCameraPicker = false },
+                onCaptured: { data, lat, lon, locality in
+                    showCameraPicker = false
+                    activeScanSession = ScanSession(
+                        jpegData: data,
+                        latitude: lat,
+                        longitude: lon,
+                        locality: locality
+                    )
                 }
             )
-            .ignoresSafeArea()
         }
         .sheet(isPresented: $showLibraryPicker) {
             ImagePickerBridge(
                 sourceType: .photoLibrary,
                 isPresented: $showLibraryPicker,
-                onPickedJPEG: { data in
-                    activeScanSession = ScanSession(jpegData: data)
+                onPickedJPEG: { data, coordinate, locality in
+                    activeScanSession = ScanSession(
+                        jpegData: data,
+                        latitude: coordinate?.latitude,
+                        longitude: coordinate?.longitude,
+                        locality: locality
+                    )
                 }
             )
         }
@@ -199,7 +229,13 @@ struct HomeView: View {
                 onClose: { activeScanSession = nil },
                 onComplete: { result, data in
                     activeScanSession = nil
-                    let payload = ScanFlowOutcome(result: result, imageJPEGData: data)
+                    let payload = ScanFlowOutcome(
+                        result: result,
+                        imageJPEGData: data,
+                        latitude: session.latitude,
+                        longitude: session.longitude,
+                        locality: session.locality
+                    )
                     Task { @MainActor in
                         try? await Task.sleep(nanoseconds: 200_000_000)
                         scanOutcome = payload
@@ -211,6 +247,9 @@ struct HomeView: View {
             ScanResultsView(
                 result: outcome.result,
                 imageJPEGData: outcome.imageJPEGData,
+                captureLatitude: outcome.latitude,
+                captureLongitude: outcome.longitude,
+                captureLocality: outcome.locality,
                 onClose: { scanOutcome = nil },
                 onScanAgain: {
                     scanOutcome = nil
@@ -223,6 +262,15 @@ struct HomeView: View {
             )
             .environmentObject(herbarium)
         }
+        #if canImport(UIKit)
+        .fullScreenCover(item: $lastFoundImmersiveScan, onDismiss: {}) { scan in
+            BotanicalCardImmersiveView(
+                scan: scan,
+                preview: nil,
+                onClose: { lastFoundImmersiveScan = nil }
+            )
+        }
+        #endif
     }
 }
 

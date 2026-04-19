@@ -7,6 +7,7 @@
 
 import Combine
 import Foundation
+import SwiftUI
 
 struct ProfileDiscoveryItem: Identifiable, Equatable {
     let id: UUID
@@ -69,27 +70,16 @@ final class ProfileViewModel: ObservableObject {
         }
     }
 
-    private static let greenhouseGuruID = UUID(uuidString: "00000000-0000-4000-8000-000000000001")!
+    /// Recent Herbarium saves for the Druid list (achievements live in `AchievementUnlockStore` grid).
+    func collectionFeed(from herbarium: HerbariumViewModel, limit: Int = 3) -> [ProfileFeedItem] {
+        recentDiscoveries(from: herbarium, limit: limit).map {
+            ProfileFeedItem(id: $0.id, title: $0.title, subtitle: $0.subtitle, isAchievement: false)
+        }
+    }
 
-    /// Local feed until `profile_activities` is loaded from Supabase; merges a simple achievement with Herbarium-derived rows.
+    /// Legacy combined feed; prefer `collectionFeed` + achievements UI.
     func profileFeed(from herbarium: HerbariumViewModel, limit: Int = 12) -> [ProfileFeedItem] {
-        var rows: [ProfileFeedItem] = []
-        if plantsCount(from: herbarium) >= 1 {
-            rows.append(
-                ProfileFeedItem(
-                    id: Self.greenhouseGuruID,
-                    title: "Greenhouse Guru",
-                    subtitle: "Achievement unlocked.",
-                    isAchievement: true
-                )
-            )
-        }
-        for item in recentDiscoveries(from: herbarium, limit: limit) {
-            rows.append(
-                ProfileFeedItem(id: item.id, title: item.title, subtitle: item.subtitle, isAchievement: false)
-            )
-        }
-        return rows
+        collectionFeed(from: herbarium, limit: limit)
     }
 
     /// When Supabase returns rows, map them here (prepend or replace local collection lines).
@@ -113,5 +103,22 @@ final class ProfileViewModel: ObservableObject {
 
     static func formatCount(_ n: Int) -> String {
         formatted.string(from: NSNumber(value: n)) ?? "\(n)"
+    }
+
+    private static let mediumDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        f.timeStyle = .none
+        return f
+    }()
+
+    func mediumDate(_ date: Date) -> String {
+        Self.mediumDateFormatter.string(from: date)
+    }
+
+    func colorFromHex(_ raw: String) -> Color {
+        let hex = raw.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: "#", with: "")
+        guard hex.count == 6, let int = UInt32(hex, radix: 16) else { return LeafIDTheme.primary }
+        return Color(hex: int)
     }
 }

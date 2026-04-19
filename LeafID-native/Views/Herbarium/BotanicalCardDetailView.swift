@@ -11,6 +11,18 @@ import SwiftUI
 import UIKit
 #endif
 
+#if canImport(UIKit)
+private struct BotanicalActivityView: UIViewControllerRepresentable {
+    var activityItems: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+#endif
+
 struct BotanicalCardDetailView: View {
     let scan: Scan
     var namespace: Namespace.ID?
@@ -18,6 +30,8 @@ struct BotanicalCardDetailView: View {
     let onClose: () -> Void
 
     @State private var flipDegrees: Double = 0
+    @State private var showShareSheet = false
+    @State private var enrichmentLoading = true
 
     private var showBack: Bool { flipDegrees >= 90 }
 
@@ -72,6 +86,21 @@ struct BotanicalCardDetailView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .task { await fakeEnrichmentDelay() }
+        #if canImport(UIKit)
+        .sheet(isPresented: $showShareSheet) {
+            let items: [Any] = {
+                var all: [Any] = ["\(scan.commonName) — \(scan.scientificName)"]
+                if let local = scan.resolvedLocalCaptureURL,
+                   let data = try? Data(contentsOf: local),
+                   let img = UIImage(data: data) {
+                    all.insert(img, at: 0)
+                }
+                return all
+            }()
+            BotanicalActivityView(activityItems: items)
+        }
+        #endif
     }
 
     /// Back only — matches card width (`screenHorizontalPadding` gutters app-wide).
@@ -160,10 +189,11 @@ struct BotanicalCardDetailView: View {
                         namespace: namespace,
                         matchedGeometryId: matchedGeometryId,
                         onClose: onClose,
+                        onShare: { showShareSheet = true },
                         onFlip: flipCard
                     )
                 } else {
-                    BotanicalCardBackFace(scan: scan)
+                    BotanicalCardBackFace(scan: scan, enrichmentLoading: enrichmentLoading)
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
                 }
             }
@@ -182,6 +212,11 @@ struct BotanicalCardDetailView: View {
             flipDegrees = showBack ? 0 : 180
         }
     }
+
+    private func fakeEnrichmentDelay() async {
+        try? await Task.sleep(nanoseconds: 450_000_000)
+        await MainActor.run { enrichmentLoading = false }
+    }
 }
 
 // MARK: - Front (`code.html`)
@@ -191,6 +226,7 @@ private struct BotanicalCardFrontFace: View {
     var namespace: Namespace.ID?
     var matchedGeometryId: UUID?
     let onClose: () -> Void
+    let onShare: () -> Void
     let onFlip: () -> Void
 
     private var rarityPillText: String {
@@ -241,19 +277,39 @@ private struct BotanicalCardFrontFace: View {
                                 .lineLimit(4)
                                 .minimumScaleFactor(0.86)
                                 .lineSpacing(2)
+                            Text(scan.scientificName)
+                                .font(LeafIDFont.manrope(size: 16, weight: .medium))
+                                .italic()
+                                .foregroundStyle(LeafIDTheme.onSurface.opacity(0.88))
+                                .padding(.top, LeafIDTheme.space8)
                         }
 
                         HStack(spacing: LeafIDTheme.botanicalFrontStackSpacing) {
+                            Text((scan.family ?? "UNCLASSIFIED").uppercased())
+                                .font(LeafIDFont.manrope(size: 11, weight: .bold))
+                                .tracking(1.4)
+                                .foregroundStyle(LeafIDTheme.onPrimary)
+                                .padding(.horizontal, LeafIDTheme.space10)
+                                .padding(.vertical, LeafIDTheme.space6)
+                                .background(Capsule().fill(LeafIDTheme.surfaceContainerHigh.opacity(0.8)))
+                        }
+                        .padding(.top, LeafIDTheme.botanicalFrontStackSpacing)
+                        HStack(spacing: LeafIDTheme.space8) {
                             Image(systemName: "location.fill")
                                 .font(.system(size: LeafIDTheme.botanicalFrontLocationSize, weight: .semibold))
                                 .foregroundStyle(LeafIDTheme.primary)
                             Text(scan.botanicalOriginLine.uppercased())
                                 .font(LeafIDFont.manrope(size: LeafIDTheme.botanicalFrontLocationSize, weight: .semibold))
-                                .tracking(2.4)
+                                .tracking(1.8)
                                 .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                                 .lineLimit(2)
                         }
-                        .padding(.top, LeafIDTheme.botanicalFrontStackSpacing)
+                        if let lat = scan.latitude, let lon = scan.longitude {
+                            Text(String(format: "GPS %.4f, %.4f", lat, lon))
+                                .font(LeafIDFont.manrope(size: 12, weight: .semibold))
+                                .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                                .lineLimit(1)
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -272,31 +328,15 @@ private struct BotanicalCardFrontFace: View {
                 .padding(.bottom, LeafIDTheme.botanicalFrontOverlayPaddingBottom)
             }
 
-            // `top-14 right-6` close — glass circle, 20px icon, `p-2.5`
+            // top controls
             VStack {
                 HStack {
+                    GlassChromeCircleButton(systemImage: "xmark", accessibilityLabel: "Close", action: onClose)
                     Spacer(minLength: 0)
-                    Button(action: onClose) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: LeafIDTheme.botanicalFrontCloseIconSize, weight: .medium))
-                            .foregroundStyle(LeafIDTheme.onSurface)
-                            .padding(LeafIDTheme.botanicalFrontClosePadding)
-                            .background(
-                                Circle()
-                                    .fill(LeafIDTheme.surfaceContainerHigh.opacity(0.6))
-                            )
-                            .background(Circle().fill(.ultraThinMaterial))
-                            .clipShape(Circle())
-                            .overlay {
-                                Circle()
-                                    .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.2), lineWidth: 1)
-                            }
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Close")
-                    .padding(.top, LeafIDTheme.botanicalFrontCloseInsetTop)
-                    .padding(.trailing, LeafIDTheme.botanicalFrontCloseInsetTrailing)
+                    GlassChromeCircleButton(systemImage: "square.and.arrow.up", accessibilityLabel: "Share", action: onShare)
                 }
+                .padding(.top, LeafIDTheme.botanicalFrontCloseInsetTop)
+                .padding(.horizontal, LeafIDTheme.botanicalFrontCloseInsetTrailing)
                 Spacer(minLength: 0)
             }
 
@@ -326,7 +366,7 @@ private struct BotanicalHeroMatchedGeometry: ViewModifier {
 
     func body(content: Content) -> some View {
         if let namespace, let id {
-            content.matchedGeometryEffect(id: id, in: namespace)
+            content.matchedGeometryEffect(id: id, in: namespace, isSource: false)
         } else {
             content
         }
@@ -337,6 +377,7 @@ private struct BotanicalHeroMatchedGeometry: ViewModifier {
 
 private struct BotanicalCardBackFace: View {
     let scan: Scan
+    let enrichmentLoading: Bool
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
@@ -380,7 +421,11 @@ private struct BotanicalCardBackFace: View {
                     )
                 }
 
-                curiosityBlock
+                paletteSection
+
+                narrativeBlock(title: "Botanical Spirit", text: scan.botanicalSpirit)
+                narrativeBlock(title: "Ethnobotany", text: scan.ethnobotany)
+                narrativeBlock(title: "Cultural Legacy", text: scan.culturalLegacy)
             }
             .padding(.horizontal, LeafIDTheme.botanicalFrontOverlayPaddingH)
             .padding(.top, LeafIDTheme.space20)
@@ -413,22 +458,28 @@ private struct BotanicalCardBackFace: View {
         .frame(width: 58, height: 58)
     }
 
-    private var curiosityBlock: some View {
-        let trimmed = (scan.descriptionText ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        let text = trimmed.isEmpty
-            ? "Curiosity facts from Plant.id will appear here after a live identification when your Supabase `identify-plant` function returns a `curiosity` line."
-            : trimmed
-
+    private var paletteSection: some View {
         return VStack(alignment: .leading, spacing: LeafIDTheme.space10) {
-            Text("Curiosity")
+            Text("Designer Palette")
                 .font(LeafIDFont.manrope(size: 10, weight: .bold))
                 .tracking(2.0)
                 .foregroundStyle(LeafIDTheme.primary)
-            Text(text)
-                .font(LeafIDFont.manrope(size: 15, weight: .medium))
-                .foregroundStyle(LeafIDTheme.onSurface)
-                .lineSpacing(5)
-                .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: LeafIDTheme.space12) {
+                ForEach((scan.normalizedPaletteHexes.isEmpty ? ["#2C4C1A", "#7AAE2E", "#6B4F2E"] : scan.normalizedPaletteHexes), id: \.self) { hex in
+                    VStack(spacing: LeafIDTheme.space6) {
+                        Circle()
+                            .fill(colorFromHex(hex))
+                            .frame(width: 32, height: 32)
+                            .overlay {
+                                Circle().strokeBorder(LeafIDTheme.outlineVariant.opacity(0.25), lineWidth: 1)
+                            }
+                        Text(hex)
+                            .font(LeafIDFont.manrope(size: 10, weight: .semibold))
+                            .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
         }
         .padding(LeafIDTheme.space20)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -442,9 +493,58 @@ private struct BotanicalCardBackFace: View {
         }
     }
 
+    private func narrativeBlock(title: String, text: String?) -> some View {
+        VStack(alignment: .leading, spacing: LeafIDTheme.space10) {
+            Text(title)
+                .font(LeafIDFont.manrope(size: 10, weight: .bold))
+                .tracking(2.0)
+                .foregroundStyle(LeafIDTheme.primary)
+            if enrichmentLoading {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(LeafIDTheme.surfaceContainerHigh.opacity(0.8))
+                    .frame(height: 16)
+                    .redacted(reason: .placeholder)
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(LeafIDTheme.surfaceContainerHigh.opacity(0.8))
+                    .frame(height: 16)
+                    .redacted(reason: .placeholder)
+            } else {
+                Text(displayOrFallback(text, fallback: scan.descriptionText))
+                    .font(LeafIDFont.manrope(size: 15, weight: .medium))
+                    .foregroundStyle(LeafIDTheme.onSurface)
+                    .lineSpacing(5)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(LeafIDTheme.space20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: CornerRadius.resultsSheetTop, style: .continuous)
+                .fill(LeafIDTheme.primary.opacity(0.12))
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: CornerRadius.resultsSheetTop, style: .continuous)
+                .strokeBorder(LeafIDTheme.primary.opacity(0.22), lineWidth: 1)
+        }
+    }
+
+    private func displayOrFallback(_ raw: String?, fallback: String?) -> String {
+        let primary = raw?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if !primary.isEmpty { return primary }
+        let backup = fallback?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if !backup.isEmpty { return backup }
+        return "Narrative context is still loading for this specimen."
+    }
+
     private func displayOrDash(_ raw: String?) -> String {
         let t = raw?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return t.isEmpty ? "—" : t
+    }
+
+    private func colorFromHex(_ raw: String) -> Color {
+        let hex = raw.replacingOccurrences(of: "#", with: "")
+        guard let int = UInt32(hex, radix: 16) else { return LeafIDTheme.primary }
+        return Color(hex: int)
     }
 }
 

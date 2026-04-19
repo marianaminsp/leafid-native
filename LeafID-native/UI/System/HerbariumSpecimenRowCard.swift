@@ -14,7 +14,7 @@ struct HerbariumSpecimenRowCard: View {
             rowThumbnail
 
             VStack(alignment: .leading, spacing: LeafIDTheme.space6) {
-                Text(scan.commonName)
+                Text(scan.commonName.localizedCapitalized)
                     .font(LeafIDFont.plusJakarta(size: 18, weight: .bold))
                     .foregroundStyle(LeafIDTheme.onSurface)
                     .lineLimit(2)
@@ -64,15 +64,7 @@ struct HerbariumSpecimenRowCard: View {
     private var rowThumbnailFill: some View {
         let side = LeafIDTheme.herbariumRowThumbnail
         #if canImport(UIKit)
-        if let local = scan.resolvedLocalCaptureURL,
-           let data = try? Data(contentsOf: local),
-           let ui = UIImage(data: data) {
-            Image(uiImage: ui)
-                .resizable()
-                .scaledToFill()
-                .frame(width: side, height: side)
-                .clipped()
-        } else if let remote = scan.resolvedRemoteImageURL {
+        if let remote = scan.resolvedRemoteImageURL {
             AsyncImage(url: remote) { phase in
                 switch phase {
                 case .empty:
@@ -84,18 +76,33 @@ struct HerbariumSpecimenRowCard: View {
                         .frame(width: side, height: side)
                         .clipped()
                 case .failure:
-                    rowLeafGlyph
+                    rowThumbnailLocalFallback(side: side)
                 @unknown default:
                     EmptyView()
                 }
             }
         } else {
-            rowLeafGlyph
+            rowThumbnailLocalFallback(side: side)
         }
         #else
         rowLeafGlyph
         #endif
     }
+
+    #if canImport(UIKit)
+    @ViewBuilder
+    private func rowThumbnailLocalFallback(side: CGFloat) -> some View {
+        if let ui = scan.uiImageForLocalCaptureDisplay() {
+            Image(uiImage: ui)
+                .resizable()
+                .scaledToFill()
+                .frame(width: side, height: side)
+                .clipped()
+        } else {
+            rowLeafGlyph
+        }
+    }
+    #endif
 
     private var rowLeafGlyph: some View {
         Image(systemName: "leaf.fill")

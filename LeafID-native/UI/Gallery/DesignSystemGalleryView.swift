@@ -22,7 +22,11 @@ private let gallerySampleResult = IdentifyPreviewResult(
     tagSecondary: "Bright indirect light",
     chipSunExposure: "Bright indirect light",
     chipWatering: "Allow soil to dry slightly between waterings",
-    chipPhylum: "Magnoliophyta"
+    chipPhylum: "Magnoliophyta",
+    paletteHexes: ["#2C4C1A", "#7AAE2E", "#6B4F2E"],
+    botanicalSpirit: "A patient climber that follows light with calm persistence.",
+    ethnobotany: "Aroids are commonly cultivated ornamentals across tropical and subtropical regions.",
+    culturalLegacy: "Split-leaf silhouettes are a staple of contemporary botanical illustration."
 )
 
 struct DesignSystemGalleryView: View {

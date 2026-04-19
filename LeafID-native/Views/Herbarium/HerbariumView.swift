@@ -34,49 +34,68 @@ struct HerbariumView: View {
     }
 
     var body: some View {
-        ZStack {
-            LeafIDTheme.surface.ignoresSafeArea()
+        GeometryReader { outerGeo in
+            ZStack {
+                LeafIDTheme.surface.ignoresSafeArea()
 
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: LeafIDTheme.space16) {
+                VStack(spacing: 0) {
                     herbariumScrollHeader
+                        .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
+                        .padding(.top, outerGeo.safeAreaInsets.top + LeafIDTheme.space8)
                         .padding(.bottom, LeafIDTheme.space8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(LeafIDTheme.surface)
 
-                    if viewModel.scans.isEmpty {
-                        emptyState
-                    } else {
-                        ForEach(viewModel.scans) { scan in
-                            Button {
-                                withAnimation(.leafIDSpring) { selectedScan = scan }
-                            } label: {
-                                HerbariumSpecimenRowCard(
-                                    scan: scan,
-                                    namespace: specimenNamespace,
-                                    matchedGeometryId: scan.id
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: LeafIDTheme.space16) {
+                            Color.clear
+                                .frame(height: 1)
+                                .background(
+                                    GeometryReader { proxy in
+                                        Color.clear.preference(
+                                            key: HerbariumHeaderMinYKey.self,
+                                            value: proxy.frame(in: .named("herbariumScroll")).minY
+                                        )
+                                    }
                                 )
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                }
-                .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
-                .padding(.top, LeafIDTheme.space8)
-                .padding(.bottom, LeafIDTheme.space28)
-            }
-            .coordinateSpace(name: "herbariumScroll")
-            .onPreferenceChange(HerbariumHeaderMinYKey.self) { headerMinY = $0 }
 
-            if let scan = selectedScan {
-                BotanicalCardDetailView(
-                    scan: scan,
-                    namespace: specimenNamespace,
-                    matchedGeometryId: scan.id,
-                    onClose: {
-                        withAnimation(.leafIDSpring) { selectedScan = nil }
+                            if viewModel.scans.isEmpty {
+                                emptyState
+                            } else {
+                                ForEach(viewModel.scans) { scan in
+                                    Button {
+                                        withAnimation(.leafIDSpring) { selectedScan = scan }
+                                    } label: {
+                                        HerbariumSpecimenRowCard(
+                                            scan: scan,
+                                            namespace: specimenNamespace,
+                                            matchedGeometryId: scan.id
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
+                        .padding(.top, LeafIDTheme.space8)
+                        .padding(.bottom, LeafIDTheme.space28)
                     }
-                )
-                .transition(.opacity)
-                .zIndex(1)
+                    .coordinateSpace(name: "herbariumScroll")
+                    .onPreferenceChange(HerbariumHeaderMinYKey.self) { headerMinY = $0 }
+                }
+
+                if let scan = selectedScan {
+                    BotanicalCardImmersiveView(
+                        scan: scan,
+                        namespace: specimenNamespace,
+                        matchedGeometryId: scan.id,
+                        onClose: {
+                            withAnimation(.leafIDSpring) { selectedScan = nil }
+                        }
+                    )
+                    .transition(.opacity)
+                    .zIndex(2)
+                }
             }
         }
         .preferredColorScheme(.dark)
@@ -97,14 +116,6 @@ struct HerbariumView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .animation(.easeOut(duration: 0.2), value: headerCollapseProgress)
-        .background(
-            GeometryReader { geo in
-                Color.clear.preference(
-                    key: HerbariumHeaderMinYKey.self,
-                    value: geo.frame(in: .named("herbariumScroll")).minY
-                )
-            }
-        )
     }
 
     private var emptyState: some View {

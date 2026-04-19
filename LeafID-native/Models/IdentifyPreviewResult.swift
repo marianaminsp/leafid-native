@@ -25,6 +25,10 @@ struct IdentifyPreviewResult: Equatable {
     var chipSunExposure: String
     var chipWatering: String
     var chipPhylum: String
+    var paletteHexes: [String]
+    var botanicalSpirit: String
+    var ethnobotany: String
+    var culturalLegacy: String
 }
 
 extension IdentifyPreviewResult {
@@ -43,7 +47,11 @@ extension IdentifyPreviewResult {
             tagSecondary: "Partial shade",
             chipSunExposure: "Bright indirect light",
             chipWatering: "Moderate watering",
-            chipPhylum: "Magnoliophyta"
+            chipPhylum: "Magnoliophyta",
+            paletteHexes: ["#2C4C1A", "#7AAE2E", "#6B4F2E"],
+            botanicalSpirit: "A patient teacher of adaptation and light-seeking growth.",
+            ethnobotany: "Many aroids are cultivated ornamentals and studied for indoor air quality.",
+            culturalLegacy: "Lush split-leaf forms appear frequently in modern tropical design and illustration."
         )
     }
 }

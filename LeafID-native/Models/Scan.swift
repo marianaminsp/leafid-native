@@ -23,6 +23,8 @@ struct Scan: Identifiable, Codable, Equatable {
     /// Planned for Arboretum pins (nullable in DB)
     var latitude: Double?
     var longitude: Double?
+    /// City or town from reverse-geocode of capture GPS (`public.scans.locality`).
+    var locality: String? = nil
 
     // MARK: - Plant.id / identify-plant metadata (local + future `scans` columns)
 
@@ -38,6 +40,11 @@ struct Scan: Identifiable, Codable, Equatable {
     var tagSecondary: String? = nil
     /// High-confidence first-time identification flag from identify flow.
     var isNewDiscovery: Bool? = nil
+    /// 3-color signature palette for boutique card + profile aggregate.
+    var paletteHexes: [String]? = nil
+    var botanicalSpirit: String? = nil
+    var ethnobotany: String? = nil
+    var culturalLegacy: String? = nil
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -51,6 +58,7 @@ struct Scan: Identifiable, Codable, Equatable {
         case createdAt = "created_at"
         case latitude
         case longitude
+        case locality
         case family
         case descriptionText = "description_text"
         case sunExposure = "sun_exposure"
@@ -59,6 +67,10 @@ struct Scan: Identifiable, Codable, Equatable {
         case originCountry = "origin_country"
         case tagSecondary = "tag_secondary"
         case isNewDiscovery = "is_new_discovery"
+        case paletteHexes = "palette_hexes"
+        case botanicalSpirit = "botanical_spirit"
+        case ethnobotany
+        case culturalLegacy = "cultural_legacy"
     }
 }
 
@@ -105,7 +117,8 @@ extension Scan {
         let t = trimmedPhotoURL
         guard !t.isEmpty else { return nil }
         if t.lowercased().hasPrefix("file://") {
-            return URL(string: t)
+            if let u = URL(string: t) { return u }
+            return URL(fileURLWithPath: String(t.dropFirst(7)), isDirectory: false)
         }
         if t.lowercased().hasPrefix("http") {
             return nil
@@ -116,6 +129,12 @@ extension Scan {
         return nil
     }
 
+    /// Filesystem path for a local capture when `photoURL` points at a file (preferred for `UIImage(contentsOfFile:)`).
+    var resolvedLocalCaptureFilePath: String? {
+        guard let url = resolvedLocalCaptureURL, url.isFileURL else { return nil }
+        return url.path
+    }
+
     var resolvedRemoteImageURL: URL? {
         let t = trimmedPhotoURL
         guard let u = URL(string: t), let scheme = u.scheme?.lowercased(), scheme == "http" || scheme == "https" else {
@@ -123,4 +142,37 @@ extension Scan {
         }
         return u
     }
+
+    var normalizedPaletteHexes: [String] {
+        (paletteHexes ?? [])
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).uppercased() }
+            .filter { !$0.isEmpty }
+            .map { $0.hasPrefix("#") ? $0 : "#\($0)" }
+            .prefix(3)
+            .map { String($0) }
+    }
 }
+
+#if canImport(UIKit)
+import UIKit
+
+extension Scan {
+    /// Loads a local specimen capture for display (file path + `Data` fallbacks).
+    func uiImageForLocalCaptureDisplay() -> UIImage? {
+        if let path = resolvedLocalCaptureFilePath, let img = UIImage(contentsOfFile: path) { return img }
+        if let url = resolvedLocalCaptureURL {
+            if url.isFileURL {
+                if let img = UIImage(contentsOfFile: url.path) { return img }
+            }
+            if let data = try? Data(contentsOf: url), let img = UIImage(data: data) { return img }
+        }
+        let t = photoURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        if t.hasPrefix("/"), let img = UIImage(contentsOfFile: t) { return img }
+        return nil
+    }
+
+    func uiImageForLocalCaptureShare() -> UIImage? {
+        uiImageForLocalCaptureDisplay()
+    }
+}
+#endif

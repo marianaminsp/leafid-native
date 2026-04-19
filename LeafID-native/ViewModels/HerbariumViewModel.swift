@@ -29,7 +29,7 @@ final class HerbariumViewModel: ObservableObject {
             treeId: nil,
             commonName: "Monstera Deliciosa",
             scientificName: "Monstera deliciosa",
-            photoURL: "",
+            photoURL: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Monstera_deliciosa3.jpg/480px-Monstera_deliciosa3.jpg",
             confidence: 0.94,
             location: "Tropical Forest Area",
             createdAt: Date().addingTimeInterval(-2 * 86_400),
@@ -50,7 +50,7 @@ final class HerbariumViewModel: ObservableObject {
             treeId: nil,
             commonName: "Ficus benjamina",
             scientificName: "Ficus benjamina",
-            photoURL: "",
+            photoURL: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Starr_020803-0084_Ficus_benjamina.jpg/480px-Starr_020803-0084_Ficus_benjamina.jpg",
             confidence: 0.88,
             location: "Indoor atrium, east wing",
             createdAt: Date().addingTimeInterval(-5 * 86_400),
@@ -71,7 +71,7 @@ final class HerbariumViewModel: ObservableObject {
             treeId: nil,
             commonName: "English Oak",
             scientificName: "Quercus robur",
-            photoURL: "",
+            photoURL: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Quercus_robur2.jpg/480px-Quercus_robur2.jpg",
             confidence: 0.91,
             location: "Navarre, Spain",
             createdAt: Date().addingTimeInterval(-12 * 86_400),
@@ -101,11 +101,21 @@ final class HerbariumViewModel: ObservableObject {
         return scans.first
     }
 
+    /// Appends a specimen after Preserve. `Scan.photoURL` should be the Supabase **public** Storage URL when upload succeeded (see `BotanyService.saveUserCapture`); otherwise a local `file://` capture path.
     func appendPreservedScan(_ scan: Scan) {
         if isShowingPlaceholderCatalog {
             scans = []
         }
         scans.insert(scan, at: 0)
+        persistScans()
+    }
+
+    /// Updates a persisted scan in place (e.g. reverse-geocoded capture location after save).
+    func patchPreservedScan(id: UUID, update: (inout Scan) -> Void) {
+        guard let idx = scans.firstIndex(where: { $0.id == id }) else { return }
+        var s = scans[idx]
+        update(&s)
+        scans[idx] = s
         persistScans()
     }
 

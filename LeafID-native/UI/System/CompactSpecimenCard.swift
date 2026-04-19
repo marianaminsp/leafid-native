@@ -103,7 +103,7 @@ struct CompactSpecimenCard: View {
                     .tracking(2.4)
                     .foregroundStyle(LeafIDTheme.primary)
                     .textCase(.uppercase)
-                Text(scan.commonName)
+                Text(scan.commonName.localizedCapitalized)
                     .font(LeafIDFont.plusJakarta(size: 22, weight: .bold))
                     .tracking(-0.35)
                     .foregroundStyle(LeafIDTheme.onSurface)
@@ -137,13 +137,7 @@ struct CompactSpecimenCard: View {
             }
 
         #if canImport(UIKit)
-        if let local = scan.resolvedLocalCaptureURL,
-           let data = try? Data(contentsOf: local),
-           let ui = UIImage(data: data) {
-            Image(uiImage: ui)
-                .resizable()
-                .scaledToFill()
-        } else if let remote = scan.resolvedRemoteImageURL {
+        if let remote = scan.resolvedRemoteImageURL {
             AsyncImage(url: remote) { phase in
                 switch phase {
                 case .empty:
@@ -153,16 +147,31 @@ struct CompactSpecimenCard: View {
                         .resizable()
                         .scaledToFill()
                 case .failure:
-                    placeholder
+                    lastFoundThumbnailLocalCapture(scan: scan, placeholder: placeholder)
                 @unknown default:
                     placeholder
                 }
             }
         } else {
-            placeholder
+            lastFoundThumbnailLocalCapture(scan: scan, placeholder: placeholder)
         }
         #else
         placeholder
         #endif
     }
+
+    #if canImport(UIKit)
+    @ViewBuilder
+    private func lastFoundThumbnailLocalCapture(scan: Scan, placeholder: some View) -> some View {
+        if let local = scan.resolvedLocalCaptureURL,
+           let data = try? Data(contentsOf: local),
+           let ui = UIImage(data: data) {
+            Image(uiImage: ui)
+                .resizable()
+                .scaledToFill()
+        } else {
+            placeholder
+        }
+    }
+    #endif
 }

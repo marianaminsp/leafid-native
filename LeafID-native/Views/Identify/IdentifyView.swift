@@ -11,6 +11,9 @@ private struct IdentifyScanOutcome: Identifiable {
     let id = UUID()
     let result: IdentifyPreviewResult
     let imageJPEGData: Data?
+    let latitude: Double?
+    let longitude: Double?
+    let locality: String?
 }
 
 struct IdentifyView: View {
@@ -22,6 +25,9 @@ struct IdentifyView: View {
     @State private var showCameraPicker = false
     @State private var showLibraryPicker = false
     @State private var cameraUnavailable = false
+    @State private var runningGeminiStressTest = false
+    @State private var showGeminiStressResult = false
+    @State private var geminiStressSummary = ""
 
     var body: some View {
         ZStack {
@@ -65,6 +71,24 @@ struct IdentifyView: View {
                                 showLibraryPicker = true
                             }
                         }
+
+                        #if DEBUG
+                        SecondaryActionButton(
+                            title: runningGeminiStressTest ? "Running Gemini Random 5..." : "Run Gemini Random 5",
+                            systemImage: "sparkles"
+                        ) {
+                            guard !runningGeminiStressTest else { return }
+                            runningGeminiStressTest = true
+                            Task {
+                                let lines = await BotanyService.runGeminiStressTest()
+                                await MainActor.run {
+                                    runningGeminiStressTest = false
+                                    geminiStressSummary = lines.joined(separator: "\n")
+                                    showGeminiStressResult = true
+                                }
+                            }
+                        }
+                        #endif
                     }
                     .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
                 }
@@ -78,22 +102,38 @@ struct IdentifyView: View {
         } message: {
             Text("Use Choose from library on Simulator, or run on an iPhone.")
         }
+        #if DEBUG
+        .alert("Gemini Random 5", isPresented: $showGeminiStressResult) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(geminiStressSummary.isEmpty ? "No response lines produced." : geminiStressSummary)
+        }
+        #endif
         .fullScreenCover(isPresented: $showCameraPicker) {
-            ImagePickerBridge(
-                sourceType: .camera,
-                isPresented: $showCameraPicker,
-                onPickedJPEG: { data in
-                    activeScanSession = ScanSession(jpegData: data)
+            ScannerView(
+                onClose: { showCameraPicker = false },
+                onCaptured: { data, lat, lon, locality in
+                    showCameraPicker = false
+                    activeScanSession = ScanSession(
+                        jpegData: data,
+                        latitude: lat,
+                        longitude: lon,
+                        locality: locality
+                    )
                 }
             )
-            .ignoresSafeArea()
         }
         .sheet(isPresented: $showLibraryPicker) {
             ImagePickerBridge(
                 sourceType: .photoLibrary,
                 isPresented: $showLibraryPicker,
-                onPickedJPEG: { data in
-                    activeScanSession = ScanSession(jpegData: data)
+                onPickedJPEG: { data, coordinate, locality in
+                    activeScanSession = ScanSession(
+                        jpegData: data,
+                        latitude: coordinate?.latitude,
+                        longitude: coordinate?.longitude,
+                        locality: locality
+                    )
                 }
             )
         }
@@ -103,7 +143,13 @@ struct IdentifyView: View {
                 onClose: { activeScanSession = nil },
                 onComplete: { result, data in
                     activeScanSession = nil
-                    let payload = IdentifyScanOutcome(result: result, imageJPEGData: data)
+                    let payload = IdentifyScanOutcome(
+                        result: result,
+                        imageJPEGData: data,
+                        latitude: session.latitude,
+                        longitude: session.longitude,
+                        locality: session.locality
+                    )
                     Task { @MainActor in
                         try? await Task.sleep(nanoseconds: 200_000_000)
                         scanOutcome = payload
@@ -115,6 +161,9 @@ struct IdentifyView: View {
             ScanResultsView(
                 result: outcome.result,
                 imageJPEGData: outcome.imageJPEGData,
+                captureLatitude: outcome.latitude,
+                captureLongitude: outcome.longitude,
+                captureLocality: outcome.locality,
                 onClose: { scanOutcome = nil },
                 onScanAgain: {
                     scanOutcome = nil

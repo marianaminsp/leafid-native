@@ -3,10 +3,16 @@
 <plist version="1.0">
 <dict>
 	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera to identify plants and add them to your collection.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photos to import plant images into your herbarium.</string>
+	<string>LeafID uses the camera to capture leaf photos for plant identification.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>We use your location to record where each specimen was discovered.</string>
+	<string>LeafID uses your location to tag where specimens were captured for the Herbarium and map.</string>
+	<key>GEMINI_API_KEY</key>
+	<string>$(GEMINI_API_KEY)</string>
+	<key>OPENROUTER_API_KEY</key>
+	<string>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</string>
+	<key>SUPABASE_ANON_KEY</key>
+	<string>$(SUPABASE_ANON_KEY)</string>
+	<key>SUPABASE_URL</key>
+	<string>$(SUPABASE_URL)</string>
 </dict>
 </plist>
