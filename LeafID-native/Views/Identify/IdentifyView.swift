@@ -19,12 +19,16 @@ private struct IdentifyScanOutcome: Identifiable {
 struct IdentifyView: View {
     @EnvironmentObject private var herbarium: HerbariumViewModel
 
+    @AppStorage("profile.scans_count") private var scansCount = 0
+    @AppStorage("profile.is_premium") private var isPremium = false
+
     @State private var activeScanSession: ScanSession?
     @State private var scanOutcome: IdentifyScanOutcome?
 
     @State private var showCameraPicker = false
     @State private var showLibraryPicker = false
     @State private var cameraUnavailable = false
+    @State private var showPaywall = false
     @State private var runningGeminiStressTest = false
     @State private var showGeminiStressResult = false
     @State private var geminiStressSummary = ""
@@ -59,11 +63,7 @@ struct IdentifyView: View {
                             .padding(.horizontal, LeafIDTheme.space4)
 
                         LeafPrimaryButton(title: "Open camera") {
-                            if ImagePickerAvailability.cameraAvailable() {
-                                showCameraPicker = true
-                            } else {
-                                cameraUnavailable = true
-                            }
+                            handleOpenCameraAction()
                         }
 
                         SecondaryActionButton(title: "Choose from library", systemImage: "arrow.up.doc") {
@@ -101,6 +101,9 @@ struct IdentifyView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text("Use Choose from library on Simulator, or run on an iPhone.")
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
         }
         #if DEBUG
         .alert("Gemini Random 5", isPresented: $showGeminiStressResult) {
@@ -175,6 +178,22 @@ struct IdentifyView: View {
                 }
             )
             .environmentObject(herbarium)
+        }
+    }
+
+    private func canUserScan() -> Bool {
+        isPremium || scansCount < 3
+    }
+
+    private func handleOpenCameraAction() {
+        guard canUserScan() else {
+            showPaywall = true
+            return
+        }
+        if ImagePickerAvailability.cameraAvailable() {
+            showCameraPicker = true
+        } else {
+            cameraUnavailable = true
         }
     }
 }

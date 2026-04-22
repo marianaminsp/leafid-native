@@ -5,7 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-type ProviderName = "plant.id" | "plantnet" | "gemini-vision" | "none"
+type ProviderName = "plant.id" | "plantnet" | "openrouter-gemini" | "gemini-direct" | "none"
 
 type NormalizedIdentifyResult = {
   native_name: string
@@ -236,7 +236,7 @@ const identifyWithPlantId = async (base64Data: string, apiKey: string) => {
   try {
     data = JSON.parse(rawText) as Record<string, unknown>
   } catch {
-    throw new ProviderError(rawText.trim() || "Plant.id returned non-JSON response", "non_json", true, response.status)
+    throw new ProviderError(rawText.trim() || "Plant.id returned non-JSON response", "non_json_plantid", true, response.status)
   }
 
   if (!response.ok) {
@@ -245,7 +245,7 @@ const identifyWithPlantId = async (base64Data: string, apiKey: string) => {
       rawText.trim() ||
       "Plant.id request failed"
     const classified = classifyStatus(response.status)
-    throw new ProviderError(message, classified.code, classified.retriable, response.status)
+    throw new ProviderError(message, `${classified.code}_plantid`, classified.retriable, response.status)
   }
 
   return normalizePlantId(data)
@@ -268,7 +268,7 @@ const identifyWithPlantNet = async (base64Data: string, apiKey: string) => {
   try {
     data = JSON.parse(rawText) as Record<string, unknown>
   } catch {
-    throw new ProviderError(rawText.trim() || "Pl@ntNet returned non-JSON response", "non_json_backup", true, response.status)
+    throw new ProviderError(rawText.trim() || "Pl@ntNet returned non-JSON response", "non_json_plantnet", true, response.status)
   }
 
   if (!response.ok) {
@@ -277,13 +277,95 @@ const identifyWithPlantNet = async (base64Data: string, apiKey: string) => {
       rawText.trim() ||
       "Pl@ntNet request failed"
     const classified = classifyStatus(response.status)
-    throw new ProviderError(message, `${classified.code}_backup`, classified.retriable, response.status)
+    throw new ProviderError(message, `${classified.code}_plantnet`, classified.retriable, response.status)
   }
 
   return normalizePlantNet(data)
 }
 
-const identifyWithGeminiVision = async (base64Data: string, apiKey: string) => {
+const identifyWithOpenRouterVision = async (base64Data: string, apiKey: string) => {
+  const endpoint = "https://openrouter.ai/api/v1/chat/completions"
+  const prompt = [
+    "Identify this plant from the image and return ONLY valid JSON.",
+    "Required keys: common_name, scientific_name, family, origin_country, curiosity, confidence, phylum, sun_exposure, watering.",
+    "Rules:",
+    "- confidence must be a number between 0 and 1",
+    "- If unsure, provide best estimate but never return markdown or explanations",
+  ].join("\n")
+  const body = {
+    model: "google/gemini-2.0-flash-001",
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "text", text: prompt },
+          { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Data}` } },
+        ],
+      },
+    ],
+    temperature: 0.1,
+  }
+
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  })
+  const rawText = await response.text()
+  let data: Record<string, unknown>
+  try {
+    data = JSON.parse(rawText) as Record<string, unknown>
+  } catch {
+    throw new ProviderError(rawText.trim() || "OpenRouter/Gemini returned non-JSON response", "non_json_openrouter", true, response.status)
+  }
+
+  if (!response.ok) {
+    const message = pickString(data?.error && toRecord(data.error).message, data?.message, rawText) || "OpenRouter/Gemini request failed"
+    const classified = classifyStatus(response.status)
+    throw new ProviderError(message, `${classified.code}_openrouter`, classified.retriable, response.status)
+  }
+
+  const choices = Array.isArray(data.choices) ? data.choices : []
+  const first = toRecord(choices[0])
+  const message = toRecord(first.message)
+  const text = pickString(message.content)
+  if (!text) throw new ProviderError("OpenRouter/Gemini returned empty text payload", "empty_payload_openrouter", true)
+
+  const jsonText = normalizeJSONObjectString(text)
+  let payload: Record<string, unknown>
+  try {
+    payload = JSON.parse(jsonText) as Record<string, unknown>
+  } catch {
+    throw new ProviderError("OpenRouter/Gemini produced invalid JSON object", "invalid_json_openrouter", true)
+  }
+
+  const confidenceRaw = payload.confidence
+  const confidence = typeof confidenceRaw === "number"
+    ? clamp01(confidenceRaw)
+    : clamp01(Number.parseFloat(String(confidenceRaw ?? "0.45")))
+
+  const scientificName = pickString(payload.scientific_name) || "Unknown species"
+  const commonName = pickString(payload.common_name) || scientificName
+  const family = pickString(payload.family) || "Unknown family"
+
+  return {
+    native_name: commonName,
+    common_name: commonName,
+    scientific_name: scientificName,
+    family,
+    origin_country: pickString(payload.origin_country) || "Origin estimated by OpenRouter/Gemini",
+    curiosity: pickString(payload.curiosity) || `Identified by OpenRouter/Gemini backup with ${(confidence * 100).toFixed(1)}% confidence.`,
+    confidence,
+    phylum: pickString(payload.phylum),
+    sun_exposure: pickString(payload.sun_exposure),
+    watering: pickString(payload.watering),
+  }
+}
+
+const identifyWithGeminiDirect = async (base64Data: string, apiKey: string) => {
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`
   const prompt = [
     "Identify this plant from the image and return ONLY valid JSON.",
@@ -319,13 +401,13 @@ const identifyWithGeminiVision = async (base64Data: string, apiKey: string) => {
   try {
     data = JSON.parse(rawText) as Record<string, unknown>
   } catch {
-    throw new ProviderError(rawText.trim() || "Gemini Vision returned non-JSON response", "non_json_gemini", true, response.status)
+    throw new ProviderError(rawText.trim() || "Gemini direct returned non-JSON response", "non_json_gemini_direct", true, response.status)
   }
 
   if (!response.ok) {
-    const message = pickString(data?.error && toRecord(data.error).message, data?.message, rawText) || "Gemini Vision request failed"
+    const message = pickString(data?.error && toRecord(data.error).message, data?.message, rawText) || "Gemini direct request failed"
     const classified = classifyStatus(response.status)
-    throw new ProviderError(message, `${classified.code}_gemini`, classified.retriable, response.status)
+    throw new ProviderError(message, `${classified.code}_gemini_direct`, classified.retriable, response.status)
   }
 
   const candidates = Array.isArray(data.candidates) ? data.candidates : []
@@ -333,14 +415,14 @@ const identifyWithGeminiVision = async (base64Data: string, apiKey: string) => {
   const content = toRecord(first.content)
   const parts = Array.isArray(content.parts) ? content.parts : []
   const text = pickString(toRecord(parts[0]).text)
-  if (!text) throw new ProviderError("Gemini Vision returned empty text payload", "empty_payload_gemini", true)
+  if (!text) throw new ProviderError("Gemini direct returned empty text payload", "empty_payload_gemini_direct", true)
 
   const jsonText = normalizeJSONObjectString(text)
   let payload: Record<string, unknown>
   try {
     payload = JSON.parse(jsonText) as Record<string, unknown>
   } catch {
-    throw new ProviderError("Gemini Vision produced invalid JSON object", "invalid_json_gemini", true)
+    throw new ProviderError("Gemini direct produced invalid JSON object", "invalid_json_gemini_direct", true)
   }
 
   const confidenceRaw = payload.confidence
@@ -357,8 +439,8 @@ const identifyWithGeminiVision = async (base64Data: string, apiKey: string) => {
     common_name: commonName,
     scientific_name: scientificName,
     family,
-    origin_country: pickString(payload.origin_country) || "Origin estimated by Gemini Vision",
-    curiosity: pickString(payload.curiosity) || `Identified by Gemini Vision backup with ${(confidence * 100).toFixed(1)}% confidence.`,
+    origin_country: pickString(payload.origin_country) || "Origin estimated by Gemini direct",
+    curiosity: pickString(payload.curiosity) || `Identified by Gemini direct fallback with ${(confidence * 100).toFixed(1)}% confidence.`,
     confidence,
     phylum: pickString(payload.phylum),
     sun_exposure: pickString(payload.sun_exposure),
@@ -371,99 +453,102 @@ serve(async (req) => {
 
   try {
     const { image } = await req.json()
-    const plantIdApiKey = Deno.env.get('PLANT_ID_API_KEY')
     const plantNetApiKey = Deno.env.get('PLANTNET_API_KEY')
-    const geminiApiKey = Deno.env.get('GEMINI_API_KEY')
+    const plantIdApiKey = Deno.env.get('PLANT_ID_API_KEY')
+    const openRouterApiKey = Deno.env.get('OPENROUTER_API_KEY')
+    const geminiDirectApiKey = Deno.env.get('GEMINI_API_KEY')
 
     if (!image) throw new Error('No image provided')
-    if (!plantIdApiKey) throw new ProviderError("Missing PLANT_ID_API_KEY", "missing_key", false)
+    if (!plantNetApiKey && !plantIdApiKey && !openRouterApiKey) {
+      throw new ProviderError("Missing provider keys: PLANTNET_API_KEY, PLANT_ID_API_KEY, OPENROUTER_API_KEY", "missing_all_provider_keys", false)
+    }
 
     const base64Data = image.includes(',') ? image.split(',')[1] : image
     const providerChain: string[] = []
+    let lastTechnicalError = "No provider attempted"
+    let lastTechnicalCode = "no_attempt"
 
-    try {
-      const primary = await identifyWithPlantId(base64Data, plantIdApiKey)
-      providerChain.push("plant.id")
-      return new Response(
-        JSON.stringify({
-          ...primary,
-          fallback: false,
-          diagnostic_error: null,
-          diagnostic_code: null,
-          provider: "plant.id",
-          provider_fallback_used: false,
-          provider_chain: providerChain,
-        } satisfies NormalizedIdentifyResult),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    } catch (plantIdError) {
-      providerChain.push("plant.id")
-      const primaryMessage = plantIdError instanceof Error ? plantIdError.message : "Plant.id failed"
-      const primaryCode = plantIdError instanceof ProviderError ? plantIdError.code : "plantid_error"
-      console.error("identify-plant primary provider failed:", primaryCode, primaryMessage)
+    const providers: Array<{
+      name: ProviderName
+      apiKey?: string
+      missingKeyCode: string
+      run: (base64Data: string, key: string) => Promise<Omit<NormalizedIdentifyResult, "fallback" | "diagnostic_error" | "diagnostic_code" | "provider" | "provider_fallback_used" | "provider_chain">>
+      logLabel: string
+    }> = [
+      {
+        name: "plantnet",
+        apiKey: plantNetApiKey ?? undefined,
+        missingKeyCode: "missing_plantnet_key",
+        run: identifyWithPlantNet,
+        logLabel: "Pl@ntNet (principal)",
+      },
+      {
+        name: "plant.id",
+        apiKey: plantIdApiKey ?? undefined,
+        missingKeyCode: "missing_plantid_key",
+        run: identifyWithPlantId,
+        logLabel: "Plant.id (fallback 1)",
+      },
+      {
+        name: "openrouter-gemini",
+        apiKey: openRouterApiKey ?? undefined,
+        missingKeyCode: "missing_openrouter_key",
+        run: identifyWithOpenRouterVision,
+        logLabel: "OpenRouter/Gemini (fallback 2)",
+      },
+      {
+        name: "gemini-direct",
+        apiKey: geminiDirectApiKey ?? undefined,
+        missingKeyCode: "missing_gemini_direct_key",
+        run: identifyWithGeminiDirect,
+        logLabel: "Gemini Direct (fallback 3)",
+      },
+    ]
 
-      if (plantNetApiKey) {
-        try {
-          const backup = await identifyWithPlantNet(base64Data, plantNetApiKey)
-          providerChain.push("plantnet")
-          return new Response(
-            JSON.stringify({
-              ...backup,
-              fallback: false,
-              diagnostic_error: null,
-              diagnostic_code: null,
-              provider: "plantnet",
-              provider_fallback_used: true,
-              provider_chain: providerChain,
-            } satisfies NormalizedIdentifyResult),
-            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          )
-        } catch (backupError) {
-          providerChain.push("plantnet")
-          const backupMessage = backupError instanceof Error ? backupError.message : "Pl@ntNet failed"
-          const backupCode = backupError instanceof ProviderError ? backupError.code : "plantnet_error"
-          console.error("identify-plant backup provider failed:", backupCode, backupMessage)
-          if (geminiApiKey) {
-            try {
-              const third = await identifyWithGeminiVision(base64Data, geminiApiKey)
-              providerChain.push("gemini-vision")
-              return new Response(
-                JSON.stringify({
-                  ...third,
-                  fallback: false,
-                  diagnostic_error: null,
-                  diagnostic_code: null,
-                  provider: "gemini-vision",
-                  provider_fallback_used: true,
-                  provider_chain: providerChain,
-                } satisfies NormalizedIdentifyResult),
-                { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-              )
-            } catch (geminiError) {
-              providerChain.push("gemini-vision")
-              const geminiMessage = geminiError instanceof Error ? geminiError.message : "Gemini Vision failed"
-              const geminiCode = geminiError instanceof ProviderError ? geminiError.code : "gemini_error"
-              const combined = `Plant.id [${primaryCode}]: ${primaryMessage}; Pl@ntNet [${backupCode}]: ${backupMessage}; GeminiVision [${geminiCode}]: ${geminiMessage}`
-              return new Response(
-                JSON.stringify(fallbackResponse(combined, "all_providers_failed", providerChain)),
-                { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-              )
-            }
-          }
-          const combined = `Plant.id [${primaryCode}]: ${primaryMessage}; Pl@ntNet [${backupCode}]: ${backupMessage}; GeminiVision unavailable (Missing GEMINI_API_KEY)`
-          return new Response(
-            JSON.stringify(fallbackResponse(combined, "third_fallback_unavailable", providerChain)),
-            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          )
-        }
+    for (const provider of providers) {
+      providerChain.push(provider.name)
+      if (!provider.apiKey) {
+        lastTechnicalCode = provider.missingKeyCode
+        lastTechnicalError = `${provider.logLabel} unavailable: missing API key`
+        console.log(`[identify-plant] skipping ${provider.logLabel}: missing key`)
+        continue
       }
 
-      const noBackupDiagnostic = `Plant.id [${primaryCode}]: ${primaryMessage}; backup provider unavailable (Missing PLANTNET_API_KEY)`
-      return new Response(
-        JSON.stringify(fallbackResponse(noBackupDiagnostic, "backup_unavailable", providerChain)),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      console.log(`[identify-plant] trying ${provider.logLabel}`)
+      try {
+        const normalized = await provider.run(base64Data, provider.apiKey)
+        console.log(`[identify-plant] provider succeeded: ${provider.logLabel}`)
+        return new Response(
+          JSON.stringify({
+            ...normalized,
+            fallback: false,
+            diagnostic_error: null,
+            diagnostic_code: null,
+            provider: provider.name,
+            provider_fallback_used: provider.name !== "plantnet",
+            provider_chain: providerChain,
+          } satisfies NormalizedIdentifyResult),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      } catch (providerError) {
+        const technicalMessage = providerError instanceof Error ? providerError.message : `${provider.logLabel} failed`
+        const technicalCode = providerError instanceof ProviderError ? providerError.code : `${provider.name}_error`
+        lastTechnicalCode = technicalCode
+        lastTechnicalError = `${provider.logLabel}: ${technicalMessage}`
+        console.error(`[identify-plant] ${provider.logLabel} failed:`, technicalCode, technicalMessage)
+      }
     }
+
+    return new Response(
+      JSON.stringify(
+        fallbackResponse(
+          `All providers failed. Last error [${lastTechnicalCode}]: ${lastTechnicalError}`,
+          "all_providers_failed",
+          providerChain
+        )
+      ),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
 
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown identify-plant error"

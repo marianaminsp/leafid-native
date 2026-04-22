@@ -10,6 +10,7 @@ Arboretum (Geospatial Hub): Interactive map exploration.
 Scan (Central Action): Primary entry point for AI identification.
 Herbarium (Collection): High-end gallery of discovered species.
 Druid (Identity): Profile, progression, and botanical rank.
+Canonical Druid logic reference: `docs/logic/druid-system.md` (implementation guardrails in `docs/TDD.md`).
 
 
 3. Core Functional Flows

@@ -9,6 +9,9 @@ import SwiftUI
 
 struct DruidProfileView: View {
     @StateObject private var viewModel = DruidProfileViewModel()
+    @State private var showPaywall = false
+    @State private var showCameraPicker = false
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         NavigationStack {
@@ -18,12 +21,18 @@ struct DruidProfileView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: LeafIDTheme.space28) {
                         passportHeader
-                        statsRow
+                        esenciaVitalCard
+                        achievementsRow
                         bioPassportPanel
+                        scannerOrCoffeeGate
                     }
                     .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
                     .padding(.top, LeafIDTheme.space12)
                     .padding(.bottom, 36)
+                }
+
+                if !viewModel.isLoggedIn {
+                    loginOverlay
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -31,6 +40,17 @@ struct DruidProfileView: View {
         }
         .preferredColorScheme(.dark)
         .task { await viewModel.refresh() }
+        .onReceive(NotificationCenter.default.publisher(for: .druidAuthDidChange)) { _ in
+            Task { await viewModel.refresh() }
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
+        }
+        .fullScreenCover(isPresented: $showCameraPicker) {
+            ScannerView(onClose: { showCameraPicker = false }, onCaptured: { _, _, _, _ in
+                showCameraPicker = false
+            })
+        }
     }
 
     private var passportHeader: some View {
@@ -49,11 +69,11 @@ struct DruidProfileView: View {
             }
 
             VStack(alignment: .leading, spacing: LeafIDTheme.space8) {
-                Text(viewModel.profile?.displayName ?? "The Druid")
+                Text(viewModel.realName)
                     .font(.system(size: 24, weight: .heavy, design: .rounded))
                     .tracking(0.5)
                     .foregroundStyle(.white)
-                Text("Your growth in the wild")
+                Text(viewModel.rankTitle)
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .tracking(1.0)
                     .foregroundStyle(LeafIDTheme.slateMuted)
@@ -95,16 +115,64 @@ struct DruidProfileView: View {
         return String(name.prefix(1)).uppercased()
     }
 
-    private var statsRow: some View {
-        HStack(spacing: LeafIDTheme.space12) {
-            GlassStatTile(
-                title: "Specimens",
-                value: viewModel.isLoading ? "…" : "\(viewModel.specimenCount)"
-            )
-            GlassStatTile(
-                title: "Ancient Seeds",
-                value: viewModel.isLoading ? "…" : "\(viewModel.ancientSeedsCount)"
-            )
+    private var esenciaVitalCard: some View {
+        VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
+            HStack {
+                Text("Esencia Vital")
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                Spacer(minLength: 0)
+                if viewModel.isPremium {
+                    Text("Unlimited")
+                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .foregroundStyle(LeafIDTheme.leafGreen)
+                } else {
+                    Text("\(viewModel.remainingScans) left")
+                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .foregroundStyle(LeafIDTheme.slateMuted)
+                }
+            }
+
+            ProgressView(value: viewModel.energyProgress, total: 1)
+                .tint(LeafIDTheme.leafGreen)
+                .progressViewStyle(.linear)
+                .scaleEffect(x: 1, y: 1.4, anchor: .center)
+                .clipShape(Capsule())
+
+            Text(viewModel.isPremium ? "Premium energy unlocked." : "Free plan: 3 total scans")
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundStyle(LeafIDTheme.slateMuted)
+        }
+        .padding(LeafIDTheme.space20)
+        .liquidGlass()
+    }
+
+    private var achievementsRow: some View {
+        HStack(spacing: LeafIDTheme.space10) {
+            ForEach(Array(achievementSymbols.enumerated()), id: \.offset) { index, symbol in
+                let lit = index < litAchievementCount
+                Image(systemName: symbol)
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(lit ? LeafIDTheme.leafGreen : LeafIDTheme.slateMuted.opacity(0.45))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, LeafIDTheme.space10)
+                    .background(LeafIDTheme.deepGreen.opacity(lit ? 0.8 : 0.35))
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            }
+        }
+    }
+
+    private var achievementSymbols: [String] {
+        ["leaf.fill", "leaf.fill", "leaf.fill", "leaf.fill", "sparkles"]
+    }
+
+    private var litAchievementCount: Int {
+        switch viewModel.scansCount {
+        case 0: return 0
+        case 1 ... 5: return 1
+        case 6 ... 15: return 2
+        case 16 ... 50: return 4
+        default: return 5
         }
     }
 
@@ -123,5 +191,62 @@ struct DruidProfileView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(LeafIDTheme.space24)
         .liquidGlass()
+    }
+
+    private var scannerOrCoffeeGate: some View {
+        VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
+            if viewModel.canUserScan() {
+                LeafPrimaryButton(title: "Open scanner") {
+                    showCameraPicker = true
+                }
+            } else {
+                LeafPrimaryButton(title: "Buy me a Coffee") {
+                    showPaywall = true
+                }
+            }
+        }
+    }
+
+    private var loginOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.55).ignoresSafeArea()
+            VStack(alignment: .leading, spacing: LeafIDTheme.space16) {
+                Text("Login Overlay")
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                Text("Sign in with Google to unlock your Druid Passport.")
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundStyle(LeafIDTheme.slateMuted)
+
+                Button {
+                    if let url = viewModel.googleSignInURL() {
+                        openURL(url)
+                    }
+                    // Until OAuth callback wiring is completed, keep local state in sync for passport UX.
+                    viewModel.completeLocalGoogleLoginDisplay()
+                } label: {
+                    HStack(spacing: LeafIDTheme.space10) {
+                        Image(systemName: "globe")
+                            .font(.system(size: 16, weight: .semibold))
+                        Text("Continue with Google")
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                    }
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, LeafIDTheme.space14)
+                    .background(LeafIDTheme.leafGreen)
+                    .clipShape(RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(LeafIDTheme.space24)
+            .background(LeafIDTheme.surfaceContainerHigh)
+            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous)
+                    .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.2), lineWidth: 1)
+            }
+            .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
+        }
     }
 }

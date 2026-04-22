@@ -56,6 +56,7 @@
 		E1A100000000000000000030 /* CapturePickLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000030 /* CapturePickLocation.swift */; };
 		E1A100000000000000000031 /* LiveCameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000031 /* LiveCameraPreview.swift */; };
 		E1A10000000000000000007B /* Achievements.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000007B /* Achievements.swift */; };
+		E1A10000000000000000007C /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000007C /* PaywallView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -109,6 +110,7 @@
 		E1A200000000000000000030 /* CapturePickLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePickLocation.swift; sourceTree = "<group>"; };
 		E1A200000000000000000031 /* LiveCameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveCameraPreview.swift; sourceTree = "<group>"; };
 		E1A20000000000000000007B /* Achievements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Achievements.swift; sourceTree = "<group>"; };
+		E1A20000000000000000007C /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		E1A2000000000000000000FF /* LeafID-native.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LeafID-native.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -252,6 +254,7 @@
 			children = (
 				E1A200000000000000000009 /* DruidProfileView.swift */,
 				E1A20000000000000000001D /* ProfileView.swift */,
+				E1A20000000000000000007C /* PaywallView.swift */,
 			);
 			path = Druid;
 			sourceTree = "<group>";
@@ -421,6 +424,7 @@
 				E1A100000000000000000025 /* BentoResultCard.swift in Sources */,
 				E1A100000000000000000026 /* ScannerView.swift in Sources */,
 				E1A100000000000000000031 /* LiveCameraPreview.swift in Sources */,
+				E1A10000000000000000007C /* PaywallView.swift in Sources */,
 				E1A100000000000000000027 /* ImagePickerBridge.swift in Sources */,
 				E1A100000000000000000028 /* GlassChromeCircleButton.swift in Sources */,
 				E1A100000000000000000029 /* ScanReticleFrame.swift in Sources */,
@@ -499,8 +503,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "LeafID-native/Info.plist";
 				INFOPLIST_KEY_GEMINI_API_KEY = "$(GEMINI_API_KEY)";
-				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to identify plants and add them to your collection.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to record where each specimen was discovered.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "LeafID uses the camera to capture leaf photos for plant identification.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LeafID uses your location to tag where specimens were captured for the Herbarium and map.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your photos to import plant images into your herbarium.";
 				INFOPLIST_KEY_OPENROUTER_API_KEY = "$(OPENROUTER_API_KEY)";
 				INFOPLIST_KEY_SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
@@ -539,8 +543,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "LeafID-native/Info.plist";
 				INFOPLIST_KEY_GEMINI_API_KEY = "$(GEMINI_API_KEY)";
-				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to identify plants and add them to your collection.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to record where each specimen was discovered.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "LeafID uses the camera to capture leaf photos for plant identification.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LeafID uses your location to tag where specimens were captured for the Herbarium and map.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your photos to import plant images into your herbarium.";
 				INFOPLIST_KEY_OPENROUTER_API_KEY = "$(OPENROUTER_API_KEY)";
 				INFOPLIST_KEY_SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";

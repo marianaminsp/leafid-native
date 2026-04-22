@@ -92,6 +92,9 @@ private struct HomeEmptyLastFoundCard: View {
 struct HomeView: View {
     @EnvironmentObject private var herbarium: HerbariumViewModel
 
+    @AppStorage("profile.scans_count") private var scansCount = 0
+    @AppStorage("profile.is_premium") private var isPremium = false
+
     @State private var activeScanSession: ScanSession?
     @State private var scanOutcome: ScanFlowOutcome?
     @State private var lastFoundImmersiveScan: Scan?
@@ -99,6 +102,7 @@ struct HomeView: View {
     @State private var showCameraPicker = false
     @State private var showLibraryPicker = false
     @State private var cameraUnavailable = false
+    @State private var showPaywall = false
 
     private var greetingTitle: String {
         let h = Calendar.current.component(.hour, from: Date())
@@ -163,11 +167,7 @@ struct HomeView: View {
                         HStack(spacing: 0) {
                             Spacer(minLength: 0)
                             GalleryScanButton {
-                                if ImagePickerAvailability.cameraAvailable() {
-                                    showCameraPicker = true
-                                } else {
-                                    cameraUnavailable = true
-                                }
+                                handleOpenCameraAction()
                             }
                             Spacer(minLength: 0)
                         }
@@ -194,6 +194,9 @@ struct HomeView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text("This device has no camera (e.g. Simulator). Use Upload from Gallery or run on a physical iPhone.")
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
         }
         .fullScreenCover(isPresented: $showCameraPicker) {
             ScannerView(
@@ -271,6 +274,22 @@ struct HomeView: View {
             )
         }
         #endif
+    }
+
+    private func canUserScan() -> Bool {
+        isPremium || scansCount < 3
+    }
+
+    private func handleOpenCameraAction() {
+        guard canUserScan() else {
+            showPaywall = true
+            return
+        }
+        if ImagePickerAvailability.cameraAvailable() {
+            showCameraPicker = true
+        } else {
+            cameraUnavailable = true
+        }
     }
 }
 

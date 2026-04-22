@@ -2,10 +2,19 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSCameraUsageDescription</key>
-	<string>LeafID uses the camera to capture leaf photos for plant identification.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>LeafID uses your location to tag where specimens were captured for the Herbarium and map.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>leafid.oauth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>leafid</string>
+			</array>
+		</dict>
+	</array>
 	<key>GEMINI_API_KEY</key>
 	<string>$(GEMINI_API_KEY)</string>
 	<key>OPENROUTER_API_KEY</key>

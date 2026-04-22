@@ -13,6 +13,10 @@ struct Profile: Identifiable, Codable, Equatable {
     var displayName: String?
     var bio: String?
     var avatarURL: String?
+    /// Total scans tracked by Supabase trigger (`profiles.scans_count`).
+    var scansCount: Int?
+    /// Premium entitlement flag (`profiles.is_premium`).
+    var isPremium: Bool?
     /// Subtitle under display name (`20260412_0003_profile_role_activities.sql`).
     var roleTitle: String?
     /// Total identify runs; mirror `ProfileStatsLocalStore` until client syncs.
@@ -25,6 +29,8 @@ struct Profile: Identifiable, Codable, Equatable {
         case displayName = "display_name"
         case bio
         case avatarURL = "avatar_url"
+        case scansCount = "scans_count"
+        case isPremium = "is_premium"
         case roleTitle = "role_title"
         case lifetimeScanCount = "lifetime_scan_count"
         case ancientSeedsCount = "ancient_seeds_count"
