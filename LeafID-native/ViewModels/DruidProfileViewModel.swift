@@ -54,7 +54,7 @@ final class DruidProfileViewModel: ObservableObject {
             URLQueryItem(name: "client_id", value: Self.googleClientID),
             URLQueryItem(name: "response_type", value: "token"),
             URLQueryItem(name: "scope", value: "openid email profile"),
-            URLQueryItem(name: "redirect_uri", value: "leafid://auth"),
+            URLQueryItem(name: "redirect_uri", value: "com.googleusercontent.apps.133761573510-233kdml7mn0p0d19pksj62h1t27oaide://auth"),
             URLQueryItem(name: "prompt", value: "select_account"),
         ]
         return components?.url

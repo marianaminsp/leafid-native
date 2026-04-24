@@ -20,7 +20,7 @@ struct MainTabView: View {
             case .herbarium:
                 HerbariumView()
             case .druid:
-                ProfileView()
+                DruidProfileView()
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

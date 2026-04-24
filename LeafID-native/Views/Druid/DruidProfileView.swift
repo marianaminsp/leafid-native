@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct DruidProfileView: View {
+    @EnvironmentObject private var authViewModel: AuthViewModel
     @StateObject private var viewModel = DruidProfileViewModel()
     @State private var showPaywall = false
     @State private var showCameraPicker = false
@@ -25,10 +26,11 @@ struct DruidProfileView: View {
                         achievementsRow
                         bioPassportPanel
                         scannerOrCoffeeGate
+                        signOutFooter
                     }
                     .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
                     .padding(.top, LeafIDTheme.space12)
-                    .padding(.bottom, 36)
+                    .padding(.bottom, LeafIDTheme.space32)
                 }
 
                 if !viewModel.isLoggedIn {
@@ -207,6 +209,29 @@ struct DruidProfileView: View {
         }
     }
 
+    private var signOutFooter: some View {
+        HStack {
+            Spacer(minLength: 0)
+            Button {
+                authViewModel.signOut()
+            } label: {
+                HStack(spacing: LeafIDTheme.space8) {
+                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                        .font(.system(size: 12, weight: .semibold))
+                    Text("Sign out")
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                }
+                .foregroundStyle(LeafIDTheme.slateMuted)
+                .padding(.vertical, LeafIDTheme.space8)
+            }
+            .buttonStyle(.plain)
+            .opacity(viewModel.isLoggedIn ? 1 : 0)
+            .disabled(!viewModel.isLoggedIn)
+            Spacer(minLength: 0)
+        }
+        .padding(.top, LeafIDTheme.space4)
+    }
+
     private var loginOverlay: some View {
         ZStack {
             Color.black.opacity(0.55).ignoresSafeArea()
@@ -219,11 +244,9 @@ struct DruidProfileView: View {
                     .foregroundStyle(LeafIDTheme.slateMuted)
 
                 Button {
-                    if let url = viewModel.googleSignInURL() {
+                    if let url = authViewModel.googleOAuthURL() {
                         openURL(url)
                     }
-                    // Until OAuth callback wiring is completed, keep local state in sync for passport UX.
-                    viewModel.completeLocalGoogleLoginDisplay()
                 } label: {
                     HStack(spacing: LeafIDTheme.space10) {
                         Image(systemName: "globe")
