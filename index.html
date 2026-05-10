@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LeafID — Continue in app</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 24px; text-align: center;
+      background: #0B0F08; color: #F2F5E7; min-height: 100vh; box-sizing: border-box; }
+    h1 { font-size: 1.25rem; font-weight: 700; }
+    p { max-width: 28rem; margin: 12px auto; line-height: 1.45; color: #A9ADA0; font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+  <h1>Returning to LeafID</h1>
+  <p id="msg">Opening the app…</p>
+  <script>
+(function () {
+  var hash = window.location.hash || "";
+  var target = "com.marianaminafro.leafid://reset-password" + hash;
+  if (!hash || hash === "#") {
+    document.getElementById("msg").textContent =
+      "This page has no session data. Request a new password reset from the app.";
+    return;
+  }
+  window.location.replace(target);
+  setTimeout(function () {
+    document.getElementById("msg").innerHTML =
+      "If nothing happened, go back to your mail app, tap <strong>Share</strong> or <strong>···</strong>, then <strong>Open in Safari</strong> and open the reset link again.";
+  }, 2000);
+})();
+  </script>
+</body>
+</html>
