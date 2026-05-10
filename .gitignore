@@ -65,3 +65,4 @@ supabase/.temp/
 supabase/.env.local
 supabase/.env.*.local
 supabase/.env.keys
+.DS_Store
