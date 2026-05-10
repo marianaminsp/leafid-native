@@ -1,0 +1,197 @@
+/* Herbarium */
+"No specimens yet" = "No specimens yet";
+"When you identify a plant, tap Save on the results screen — it will appear here." = "When you identify a plant, tap Save on the results screen — it will appear here.";
+"Open Scan to identify a plant, then save it from the results." = "Open Scan to identify a plant, then save it from the results.";
+
+/* Arboretum */
+"No geotagged specimens yet. Capture with location enabled to plant discoveries on the map." = "No geotagged specimens yet. Capture with location enabled to plant discoveries on the map.";
+"LeafID could not determine your location right now. Check permission access and try again." = "LeafID could not determine your location right now. Check permission access and try again.";
+
+/* Profile */
+"Identify a plant and save it to your Herbarium — it will show up here." = "Identify a plant and save it to your Herbarium — it will show up here.";
+"Profile settings updated." = "Profile settings updated.";
+"Account and notifications will connect to Supabase when sign-in is enabled in this build." = "Account and notifications will connect to Supabase when sign-in is enabled in this build.";
+"Settings" = "Settings";
+"Plants" = "Plants";
+"Species" = "Species";
+"Scans" = "Scans";
+"Profile photo" = "Profile photo";
+"Achievements" = "Achievements";
+"Recent Discoveries" = "Recent Discoveries";
+"Field Intelligence" = "Field Intelligence";
+"Unique Families" = "Unique Families";
+"Unlocked Countries" = "Unlocked Countries";
+"Discovery Streak" = "Discovery Streak";
+"days" = "days";
+"Dominant Color" = "Dominant Color";
+"First discovery: %@" = "First discovery: %@";
+
+/* Druid — sign-in overlay */
+"Welcome back" = "Welcome back";
+"Sign in with Google to unlock your Druid passport and sync your progress." = "Sign in with Google to unlock your Druid passport and sync your progress.";
+"Continue with Google" = "Continue with Google";
+
+/* Tabs */
+"Home" = "Home";
+"Arboretum" = "Arboretum";
+"Herbarium" = "Herbarium";
+"Druid" = "Druid";
+
+/* Home */
+"Good Morning" = "Good Morning";
+"Good Afternoon" = "Good Afternoon";
+"Good Evening" = "Good Evening";
+"Ready to explore nature?" = "Ready to explore nature?";
+"Upload from Gallery" = "Upload from Gallery";
+"Last Found" = "Last Found";
+"Save a specimen to your Herbarium" = "Save a specimen to your Herbarium";
+"Camera unavailable" = "Camera unavailable";
+"This device has no camera (e.g. Simulator). Use Upload from Gallery or run on a physical iPhone." = "This device has no camera (e.g. Simulator). Use Upload from Gallery or run on a physical iPhone.";
+"OK" = "OK";
+"Last found, %@" = "Last found, %@";
+
+/* Identify / Scan tab */
+"The" = "The";
+"Scan" = "Scan";
+"Capture a specimen — the Botanist consults the archive." = "Capture a specimen — the Botanist consults the archive.";
+"Use the camera or your photo library to identify a plant." = "Use the camera or your photo library to identify a plant.";
+"Open camera" = "Open camera";
+"Choose from library" = "Choose from library";
+"Use Choose from library on Simulator, or run on an iPhone." = "Use Choose from library on Simulator, or run on an iPhone.";
+
+/* Herbarium header */
+"Your collection of botanical wonders" = "Your collection of botanical wonders";
+
+/* Gallery scan button */
+"SCAN" = "SCAN";
+
+/* Scan results */
+"Low Confidence" = "Low Confidence";
+"NEW DISCOVERY" = "NEW DISCOVERY";
+"Live identification needs Supabase with the identify-plant function configured." = "Live identification needs Supabase with the identify-plant function configured.";
+"Save to Herbarium" = "Save to Herbarium";
+"Scan another specimen" = "Scan another specimen";
+"Exploring Specimen..." = "Exploring Specimen...";
+"Analyzing..." = "Analyzing...";
+
+/* Druid profile screen */
+"Your druid identity, progress, and unlocks." = "Your druid identity, progress, and unlocks.";
+"Botanical Explorer" = "Botanical Explorer";
+"Current path" = "Current path";
+"Scan energy" = "Scan energy";
+"Unlimited" = "Unlimited";
+"scans_left_format" = "%lld left";
+"Premium unlocked. You can scan without limits." = "Premium unlocked. You can scan without limits.";
+"You have 3 free scans. Unlock more to keep exploring." = "You have 3 free scans. Unlock more to keep exploring.";
+"Unlock more" = "Unlock more";
+"Foundry" = "Foundry";
+"Design system gallery and internal tools." = "Design system gallery and internal tools.";
+"Open Foundry" = "Open Foundry";
+"Support LeafID" = "Support LeafID";
+"LeafID is an independent, non-profit project. If it helped you connect with nature, you can support maintenance with a small coffee." = "LeafID is an independent, non-profit project. If it helped you connect with nature, you can support maintenance with a small coffee.";
+"Buy me a coffee" = "Buy me a coffee";
+"Log out" = "Log out";
+"Complete 6 scans to unlock Forest Sprout." = "Complete 6 scans to unlock Forest Sprout.";
+"Complete 16 scans to unlock Oak Guardian." = "Complete 16 scans to unlock Oak Guardian.";
+"Complete 50 scans to unlock Archdruid." = "Complete 50 scans to unlock Archdruid.";
+"You reached the highest rank." = "You reached the highest rank.";
+"Design System Foundry" = "Design System Foundry";
+"Incorrect password" = "Incorrect password";
+"Unlock Foundry" = "Unlock Foundry";
+"Password" = "Password";
+
+/* Druid ranks */
+"Wandering Seed" = "Wandering Seed";
+"Forest Sprout" = "Forest Sprout";
+"Oak Guardian" = "Oak Guardian";
+"Archdruid" = "Archdruid";
+"The Druid" = "The Druid";
+
+/* Paywall */
+"Premium" = "Premium";
+"Paywall headline" = "Grow your herbarium";
+"Paywall subtitle" = "Unlock advanced botanical tools and keep exploring without limits.";
+"Paywall benefit unlimited scans" = "Unlimited scans";
+"Paywall benefit plant health" = "Plant health insights";
+"Paywall benefit pdf" = "Rich specimen exports";
+"Paywall upgrade" = "Go Premium";
+"Paywall disclaimer" = "In-app purchases are not connected yet. This button will activate in an update; you can close and keep exploring on the free tier.";
+
+/* Achievements */
+"Greenhouse Guru" = "Greenhouse Guru";
+"Save your first specimen" = "Save your first specimen";
+"Catalog Builder" = "Catalog Builder";
+"Save 5 specimens" = "Save 5 specimens";
+"Species Collector" = "Species Collector";
+"Log 3 distinct species" = "Log 3 distinct species";
+"Family Matters" = "Family Matters";
+"Represent 2 plant families" = "Represent 2 plant families";
+"Globe Trotter" = "Globe Trotter";
+"Species from 2 countries of origin" = "Species from 2 countries of origin";
+"Archivist" = "Archivist";
+"Preserve 3 times (lifetime)" = "Preserve 3 times (lifetime)";
+"Dedicated" = "Dedicated";
+"Run 10 identifications" = "Run 10 identifications";
+"Week Wanderer" = "Week Wanderer";
+"7-day discovery streak" = "7-day discovery streak";
+
+/* Auth */
+"Join LeafID" = "Join LeafID";
+"Welcome Back" = "Welcome Back";
+"Create an account to save your journey" = "Create an account to save your journey";
+"Sign in to continue your journey" = "Sign in to continue your journey";
+"EMAIL ADDRESS" = "EMAIL ADDRESS";
+"PASSWORD" = "PASSWORD";
+"Forgot?" = "Forgot?";
+"Enter your password" = "Enter your password";
+"Creating account..." = "Creating account...";
+"Signing in..." = "Signing in...";
+"Create account" = "Create account";
+"Login" = "Login";
+"Enter both email and password." = "Enter both email and password.";
+"Already have an account?" = "Already have an account?";
+"Don't have an account?" = "Don't have an account?";
+"Sign in" = "Sign in";
+"Sign Up" = "Sign Up";
+"Completing Google sign in..." = "Completing Google sign in...";
+"Supabase is not configured. Add SUPABASE_URL (quoted) and SUPABASE_ANON_KEY in Secrets.local.xcconfig." = "Supabase is not configured. Add SUPABASE_URL (quoted) and SUPABASE_ANON_KEY in Secrets.local.xcconfig.";
+"recovery_email_format" = "Recovery email sent to %@. Check spam or promotions folders if it doesn’t arrive within a few minutes.\n\nFrom Gmail (or similar), open the link in Safari: tap ··· or the share icon, choose Open in Browser / Safari. In-app mail browsers often block returning to the app.";
+"Create new password" = "Create new password";
+"Set a new password to finish your account recovery." = "Set a new password to finish your account recovery.";
+"NEW PASSWORD" = "NEW PASSWORD";
+"CONFIRM PASSWORD" = "CONFIRM PASSWORD";
+"Minimum 8 characters" = "Minimum 8 characters";
+"Repeat your password" = "Repeat your password";
+"Passwords do not match." = "Passwords do not match.";
+"Updating..." = "Updating...";
+"Update Password" = "Update Password";
+"Back to login" = "Back to login";
+"Recover password" = "Recover password";
+"Enter your account email and we will send a recovery link." = "Enter your account email and we will send a recovery link.";
+"recovery_tip_safari" = "Tip: after you receive the email, open the link in Safari if the app does not open (Gmail’s in-app browser often blocks app links).";
+"Sending..." = "Sending...";
+"Send recovery link" = "Send recovery link";
+"EMAIL" = "EMAIL";
+"Google sign-in was cancelled or denied." = "Google sign-in was cancelled or denied.";
+"Could not complete Google sign-in. Try again." = "Could not complete Google sign-in. Try again.";
+"Missing access token from OAuth callback." = "Missing access token from OAuth callback.";
+"Invalid email or password." = "Invalid email or password.";
+"Password must be at least 6 characters." = "Password must be at least 6 characters.";
+"Check your email to confirm your account, then sign in." = "Check your email to confirm your account, then sign in.";
+"Could not create account. This email may already be registered." = "Could not create account. This email may already be registered.";
+"Enter a valid email address." = "Enter a valid email address.";
+"Supabase is not configured. Add SUPABASE_URL and SUPABASE_ANON_KEY in Secrets.local.xcconfig." = "Supabase is not configured. Add SUPABASE_URL and SUPABASE_ANON_KEY in Secrets.local.xcconfig.";
+"Could not send reset email. Try again." = "Could not send reset email. Try again.";
+"Password must be at least 8 characters." = "Password must be at least 8 characters.";
+"Recovery session expired. Request another reset email." = "Recovery session expired. Request another reset email.";
+"Could not update password. Request a new recovery link." = "Could not update password. Request a new recovery link.";
+"This recovery link is invalid or expired." = "This recovery link is invalid or expired.";
+"Recovery session token missing." = "Recovery session token missing.";
+"Failed to restore session from Supabase." = "Failed to restore session from Supabase.";
+"Restoring session..." = "Restoring session...";
+"Restoring session" = "Restoring session";
+"Could not load your Herbarium from the server." = "Could not load your Herbarium from the server.";
+"Loading your collection…" = "Loading your collection…";
+
+/* Profile defaults */
+"Botanical Enthusiast" = "Botanical Enthusiast";

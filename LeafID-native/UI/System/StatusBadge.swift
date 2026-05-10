@@ -19,7 +19,7 @@ struct StatusBadge: View {
     private var tint: Color {
         switch state {
         case .loading: return LeafIDTheme.slateMuted
-        case .error: return Color(hex: 0xF87171)
+        case .error: return LeafIDTheme.error
         case .active: return LeafIDTheme.leafGreen
         }
     }
@@ -33,8 +33,8 @@ struct StatusBadge: View {
             .padding(.vertical, LeafIDTheme.space8)
             .background(
                 Capsule()
-                    .fill(Color.white.opacity(0.08))
-                    .overlay(Capsule().strokeBorder(Color.white.opacity(0.12), lineWidth: 1))
+                    .fill(LeafIDTheme.chromeHighlight.opacity(0.08))
+                    .overlay(Capsule().strokeBorder(LeafIDTheme.chromeHighlight.opacity(0.12), lineWidth: 1))
             )
     }
 }

@@ -54,12 +54,17 @@ private struct ScanResultsOutlineButton: View {
     @State private var pressed = false
 
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            #if canImport(UIKit)
+            LeafIDHaptics.impact(.light)
+            #endif
+            action()
+        }) {
             HStack(spacing: LeafIDTheme.space12) {
                 Image(systemName: leadingSystemImage)
                     .font(.system(size: 18, weight: .semibold))
                 Text(title)
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .font(LeafIDFont.plusJakarta(size: 17, weight: .bold))
                     .tracking(0.4)
             }
             .foregroundStyle(LeafIDTheme.onSurface)
@@ -76,7 +81,7 @@ private struct ScanResultsOutlineButton: View {
                     .strokeBorder(LeafIDTheme.outlineVariant.opacity(LeafIDTheme.liquidGlassBorderOpacity), lineWidth: 1)
             }
             .shadow(
-                color: Color.black.opacity(LeafIDTheme.shadowButtonOpacity),
+                color: LeafIDTheme.shadowBase.opacity(LeafIDTheme.shadowButtonOpacity),
                 radius: LeafIDTheme.shadowButtonRadius,
                 y: LeafIDTheme.shadowButtonY
             )
@@ -104,6 +109,7 @@ struct ScanResultsView: View {
     var onScanAgain: () -> Void
 
     @EnvironmentObject private var herbarium: HerbariumViewModel
+    @EnvironmentObject private var authViewModel: AuthViewModel
     @State private var showShareSheet = false
     @State private var showSaveFailureAlert = false
     #if canImport(UIKit)
@@ -139,12 +145,12 @@ struct ScanResultsView: View {
     private var isFallbackResult: Bool { result.usedFallback }
 
     private var displayScientificTitle: String {
-        if isFallbackResult { return "Exploring Specimen..." }
+        if isFallbackResult { return String(localized: "Exploring Specimen...") }
         return result.scientificName
     }
 
     private var displayCommonName: String {
-        if isFallbackResult { return "Analyzing..." }
+        if isFallbackResult { return String(localized: "Analyzing...") }
         return result.commonName.localizedCapitalized
     }
 
@@ -301,16 +307,16 @@ struct ScanResultsView: View {
                     .font(LeafIDFont.manrope(size: 10, weight: .bold))
                     .tracking(0.6)
             }
-            .foregroundStyle(Color.orange.opacity(0.95))
+            .foregroundStyle(LeafIDTheme.caution.opacity(0.95))
             .padding(.horizontal, LeafIDTheme.space10)
             .padding(.vertical, LeafIDTheme.space6)
             .background(
                 Capsule(style: .continuous)
-                    .fill(Color.orange.opacity(0.14))
+                    .fill(LeafIDTheme.caution.opacity(0.14))
             )
             .overlay {
                 Capsule(style: .continuous)
-                    .strokeBorder(Color.orange.opacity(0.28), lineWidth: 1)
+                    .strokeBorder(LeafIDTheme.caution.opacity(0.28), lineWidth: 1)
             }
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Low confidence fallback result")
@@ -428,7 +434,7 @@ struct ScanResultsView: View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
             HStack(alignment: .center, spacing: LeafIDTheme.space12) {
                 if result.isNewDiscovery {
-                    Text("NEW DISCOVERY")
+                    Text(String(localized: "NEW DISCOVERY"))
                         .font(LeafIDFont.manrope(size: 9, weight: .bold))
                         .tracking(2.2)
                         .foregroundStyle(LeafIDTheme.onPrimary)
@@ -455,11 +461,17 @@ struct ScanResultsView: View {
                 .font(LeafIDFont.plusJakarta(size: 28, weight: .bold))
                 .tracking(-0.4)
                 .foregroundStyle(LeafIDTheme.onSurface)
+                .lineLimit(5)
+                .minimumScaleFactor(0.7)
+                .fixedSize(horizontal: false, vertical: true)
 
             Text(displayCommonName)
                 .font(LeafIDFont.plusJakarta(size: 18, weight: .medium))
                 .italic()
                 .foregroundStyle(LeafIDTheme.onSurface.opacity(0.92))
+                .lineLimit(3)
+                .minimumScaleFactor(0.82)
+                .fixedSize(horizontal: false, vertical: true)
             #endif
 
             metadataChipsSection
@@ -471,14 +483,14 @@ struct ScanResultsView: View {
                 .lineSpacing(LeafIDTheme.space4)
 
             if !BotanyService.isPlantIdentificationLive {
-                Text("Live identification needs Supabase with the identify-plant function configured.")
+                Text(String(localized: "Live identification needs Supabase with the identify-plant function configured."))
                     .font(LeafIDFont.manrope(size: 11, weight: .semibold))
                     .foregroundStyle(LeafIDTheme.primary.opacity(0.85))
                     .padding(.vertical, LeafIDTheme.space6)
             }
 
             LeafPrimaryButton(
-                title: "Save to Herbarium",
+                title: String(localized: "Save to Herbarium"),
                 leadingSystemImage: "leaf.fill",
                 isEnabled: canSaveToHerbarium,
                 useSolidPrimaryFill: true
@@ -490,7 +502,9 @@ struct ScanResultsView: View {
                         captureLatitude: captureLatitude,
                         captureLongitude: captureLongitude,
                         captureLocality: captureLocality,
-                        herbarium: herbarium
+                        herbarium: herbarium,
+                        accessToken: authViewModel.supabaseAccessToken,
+                        userId: authViewModel.supabaseUserId
                     )
                     if saved != nil {
                         #if canImport(UIKit)
@@ -518,7 +532,7 @@ struct ScanResultsView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            ScanResultsOutlineButton(title: "Scan another specimen") {
+            ScanResultsOutlineButton(title: String(localized: "Scan another specimen")) {
                 onScanAgain()
             }
         }
@@ -552,6 +566,9 @@ struct ScanResultsView: View {
                     .tracking(-0.4)
                     .foregroundStyle(LeafIDTheme.onSurface)
                     .multilineTextAlignment(.leading)
+                    .lineLimit(5)
+                    .minimumScaleFactor(0.7)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 previewCaptureMetadataRow
 
@@ -560,6 +577,9 @@ struct ScanResultsView: View {
                     .italic()
                     .foregroundStyle(LeafIDTheme.onSurface.opacity(0.92))
                     .multilineTextAlignment(.leading)
+                    .lineLimit(3)
+                    .minimumScaleFactor(0.82)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 highConfidenceMatchBadge
             }
@@ -584,19 +604,13 @@ struct ScanResultsView: View {
 
         return VStack(spacing: 0) {
             sheetPanelDragHandle()
-            ViewThatFits(in: .vertical) {
+            ScrollView(.vertical, showsIndicators: false) {
                 sheetPanelScrollStack(
                     sheetHorizontalInset: sheetHorizontalInset,
                     contentBottom: contentBottom
                 )
-                ScrollView(.vertical, showsIndicators: false) {
-                    sheetPanelScrollStack(
-                        sheetHorizontalInset: sheetHorizontalInset,
-                        contentBottom: contentBottom
-                    )
-                }
-                .frame(maxHeight: scrollMaxHeight)
             }
+            .frame(maxHeight: scrollMaxHeight)
         }
         .frame(maxWidth: .infinity)
         .fixedSize(horizontal: false, vertical: true)

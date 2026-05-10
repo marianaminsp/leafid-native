@@ -14,7 +14,7 @@ struct LiquidGlassViewModifier: ViewModifier {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
         content
             .background(shape.fill(.ultraThinMaterial))
-            .overlay(shape.strokeBorder(Color.white.opacity(LeafIDTheme.liquidGlassBorderOpacity), lineWidth: 1))
+            .overlay(shape.strokeBorder(LeafIDTheme.chromeHighlight.opacity(LeafIDTheme.liquidGlassBorderOpacity), lineWidth: 1))
             .clipShape(shape)
     }
 }

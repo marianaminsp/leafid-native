@@ -20,8 +20,6 @@ struct ProfileView: View {
 
     @State private var headerMinY: CGFloat = 0
     @State private var showSettings = false
-    @State private var showFoundryPasswordGate = false
-    @State private var showFoundryGallery = false
 
     private var headerCollapseProgress: CGFloat {
         let y = headerMinY
@@ -80,10 +78,6 @@ struct ProfileView: View {
                             achievementsSection
 
                             recentDiscoveriesSection
-
-                            #if DEBUG
-                            profileFoundryFooter
-                            #endif
                         }
                         .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
                         .padding(.top, LeafIDTheme.space8)
@@ -98,22 +92,11 @@ struct ProfileView: View {
         .sheet(isPresented: $showSettings) {
             profileSettingsSheet
         }
-        #if DEBUG
-        .sheet(isPresented: $showFoundryPasswordGate) {
-            FoundryPasswordGateSheet(
-                isPresented: $showFoundryPasswordGate,
-                showGallery: $showFoundryGallery
-            )
-        }
-        .fullScreenCover(isPresented: $showFoundryGallery) {
-            DesignSystemGalleryView(dismiss: { showFoundryGallery = false })
-        }
-        #endif
     }
 
     private var profileScrollHeader: some View {
         HStack(alignment: .top, spacing: LeafIDTheme.space16) {
-            Text("Druid")
+            Text(String(localized: "Druid"))
                 .font(LeafIDFont.plusJakarta(size: profileTitlePointSize, weight: .bold))
                 .foregroundStyle(LeafIDTheme.onSurface)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -133,7 +116,7 @@ struct ProfileView: View {
                     }
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Settings")
+            .accessibilityLabel(String(localized: "Settings"))
         }
         .animation(.easeOut(duration: 0.2), value: headerCollapseProgress)
     }
@@ -146,6 +129,9 @@ struct ProfileView: View {
                     Text(profileModel.displayName)
                         .font(LeafIDFont.plusJakarta(size: 22, weight: .bold))
                         .foregroundStyle(LeafIDTheme.onSurface)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.72)
+                        .multilineTextAlignment(.leading)
                     Text(profileModel.roleTitle)
                         .font(LeafIDFont.manrope(size: 15, weight: .medium))
                         .foregroundStyle(LeafIDTheme.onSurfaceVariant)
@@ -154,11 +140,11 @@ struct ProfileView: View {
             }
 
             HStack(spacing: 0) {
-                profileStatColumn(value: plants, label: "Plants")
+                profileStatColumn(value: plants, label: String(localized: "Plants"))
                 profileStatDivider
-                profileStatColumn(value: species, label: "Species")
+                profileStatColumn(value: species, label: String(localized: "Species"))
                 profileStatDivider
-                profileStatColumn(value: scans, label: "Scans")
+                profileStatColumn(value: scans, label: String(localized: "Scans"))
             }
         }
         .padding(LeafIDTheme.space24)
@@ -195,7 +181,7 @@ struct ProfileView: View {
                 .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.2), lineWidth: 1)
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Profile photo")
+        .accessibilityLabel(String(localized: "Profile photo"))
     }
 
     private func profileStatColumn(value: Int, label: String) -> some View {
@@ -222,7 +208,7 @@ struct ProfileView: View {
 
     private var achievementsSection: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space14) {
-            Text("Achievements")
+            Text(String(localized: "Achievements"))
                 .font(LeafIDFont.plusJakarta(size: 20, weight: .bold))
                 .foregroundStyle(LeafIDTheme.onSurface)
 
@@ -236,12 +222,12 @@ struct ProfileView: View {
 
     private var recentDiscoveriesSection: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space14) {
-            Text("Recent Discoveries")
+            Text(String(localized: "Recent Discoveries"))
                 .font(LeafIDFont.plusJakarta(size: 20, weight: .bold))
                 .foregroundStyle(LeafIDTheme.onSurface)
 
             if collectionFeed.isEmpty {
-                Text("Identify a plant and save it to your Herbarium — it will show up here.")
+                Text(String(localized: "Identify a plant and save it to your Herbarium — it will show up here."))
                     .font(LeafIDFont.manrope(size: 14, weight: .medium))
                     .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                     .padding(LeafIDTheme.space20)
@@ -256,61 +242,24 @@ struct ProfileView: View {
         }
     }
 
-    #if DEBUG
-    private var profileFoundryFooter: some View {
-        Button {
-            showFoundryPasswordGate = true
-        } label: {
-            HStack(alignment: .center, spacing: LeafIDTheme.space16) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(LeafIDTheme.surfaceContainerHigh)
-                        .frame(width: 48, height: 48)
-                    Image(systemName: "square.grid.3x3.fill")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(LeafIDTheme.primary)
-                }
-                VStack(alignment: .leading, spacing: LeafIDTheme.space4) {
-                    Text("Foundry")
-                        .font(LeafIDFont.plusJakarta(size: 17, weight: .semibold))
-                        .foregroundStyle(LeafIDTheme.onSurface)
-                    Text("Design system gallery")
-                        .font(LeafIDFont.manrope(size: 13, weight: .medium))
-                        .foregroundStyle(LeafIDTheme.onSurfaceVariant)
-                }
-                Spacer(minLength: 0)
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(LeafIDTheme.outlineVariant.opacity(0.45))
-            }
-            .padding(LeafIDTheme.space16)
-            .background(LeafIDTheme.surfaceContainerHigh)
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous)
-                    .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.08), lineWidth: 1)
-            }
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Open Design System Foundry")
-    }
-    #endif
-
     private var profileBentoStatsSection: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space14) {
-            Text("Field Intelligence")
+            Text(String(localized: "Field Intelligence"))
                 .font(LeafIDFont.plusJakarta(size: 20, weight: .bold))
                 .foregroundStyle(LeafIDTheme.onSurface)
 
             let columns = [GridItem(.flexible(), spacing: LeafIDTheme.space12), GridItem(.flexible(), spacing: LeafIDTheme.space12)]
             LazyVGrid(columns: columns, spacing: LeafIDTheme.space12) {
-                bentoTile(title: "Unique Families", value: "\(localSnapshot.uniqueFamilies)")
-                bentoTile(title: "Unlocked Countries", value: "\(localSnapshot.unlockedCountries.count)")
+                bentoTile(title: String(localized: "Unique Families"), value: "\(localSnapshot.uniqueFamilies)")
+                bentoTile(title: String(localized: "Unlocked Countries"), value: "\(localSnapshot.unlockedCountries.count)")
                 bentoDominantColorTile
-                bentoTile(title: "Discovery Streak", value: "\(localSnapshot.discoveryStreakDays) days")
+                bentoTile(
+                    title: String(localized: "Discovery Streak"),
+                    value: "\(localSnapshot.discoveryStreakDays) \(String(localized: "days"))"
+                )
             }
             if let first = localSnapshot.firstDiscoveryDate {
-                Text("First discovery: \(profileModel.mediumDate(first))")
+                Text(String(format: String(localized: "First discovery: %@"), profileModel.mediumDate(first)))
                     .font(LeafIDFont.manrope(size: 13, weight: .semibold))
                     .foregroundStyle(LeafIDTheme.onSurfaceVariant)
             }
@@ -370,7 +319,7 @@ struct ProfileView: View {
     private var profileSettingsSheet: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: LeafIDTheme.space16) {
-                Text("Account and notifications will connect to Supabase when sign-in is enabled in this build.")
+                Text(String(localized: "Account and notifications will connect to Supabase when sign-in is enabled in this build."))
                     .font(LeafIDFont.manrope(size: 15, weight: .medium))
                     .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                 Spacer(minLength: 0)
@@ -378,7 +327,7 @@ struct ProfileView: View {
             .padding(LeafIDTheme.space24)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(LeafIDTheme.surface.ignoresSafeArea())
-            .navigationTitle("Settings")
+            .navigationTitle(String(localized: "Settings"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -445,87 +394,6 @@ private struct DruidAchievementGridTile: View {
     }
 }
 
-// MARK: - Foundry (Druid screen)
-
-private enum FoundryGate {
-    static let password = "Test"
-}
-
-private struct FoundryPasswordGateSheet: View {
-    @Binding var isPresented: Bool
-    @Binding var showGallery: Bool
-    @State private var passwordEntry = ""
-    @State private var gateError = false
-    @FocusState private var passwordFocused: Bool
-
-    var body: some View {
-        NavigationStack {
-            VStack(alignment: .leading, spacing: LeafIDTheme.space20) {
-                Text("Design System Foundry")
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
-                    .foregroundStyle(LeafIDTheme.onSurface)
-
-                SecureField("Password", text: $passwordEntry)
-                    .textContentType(.password)
-                    .focused($passwordFocused)
-                    .padding(LeafIDTheme.space16)
-                    .background(LeafIDTheme.surfaceContainerLow)
-                    .clipShape(RoundedRectangle(cornerRadius: LeafIDTheme.space12, style: .continuous))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: LeafIDTheme.space12, style: .continuous)
-                            .strokeBorder(
-                                gateError ? LeafIDTheme.primary.opacity(0.45) : LeafIDTheme.outlineVariant.opacity(0.15),
-                                lineWidth: 1
-                            )
-                    }
-
-                if gateError {
-                    Text("Incorrect password")
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
-                        .foregroundStyle(LeafIDTheme.primary.opacity(0.9))
-                }
-
-                Button("Unlock Foundry") {
-                    attemptUnlock()
-                }
-                .font(.system(size: 17, weight: .semibold, design: .rounded))
-                .foregroundStyle(LeafIDTheme.primary)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, LeafIDTheme.space14)
-                .background(LeafIDTheme.surfaceContainerHigh)
-                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous))
-
-                Spacer(minLength: 0)
-            }
-            .padding(LeafIDTheme.space24)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .background(LeafIDTheme.surface.ignoresSafeArea())
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    ModalCloseButton { isPresented = false }
-                }
-            }
-            .onAppear { passwordFocused = true }
-        }
-        .preferredColorScheme(.dark)
-        .onDisappear {
-            passwordEntry = ""
-            gateError = false
-        }
-    }
-
-    private func attemptUnlock() {
-        if passwordEntry == FoundryGate.password {
-            gateError = false
-            isPresented = false
-            passwordEntry = ""
-            showGallery = true
-        } else {
-            gateError = true
-        }
-    }
-}
-
 // MARK: - Discovery row
 
 private struct ProfileDiscoveryRow: View {
@@ -551,9 +419,14 @@ private struct ProfileDiscoveryRow: View {
                 Text(item.title)
                     .font(LeafIDFont.plusJakarta(size: 17, weight: .semibold))
                     .foregroundStyle(LeafIDTheme.onSurface)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.82)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text(item.subtitle)
                     .font(LeafIDFont.manrope(size: 13, weight: .medium))
                     .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)
         }

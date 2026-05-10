@@ -52,7 +52,7 @@ private struct AnalyzingLeafStatusPill: View {
             Capsule(style: .continuous)
                 .strokeBorder(ScannerVisual.accentPrimary.opacity(0.2), lineWidth: 1)
         }
-        .shadow(color: Color.black.opacity(0.35), radius: 16, y: 6)
+        .shadow(color: LeafIDTheme.shadowBase.opacity(0.35), radius: 16, y: 6)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(String(localized: "Analyzing leaf"))
     }
@@ -204,7 +204,7 @@ private enum ScannerChrome {
             cornerRadius: cornerR,
             holeMinY: layout.holeTop
         )
-        .fill(Color.black.opacity(0.6), style: FillStyle(eoFill: true))
+        .fill(LeafIDTheme.shadowBase.opacity(0.6), style: FillStyle(eoFill: true))
         .frame(width: geo.size.width, height: fullViewportHeight)
         .allowsHitTesting(false)
     }
@@ -271,18 +271,23 @@ private struct GlassShutterButton: View {
     var action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            #if canImport(UIKit)
+            LeafIDHaptics.impact(.medium)
+            #endif
+            action()
+        }) {
             ZStack {
                 Circle()
                     .fill(.ultraThinMaterial)
                     .frame(width: diameter, height: diameter)
                 Circle()
-                    .strokeBorder(Color.white, lineWidth: 2)
+                    .strokeBorder(LeafIDTheme.chromeHighlight, lineWidth: 2)
                     .frame(width: diameter, height: diameter)
             }
         }
         .buttonStyle(.plain)
-        .shadow(color: Color.black.opacity(0.35), radius: 12, y: 6)
+        .shadow(color: LeafIDTheme.shadowBase.opacity(0.35), radius: 12, y: 6)
         .disabled(!isEnabled)
         .opacity(isEnabled ? 1 : 0.45)
         .accessibilityLabel(String(localized: "Capture photo"))
@@ -406,7 +411,7 @@ private struct ScannerLiveView: View {
 
     private func cameraErrorOverlay(message: String) -> some View {
         ZStack {
-            Color.black.opacity(0.55)
+            LeafIDTheme.shadowBase.opacity(0.55)
                 .ignoresSafeArea()
             VStack(spacing: LeafIDTheme.space16) {
                 Text(message)

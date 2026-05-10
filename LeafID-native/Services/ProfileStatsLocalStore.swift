@@ -56,7 +56,7 @@ enum ProfileStatsLocalStore {
         UserDefaults.standard.integer(forKey: cumulativeHerbariumSavesKey)
     }
 
-    /// Incremented when Preserve completes: **cloud** insert succeeded, or Supabase is not configured (local-only dev).
+    /// Incremented when Preserve completes (specimen appended to Herbarium), whether or not the remote insert succeeded.
     static func recordHerbariumSave() {
         let defaults = UserDefaults.standard
         defaults.set(defaults.integer(forKey: cumulativeHerbariumSavesKey) + 1, forKey: cumulativeHerbariumSavesKey)

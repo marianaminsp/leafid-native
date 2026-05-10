@@ -2,7 +2,7 @@
 //  BotanyService.swift
 //  LeafID-native
 //
-//  Port target: lib/botanyService.ts — identify-plant edge function, Storage `plant-photos`, `scans` insert.
+//  Port target: lib/botanyService.ts — identify-plant edge function, Storage `plant-images`, `scans` insert/fetch.
 //
 
 import Foundation
@@ -400,7 +400,9 @@ enum BotanyService {
         captureLatitude: Double? = nil,
         captureLongitude: Double? = nil,
         captureLocality: String? = nil,
-        herbarium: HerbariumViewModel
+        herbarium: HerbariumViewModel,
+        accessToken: String? = nil,
+        userId: UUID? = nil
     ) async -> UUID? {
         guard let imageJPEGData, !imageJPEGData.isEmpty else {
             #if DEBUG
@@ -417,8 +419,8 @@ enum BotanyService {
         }
         let photoURL = fileURL.absoluteString
 
-        let mergedLat: Double?
-        let mergedLon: Double?
+        var mergedLat: Double?
+        var mergedLon: Double?
         let locationLine: String
         #if canImport(UIKit) && canImport(ImageIO)
         let merged = mergedLocationLineAndCoordinates(
@@ -437,6 +439,16 @@ enum BotanyService {
         #endif
 
         #if canImport(CoreLocation)
+        if mergedLat == nil || mergedLon == nil {
+            let deviceShot = await OneShotLocationRequest().requestCoordinateAndLocality(maxWaitSeconds: 2.5)
+            if let c = deviceShot.0 {
+                mergedLat = c.latitude
+                mergedLon = c.longitude
+            }
+        }
+        #endif
+
+        #if canImport(CoreLocation)
         let locality = await localityForCapture(
             captureLocality: captureLocality,
             mergedLatitude: mergedLat,
@@ -450,14 +462,26 @@ enum BotanyService {
 
         let localPhotoURLString = photoURL
         var resolvedPhotoURL = localPhotoURLString
-        if isSupabasePreserveConfigured {
-            if let publicURL = await uploadJPEGToPlantPhotosBucket(jpegData: imageJPEGData, objectName: "\(id.uuidString).jpg") {
+        if isSupabasePreserveConfigured,
+           let token = accessToken,
+           let ownerId = userId
+        {
+            if let publicURL = await uploadJPEGToPlantImagesBucket(
+                jpegData: imageJPEGData,
+                scanId: id,
+                userId: ownerId,
+                accessToken: token
+            ) {
                 resolvedPhotoURL = publicURL
             } else {
                 #if DEBUG
                 print("[LeafID] Supabase Storage upload failed; using local capture path until retry.")
                 #endif
             }
+        } else if isSupabasePreserveConfigured {
+            #if DEBUG
+            print("[LeafID] Preserve: missing session; skipping Storage upload (sign in required for bucket RLS).")
+            #endif
         }
 
         let localityFallback = locality?.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -474,7 +498,7 @@ enum BotanyService {
         let safeOrigin = displaySafeOrigin(result.originCountry.nilIfEmpty ?? captureCountry)
         let scan = Scan(
             id: id,
-            userId: nil,
+            userId: userId,
             treeId: nil,
             commonName: result.commonName,
             scientificName: result.scientificName,
@@ -499,17 +523,17 @@ enum BotanyService {
             culturalLegacy: culturalLegacyForPersist(from: result).nilIfEmpty
         )
 
-        let remoteInsertSucceeded: Bool
-        if isSupabasePreserveConfigured {
-            remoteInsertSucceeded = await insertScanRowRest(scan)
-        } else {
-            remoteInsertSucceeded = false
+        if isSupabasePreserveConfigured, let token = accessToken, userId != nil {
+            let inserted = await insertScanRowRest(scan, accessToken: token)
+            if !inserted {
+                #if DEBUG
+                print("[LeafID] scans insert failed; specimen kept locally. Check RLS and table columns.")
+                #endif
+            }
         }
 
         herbarium.appendPreservedScan(scan)
-        if remoteInsertSucceeded || !isSupabasePreserveConfigured {
-            ProfileStatsLocalStore.recordHerbariumSave()
-        }
+        ProfileStatsLocalStore.recordHerbariumSave()
 
         #if canImport(UIKit) && canImport(CoreLocation)
         if let lat = mergedLat, let lon = mergedLon, isWeakCaptureLocationString(safeLocationLine) {
@@ -712,6 +736,29 @@ enum BotanyService {
             family: famMerged.isEmpty ? "plants" : famMerged,
             originLine: originLine
         )
+    }
+
+    /// When Plant.id / on-device copy is thin or empty, enrich from Wikipedia REST summary, then optional Gemini (same API key as narrative).
+    static func enrichCulturalLegacyDisplay(scan: Scan, preview: IdentifyPreviewResult?, baseline: String) async -> String {
+        let trimmed = baseline.trimmingCharacters(in: .whitespacesAndNewlines.union(.newlines))
+        if trimmed.count >= 80 { return baseline }
+
+        let sci = scan.scientificName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let com = scan.commonName.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let wiki = await wikipediaExtractForCulturalLegacy(scientificName: sci, commonName: com), !wiki.isEmpty {
+            return wiki
+        }
+
+        let fam = (scan.family ?? preview?.family ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        if let gem = await geminiCulturalLegacyFact(commonName: com, scientificName: sci, family: fam) {
+            let g = gem.trimmingCharacters(in: .whitespacesAndNewlines.union(.newlines))
+            if !g.isEmpty { return clampNarrativeLine(g) }
+        }
+
+        if trimmed.isEmpty {
+            return mergedCulturalLegacy(scan: scan, preview: preview)
+        }
+        return baseline
     }
 
     static func culturalLegacyForPersist(from result: IdentifyPreviewResult) -> String {
@@ -959,6 +1006,94 @@ enum BotanyService {
             }
         }
         return nil
+    }
+
+    private static func wikipediaExtractForCulturalLegacy(scientificName: String, commonName: String) async -> String? {
+        let queries = [scientificName, commonName]
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        var seen = Set<String>()
+        let unique = queries.filter { seen.insert($0.lowercased()).inserted }
+        for q in unique {
+            guard let encoded = q.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                  let url = URL(string: "https://en.wikipedia.org/api/rest_v1/page/summary/\(encoded)")
+            else { continue }
+            do {
+                let (data, response) = try await URLSession.shared.data(from: url)
+                guard let http = response as? HTTPURLResponse, (200 ... 299).contains(http.statusCode) else { continue }
+                guard let summary = try? JSONDecoder().decode(WikipediaSummary.self, from: data),
+                      let extract = summary.extract?.trimmingCharacters(in: .whitespacesAndNewlines),
+                      !extract.isEmpty
+                else { continue }
+                let cleaned = sanitizeWikiExtractForLegacy(extract)
+                let line = clampNarrativeLine(cleaned)
+                if line.count >= 48 { return line }
+            } catch {
+                continue
+            }
+        }
+        return nil
+    }
+
+    private static func sanitizeWikiExtractForLegacy(_ raw: String) -> String {
+        var t = raw.replacingOccurrences(of: #"\[\d+\]"#, with: "", options: .regularExpression)
+        t = t.replacingOccurrences(of: #"\[a\]"#, with: "", options: .regularExpression)
+        t = t.replacingOccurrences(of: "  ", with: " ")
+        if let range = t.range(of: "\n") {
+            t = String(t[..<range.lowerBound])
+        }
+        let sentenceEnd = t.firstIndex(where: { ".!?".contains($0) }) ?? t.endIndex
+        var out = String(t[..<sentenceEnd]).trimmingCharacters(in: .whitespacesAndNewlines)
+        if out.isEmpty { out = t.trimmingCharacters(in: .whitespacesAndNewlines) }
+        return out
+    }
+
+    private struct GeminiCulturalLegacyOnly: Decodable {
+        let cultural_legacy: String?
+    }
+
+    private static func geminiCulturalLegacyFact(commonName: String, scientificName: String, family: String) async -> String? {
+        guard let endpoint = GeminiConfig.generateContentURL() else { return nil }
+        var request = URLRequest(url: endpoint)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 18
+        let prompt = """
+        Return ONLY valid JSON (no markdown, no code fences). Single key "cultural_legacy": one engaging sentence (<=220 chars) about cultural, historical, or everyday significance of this plant for a general audience. No medical claims.
+        Species: \(scientificName)
+        Common name: \(commonName)
+        Family: \(family)
+        """
+        let userTurn: [String: Any] = [
+            "role": "user",
+            "parts": [["text": prompt] as [String: Any]],
+        ]
+        let body: [String: Any] = ["contents": [userTurn]]
+        guard let payload = try? JSONSerialization.data(withJSONObject: body) else { return nil }
+        request.httpBody = payload
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.timeoutIntervalForRequest = 18
+        configuration.timeoutIntervalForResource = 22
+        let session = URLSession(configuration: configuration)
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            return nil
+        }
+        guard let http = response as? HTTPURLResponse, (200 ... 299).contains(http.statusCode) else { return nil }
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let candidates = json["candidates"] as? [[String: Any]],
+              let content = candidates.first?["content"] as? [String: Any],
+              let parts = content["parts"] as? [[String: Any]],
+              let text = parts.first?["text"] as? String
+        else { return nil }
+        guard let normalized = normalizedJSONObjectString(from: text),
+              let raw = normalized.data(using: .utf8),
+              let decoded = try? JSONDecoder().decode(GeminiCulturalLegacyOnly.self, from: raw)
+        else { return nil }
+        return decoded.cultural_legacy
     }
 
     /// Decodes top-level `IdentifyPlantJSON` or common wrapper objects from edge functions.
@@ -1577,10 +1712,14 @@ enum BotanyService {
         }
     }
 
-    // MARK: - Supabase Preserve (Storage `plant-photos` + `public.scans` via PostgREST)
+    // MARK: - Supabase Preserve (Storage `plant-images` + `public.scans` via PostgREST)
 
     /// When `false`, PostgREST inserts omit `latitude` / `longitude` / `locality` so inserts succeed if those columns are not migrated yet. Set to `true` after adding nullable columns on `public.scans`.
     private static let postgRESTScansIncludeGeoColumns = true
+    /// Set `true` only if your `public.scans` table includes these optional narrative columns (see `docs/SWIFT_MIGRATION_GUIDE.md`).
+    private static let postgRESTScansIncludeExtendedMetadata = false
+
+    private static let plantImagesBucketId = "plant-images"
 
     private static func supabaseProjectRootURLString() -> String? {
         guard var base = LeafIDSupabaseConfig.urlString else { return nil }
@@ -1588,16 +1727,84 @@ enum BotanyService {
         return base
     }
 
-    /// Uploads JPEG to the `plant-photos` bucket and returns the **public** URL for `scans.photo_url`.
-    private static func uploadJPEGToPlantPhotosBucket(jpegData: Data, objectName: String) async -> String? {
+    private static func supabaseJSONDecoder() -> JSONDecoder {
+        let d = JSONDecoder()
+        d.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            if container.decodeNil() {
+                throw DecodingError.valueNotFound(Date.self, .init(codingPath: decoder.codingPath, debugDescription: "null date"))
+            }
+            let str = try container.decode(String.self)
+            let f = ISO8601DateFormatter()
+            f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let date = f.date(from: str) { return date }
+            f.formatOptions = [.withInternetDateTime]
+            if let date = f.date(from: str) { return date }
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid ISO8601 date: \(str)")
+        }
+        return d
+    }
+
+    /// Fetches scans visible to the current user (`RLS` restricts rows to `user_id = auth.uid()` when policies are enabled).
+    static func fetchScansForCurrentUser(accessToken: String) async throws -> [Scan] {
+        guard let root = supabaseProjectRootURLString(), let anon = LeafIDSupabaseConfig.anonKey else {
+            throw BotanyServiceError.invalidResponse
+        }
+        var components = URLComponents(string: "\(root)/rest/v1/scans")
+        components?.queryItems = [
+            URLQueryItem(name: "select", value: "*"),
+            URLQueryItem(name: "order", value: "created_at.desc"),
+        ]
+        guard let url = components?.url else { throw BotanyServiceError.invalidResponse }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue(anon, forHTTPHeaderField: "apikey")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.timeoutIntervalForRequest = 45
+        configuration.timeoutIntervalForResource = 60
+        let session = URLSession(configuration: configuration)
+
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse else { throw BotanyServiceError.invalidResponse }
+        guard (200 ... 299).contains(http.statusCode) else {
+            let msg = String(data: data, encoding: .utf8) ?? ""
+            throw BotanyServiceError.identifyFailed(msg.isEmpty ? "HTTP \(http.statusCode)" : msg)
+        }
+
+        do {
+            return try supabaseJSONDecoder().decode([Scan].self, from: data)
+        } catch {
+            #if DEBUG
+            print("[LeafID] scans decode error: \(error.localizedDescription)")
+            #endif
+            throw BotanyServiceError.invalidResponse
+        }
+    }
+
+    /// Uploads JPEG to `plant-images/{userId}/{scanId}.jpg` and returns the **public** object URL for `scans.photo_url`.
+    private static func uploadJPEGToPlantImagesBucket(
+        jpegData: Data,
+        scanId: UUID,
+        userId: UUID,
+        accessToken: String
+    ) async -> String? {
         guard let root = supabaseProjectRootURLString(), let anon = LeafIDSupabaseConfig.anonKey else { return nil }
-        let safeName = objectName.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !safeName.isEmpty, !jpegData.isEmpty else { return nil }
-        guard let uploadURL = URL(string: "\(root)/storage/v1/object/plant-photos/\(safeName)") else { return nil }
+        guard !jpegData.isEmpty else { return nil }
+        let owner = userId.uuidString.lowercased()
+        let fileName = "\(scanId.uuidString.lowercased()).jpg"
+        let objectPath = "\(owner)/\(fileName)"
+        let encodedPath = objectPath.split(separator: "/")
+            .map { String($0).addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? String($0) }
+            .joined(separator: "/")
+        guard let uploadURL = URL(string: "\(root)/storage/v1/object/\(plantImagesBucketId)/\(encodedPath)") else { return nil }
 
         var request = URLRequest(url: uploadURL)
         request.httpMethod = "POST"
-        request.setValue("Bearer \(anon)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         request.setValue(anon, forHTTPHeaderField: "apikey")
         request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
         request.setValue("true", forHTTPHeaderField: "x-upsert")
@@ -1618,7 +1825,7 @@ enum BotanyService {
                 #endif
                 return nil
             }
-            return "\(root)/storage/v1/object/public/plant-photos/\(safeName)"
+            return "\(root)/storage/v1/object/public/\(plantImagesBucketId)/\(encodedPath)"
         } catch {
             #if DEBUG
             print("[LeafID] Storage upload error: \(error.localizedDescription)")
@@ -1627,13 +1834,20 @@ enum BotanyService {
         }
     }
 
-    /// Inserts one row into `public.scans` (PostgREST). Geo fields are optional in the JSON when `postgRESTScansIncludeGeoColumns` is enabled and the table has those columns.
-    private static func insertScanRowRest(_ scan: Scan) async -> Bool {
+    /// Inserts one row into `public.scans` (PostgREST) using the **user JWT** so RLS `with check (auth.uid() = user_id)` succeeds.
+    private static func insertScanRowRest(_ scan: Scan, accessToken: String) async -> Bool {
         guard let root = supabaseProjectRootURLString(), let anon = LeafIDSupabaseConfig.anonKey else { return false }
         guard let url = URL(string: "\(root)/rest/v1/scans") else { return false }
+        guard let uid = scan.userId else {
+            #if DEBUG
+            print("[LeafID] scans insert skipped: missing user_id on Scan model.")
+            #endif
+            return false
+        }
 
         var row: [String: Any] = [
             "id": scan.id.uuidString,
+            "user_id": uid.uuidString,
             "common_name": scan.commonName,
             "scientific_name": scan.scientificName,
             "photo_url": scan.photoURL,
@@ -1647,18 +1861,28 @@ enum BotanyService {
                 row["locality"] = loc
             }
         }
-        if let uid = scan.userId {
-            row["user_id"] = uid.uuidString
-        }
         if let tid = scan.treeId {
             row["tree_id"] = tid.uuidString
+        }
+        if postgRESTScansIncludeExtendedMetadata {
+            if let family = scan.family, !family.isEmpty { row["family"] = family }
+            if let descriptionText = scan.descriptionText, !descriptionText.isEmpty { row["description_text"] = descriptionText }
+            if let sun = scan.sunExposure, !sun.isEmpty { row["sun_exposure"] = sun }
+            if let water = scan.watering, !water.isEmpty { row["watering"] = water }
+            if let phylum = scan.phylum, !phylum.isEmpty { row["phylum"] = phylum }
+            if let origin = scan.originCountry, !origin.isEmpty { row["origin_country"] = origin }
+            if let tag = scan.tagSecondary, !tag.isEmpty { row["tag_secondary"] = tag }
+            if let isNew = scan.isNewDiscovery { row["is_new_discovery"] = isNew }
+            if let spirit = scan.botanicalSpirit, !spirit.isEmpty { row["botanical_spirit"] = spirit }
+            if let eth = scan.ethnobotany, !eth.isEmpty { row["ethnobotany"] = eth }
+            if let cult = scan.culturalLegacy, !cult.isEmpty { row["cultural_legacy"] = cult }
         }
 
         guard let body = try? JSONSerialization.data(withJSONObject: [row]) else { return false }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("Bearer \(anon)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         request.setValue(anon, forHTTPHeaderField: "apikey")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("return=minimal", forHTTPHeaderField: "Prefer")

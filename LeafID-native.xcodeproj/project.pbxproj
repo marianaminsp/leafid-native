@@ -116,6 +116,8 @@
 		E1A20000000000000000007C /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		E1A20000000000000000007D /* ToastCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastCenter.swift; sourceTree = "<group>"; };
 		E1A20000000000000000007E /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
+		E1A200000000000000000081 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		E1A200000000000000000082 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		E1A2000000000000000000FF /* LeafID-native.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LeafID-native.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -152,6 +154,7 @@
 				E1A400000000000000000014 /* Services */,
 				E1A400000000000000000015 /* Extensions */,
 				E1A20000000000000000000D /* Assets.xcassets */,
+				E1A200000000000000000080 /* Localizable.strings */,
 			);
 			path = "LeafID-native";
 			sourceTree = "<group>";
@@ -224,14 +227,6 @@
 				E1A20000000000000000000C /* Animation+LeafID.swift */,
 			);
 			path = Extensions;
-			sourceTree = "<group>";
-		};
-		E1A40000000000000000002A /* Config */ = {
-			isa = PBXGroup;
-			children = (
-				E1A20000000000000000007E /* Secrets.xcconfig */,
-			);
-			path = Config;
 			sourceTree = "<group>";
 		};
 		E1A400000000000000000016 /* Arboretum */ = {
@@ -327,6 +322,14 @@
 			path = Home;
 			sourceTree = "<group>";
 		};
+		E1A40000000000000000002A /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				E1A20000000000000000007E /* Secrets.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -369,6 +372,7 @@
 			knownRegions = (
 				en,
 				Base,
+				es,
 			);
 			mainGroup = E1A400000000000000000001;
 			productRefGroup = E1A400000000000000000003 /* Products */;
@@ -451,6 +455,18 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		E1A200000000000000000080 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E1A200000000000000000081 /* en */,
+				E1A200000000000000000082 /* es */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		E1A700000000000000000001 /* Debug */ = {

@@ -27,9 +27,9 @@ struct ScanReticleFrame: View {
 
             ZStack {
                 CornerBracketsShape(cornerLength: cornerLength)
-                    .stroke(Color.white.opacity(0.95), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+                    .stroke(LeafIDTheme.chromeHighlight.opacity(0.95), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
                     .padding(inset)
-                    .shadow(color: Color.white.opacity(0.25), radius: 4, y: 0)
+                    .shadow(color: LeafIDTheme.chromeHighlight.opacity(0.25), radius: 4, y: 0)
 
                 if scannerMode {
                     if paused || reduceMotion {
@@ -80,9 +80,9 @@ struct ScanReticleFrame: View {
 
         ForEach(0 ..< 3, id: \.self) { i in
             Circle()
-                .fill(Color.white.opacity(0.95))
+                .fill(LeafIDTheme.chromeHighlight.opacity(0.95))
                 .frame(width: 5, height: 5)
-                .shadow(color: Color.white.opacity(0.6), radius: 4, y: 0)
+                .shadow(color: LeafIDTheme.chromeHighlight.opacity(0.6), radius: 4, y: 0)
                 .position(
                     x: w * (0.32 + CGFloat(i) * 0.18),
                     y: h * (0.38 + CGFloat(i % 2) * 0.14)
@@ -122,9 +122,9 @@ struct ScanReticleFrame: View {
                 let driftY = 4.0 * sin(t * 1.1 + Double(i) * 2.1)
                 let pulse = 0.88 + 0.12 * sin(t * 2.2 + Double(i))
                 Circle()
-                    .fill(Color.white.opacity(0.92 * pulse))
+                    .fill(LeafIDTheme.chromeHighlight.opacity(0.92 * pulse))
                     .frame(width: 6, height: 6)
-                    .shadow(color: Color.white.opacity(0.55 * pulse), radius: 5, y: 0)
+                    .shadow(color: LeafIDTheme.chromeHighlight.opacity(0.55 * pulse), radius: 5, y: 0)
                     .scaleEffect(pulse)
                     .position(x: baseX + CGFloat(driftX), y: baseY + CGFloat(driftY))
             }
@@ -151,9 +151,9 @@ struct ScanReticleFrame: View {
 
             ForEach(0 ..< 3, id: \.self) { i in
                 Circle()
-                    .fill(Color.white.opacity(0.95))
+                    .fill(LeafIDTheme.chromeHighlight.opacity(0.95))
                     .frame(width: 6, height: 6)
-                    .shadow(color: Color.white.opacity(0.6), radius: 4, y: 0)
+                    .shadow(color: LeafIDTheme.chromeHighlight.opacity(0.6), radius: 4, y: 0)
                     .position(
                         x: w * (0.3 + CGFloat(i) * 0.2),
                         y: h * (0.4 + CGFloat(i) * 0.1)

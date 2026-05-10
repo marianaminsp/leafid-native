@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct SecondaryActionButton: View {
     let title: String
@@ -13,8 +16,15 @@ struct SecondaryActionButton: View {
     var systemImage: String = "arrow.up.doc"
     var action: () -> Void = {}
 
+    @State private var pressed = false
+
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            #if canImport(UIKit)
+            LeafIDHaptics.impact(.light)
+            #endif
+            action()
+        }) {
             HStack(spacing: LeafIDTheme.space12) {
                 Image(systemName: systemImage)
                     .font(.system(size: 18, weight: .semibold))
@@ -33,7 +43,13 @@ struct SecondaryActionButton: View {
                 RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous)
                     .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.15), lineWidth: 1)
             }
+            .scaleEffect(pressed ? 0.98 : 1)
         }
         .buttonStyle(.plain)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in withAnimation(.leafIDSpring) { pressed = true } }
+                .onEnded { _ in withAnimation(.leafIDSpring) { pressed = false } }
+        )
     }
 }

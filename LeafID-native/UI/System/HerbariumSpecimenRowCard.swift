@@ -18,6 +18,7 @@ struct HerbariumSpecimenRowCard: View {
                     .font(LeafIDFont.plusJakarta(size: 18, weight: .bold))
                     .foregroundStyle(LeafIDTheme.onSurface)
                     .lineLimit(2)
+                    .minimumScaleFactor(0.8)
 
                 Text(scan.foundRelativePhrase())
                     .font(LeafIDFont.manrope(size: 13, weight: .semibold))

@@ -23,7 +23,7 @@ struct GalleryScanButton: View {
                     Image(systemName: "camera.viewfinder")
                         .font(.system(size: 44 * Self.scale, weight: .regular))
                         .symbolRenderingMode(.monochrome)
-                    Text("SCAN")
+                    Text(String(localized: "SCAN"))
                         .font(.system(size: 10 * Self.scale, weight: .black, design: .rounded))
                         .tracking(3.2 * Self.scale)
                 }

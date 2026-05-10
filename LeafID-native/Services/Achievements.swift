@@ -91,57 +91,57 @@ enum AchievementCatalog {
     static let definitions: [AchievementDefinition] = [
         AchievementDefinition(
             id: "greenhouse_guru",
-            title: "Greenhouse Guru",
-            subtitle: "Save your first specimen",
+            title: String(localized: "Greenhouse Guru"),
+            subtitle: String(localized: "Save your first specimen"),
             symbolName: "house.fill",
             rule: .plantsAtLeast(1)
         ),
         AchievementDefinition(
             id: "catalog_builder",
-            title: "Catalog Builder",
-            subtitle: "Save 5 specimens",
+            title: String(localized: "Catalog Builder"),
+            subtitle: String(localized: "Save 5 specimens"),
             symbolName: "books.vertical.fill",
             rule: .plantsAtLeast(5)
         ),
         AchievementDefinition(
             id: "species_collector",
-            title: "Species Collector",
-            subtitle: "Log 3 distinct species",
+            title: String(localized: "Species Collector"),
+            subtitle: String(localized: "Log 3 distinct species"),
             symbolName: "leaf.circle.fill",
             rule: .distinctSpeciesAtLeast(3)
         ),
         AchievementDefinition(
             id: "family_matters",
-            title: "Family Matters",
-            subtitle: "Represent 2 plant families",
+            title: String(localized: "Family Matters"),
+            subtitle: String(localized: "Represent 2 plant families"),
             symbolName: "square.grid.2x2.fill",
             rule: .distinctFamiliesAtLeast(2)
         ),
         AchievementDefinition(
             id: "globe_trotter",
-            title: "Globe Trotter",
-            subtitle: "Species from 2 countries of origin",
+            title: String(localized: "Globe Trotter"),
+            subtitle: String(localized: "Species from 2 countries of origin"),
             symbolName: "globe.americas.fill",
             rule: .originCountriesAtLeast(2)
         ),
         AchievementDefinition(
             id: "archivist",
-            title: "Archivist",
-            subtitle: "Preserve 3 times (lifetime)",
+            title: String(localized: "Archivist"),
+            subtitle: String(localized: "Preserve 3 times (lifetime)"),
             symbolName: "archivebox.fill",
             rule: .cumulativeSavesAtLeast(3)
         ),
         AchievementDefinition(
             id: "dedicated",
-            title: "Dedicated",
-            subtitle: "Run 10 identifications",
+            title: String(localized: "Dedicated"),
+            subtitle: String(localized: "Run 10 identifications"),
             symbolName: "camera.viewfinder",
             rule: .lifetimeScansAtLeast(10)
         ),
         AchievementDefinition(
             id: "week_wanderer",
-            title: "Week Wanderer",
-            subtitle: "7-day discovery streak",
+            title: String(localized: "Week Wanderer"),
+            subtitle: String(localized: "7-day discovery streak"),
             symbolName: "flame.fill",
             rule: .streakDaysAtLeast(7)
         ),

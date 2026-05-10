@@ -89,7 +89,7 @@ private struct IntenseBentoGlassModifier: ViewModifier {
                 }
             }
             .overlay {
-                shape.strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
+                shape.strokeBorder(LeafIDTheme.chromeHighlight.opacity(0.2), lineWidth: 1)
             }
             .overlay {
                 shape.strokeBorder(LeafIDTheme.outlineVariant.opacity(0.14), lineWidth: 1)

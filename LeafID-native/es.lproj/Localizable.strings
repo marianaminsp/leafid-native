@@ -1,0 +1,197 @@
+/* Herbarium */
+"No specimens yet" = "Aún no hay especímenes";
+"When you identify a plant, tap Save on the results screen — it will appear here." = "Cuando identifiques una planta, pulsa Guardar en la pantalla de resultados: aparecerá aquí.";
+"Open Scan to identify a plant, then save it from the results." = "Abre Escanear para identificar una planta y guárdala desde los resultados.";
+
+/* Arboretum */
+"No geotagged specimens yet. Capture with location enabled to plant discoveries on the map." = "Aún no hay especímenes geolocalizados. Activa la ubicación al capturar para fijar tus hallazgos en el mapa.";
+"LeafID could not determine your location right now. Check permission access and try again." = "LeafID no pudo determinar tu ubicación ahora. Revisa los permisos e inténtalo de nuevo.";
+
+/* Profile */
+"Identify a plant and save it to your Herbarium — it will show up here." = "Identifica una planta y guárdala en tu Herbario: aparecerá aquí.";
+"Profile settings updated." = "Ajustes de perfil actualizados.";
+"Account and notifications will connect to Supabase when sign-in is enabled in this build." = "La cuenta y las notificaciones se conectarán a Supabase cuando el inicio de sesión esté activo en esta versión.";
+"Settings" = "Ajustes";
+"Plants" = "Plantas";
+"Species" = "Especies";
+"Scans" = "Escaneos";
+"Profile photo" = "Foto de perfil";
+"Achievements" = "Logros";
+"Recent Discoveries" = "Descubrimientos recientes";
+"Field Intelligence" = "Inteligencia de campo";
+"Unique Families" = "Familias únicas";
+"Unlocked Countries" = "Países desbloqueados";
+"Discovery Streak" = "Racha de descubrimientos";
+"days" = "días";
+"Dominant Color" = "Color dominante";
+"First discovery: %@" = "Primer descubrimiento: %@";
+
+/* Druid — sign-in overlay */
+"Welcome back" = "Bienvenido de nuevo";
+"Sign in with Google to unlock your Druid passport and sync your progress." = "Inicia sesión con Google para desbloquear tu pasaporte Druid y sincronizar tu progreso.";
+"Continue with Google" = "Continuar con Google";
+
+/* Tabs */
+"Home" = "Inicio";
+"Arboretum" = "Arboreto";
+"Herbarium" = "Herbario";
+"Druid" = "Druid";
+
+/* Home */
+"Good Morning" = "Buenos días";
+"Good Afternoon" = "Buenas tardes";
+"Good Evening" = "Buenas noches";
+"Ready to explore nature?" = "¿Listo para explorar la naturaleza?";
+"Upload from Gallery" = "Subir desde la galería";
+"Last Found" = "Último hallazgo";
+"Save a specimen to your Herbarium" = "Guarda un espécimen en tu Herbario";
+"Camera unavailable" = "Cámara no disponible";
+"This device has no camera (e.g. Simulator). Use Upload from Gallery or run on a physical iPhone." = "Este dispositivo no tiene cámara (p. ej. Simulador). Usa Subir desde la galería o un iPhone físico.";
+"OK" = "Aceptar";
+"Last found, %@" = "Último hallazgo, %@";
+
+/* Identify / Scan tab */
+"The" = "El";
+"Scan" = "Escaneo";
+"Capture a specimen — the Botanist consults the archive." = "Captura un espécimen: el botánico consulta el archivo.";
+"Use the camera or your photo library to identify a plant." = "Usa la cámara o tu galería para identificar una planta.";
+"Open camera" = "Abrir cámara";
+"Choose from library" = "Elegir de la galería";
+"Use Choose from library on Simulator, or run on an iPhone." = "En el Simulador usa Elegir de la galería, o ejecuta en un iPhone.";
+
+/* Herbarium header */
+"Your collection of botanical wonders" = "Tu colección de maravillas botánicas";
+
+/* Gallery scan button */
+"SCAN" = "ESCANEAR";
+
+/* Scan results */
+"Low Confidence" = "Baja confianza";
+"NEW DISCOVERY" = "NUEVO DESCUBRIMIENTO";
+"Live identification needs Supabase with the identify-plant function configured." = "La identificación en vivo requiere Supabase con la función identify-plant configurada.";
+"Save to Herbarium" = "Guardar en el Herbario";
+"Scan another specimen" = "Escanear otro espécimen";
+"Exploring Specimen..." = "Explorando espécimen...";
+"Analyzing..." = "Analizando...";
+
+/* Druid profile screen */
+"Your druid identity, progress, and unlocks." = "Tu identidad Druid, progreso y desbloqueos.";
+"Botanical Explorer" = "Explorador botánico";
+"Current path" = "Camino actual";
+"Scan energy" = "Energía de escaneo";
+"Unlimited" = "Ilimitado";
+"scans_left_format" = "Quedan %lld";
+"Premium unlocked. You can scan without limits." = "Premium desbloqueado. Puedes escanear sin límites.";
+"You have 3 free scans. Unlock more to keep exploring." = "Tienes 3 escaneos gratis. Desbloquea más para seguir explorando.";
+"Unlock more" = "Desbloquear más";
+"Foundry" = "Foundry";
+"Design system gallery and internal tools." = "Galería del sistema de diseño y herramientas internas.";
+"Open Foundry" = "Abrir Foundry";
+"Support LeafID" = "Apoya a LeafID";
+"LeafID is an independent, non-profit project. If it helped you connect with nature, you can support maintenance with a small coffee." = "LeafID es un proyecto independiente y sin ánimo de lucro. Si te ayudó a conectar con la naturaleza, puedes apoyar el mantenimiento con un café.";
+"Buy me a coffee" = "Invítame a un café";
+"Log out" = "Cerrar sesión";
+"Complete 6 scans to unlock Forest Sprout." = "Completa 6 escaneos para desbloquear Brote del bosque.";
+"Complete 16 scans to unlock Oak Guardian." = "Completa 16 escaneos para desbloquear Guardián del roble.";
+"Complete 50 scans to unlock Archdruid." = "Completa 50 escaneos para desbloquear Archidruida.";
+"You reached the highest rank." = "Has alcanzado el rango más alto.";
+"Design System Foundry" = "Foundry del sistema de diseño";
+"Incorrect password" = "Contraseña incorrecta";
+"Unlock Foundry" = "Desbloquear Foundry";
+"Password" = "Contraseña";
+
+/* Druid ranks */
+"Wandering Seed" = "Semilla errante";
+"Forest Sprout" = "Brote del bosque";
+"Oak Guardian" = "Guardián del roble";
+"Archdruid" = "Archidruida";
+"The Druid" = "El Druid";
+
+/* Paywall */
+"Premium" = "Premium";
+"Paywall headline" = "¡Haz que tu herbario crezca!";
+"Paywall subtitle" = "Desbloquea herramientas botánicas avanzadas y sigue explorando sin límites.";
+"Paywall benefit unlimited scans" = "Escaneos ilimitados";
+"Paywall benefit plant health" = "Salud de plantas";
+"Paywall benefit pdf" = "PDF";
+"Paywall upgrade" = "Hacerse Premium";
+"Paywall disclaimer" = "Las compras dentro de la app aún no están conectadas. Este botón quedará activo en una actualización; puedes cerrar y seguir explorando con el límite gratuito.";
+
+/* Achievements */
+"Greenhouse Guru" = "Gurú del invernadero";
+"Save your first specimen" = "Guarda tu primer espécimen";
+"Catalog Builder" = "Constructor de catálogo";
+"Save 5 specimens" = "Guarda 5 especímenes";
+"Species Collector" = "Coleccionista de especies";
+"Log 3 distinct species" = "Registra 3 especies distintas";
+"Family Matters" = "Importan las familias";
+"Represent 2 plant families" = "Representa 2 familias de plantas";
+"Globe Trotter" = "Trotamundos";
+"Species from 2 countries of origin" = "Especies de 2 países de origen";
+"Archivist" = "Archivista";
+"Preserve 3 times (lifetime)" = "Conserva 3 veces (en total)";
+"Dedicated" = "Dedicado";
+"Run 10 identifications" = "Realiza 10 identificaciones";
+"Week Wanderer" = "Vagabundo semanal";
+"7-day discovery streak" = "Racha de 7 días";
+
+/* Auth */
+"Join LeafID" = "Únete a LeafID";
+"Welcome Back" = "Bienvenido de nuevo";
+"Create an account to save your journey" = "Crea una cuenta para guardar tu viaje";
+"Sign in to continue your journey" = "Inicia sesión para continuar tu viaje";
+"EMAIL ADDRESS" = "CORREO ELECTRÓNICO";
+"PASSWORD" = "CONTRASEÑA";
+"Forgot?" = "¿Olvidaste?";
+"Enter your password" = "Introduce tu contraseña";
+"Creating account..." = "Creando cuenta...";
+"Signing in..." = "Iniciando sesión...";
+"Create account" = "Crear cuenta";
+"Login" = "Entrar";
+"Enter both email and password." = "Introduce correo y contraseña.";
+"Already have an account?" = "¿Ya tienes cuenta?";
+"Don't have an account?" = "¿No tienes cuenta?";
+"Sign in" = "Iniciar sesión";
+"Sign Up" = "Registrarse";
+"Completing Google sign in..." = "Completando inicio de sesión con Google...";
+"Supabase is not configured. Add SUPABASE_URL (quoted) and SUPABASE_ANON_KEY in Secrets.local.xcconfig." = "Supabase no está configurado. Añade SUPABASE_URL (entre comillas) y SUPABASE_ANON_KEY en Secrets.local.xcconfig.";
+"recovery_email_format" = "Correo de recuperación enviado a %@. Revisa spam o promociones si no llega en unos minutos.\n\nDesde Gmail (o similar), abre el enlace en Safari: pulsa ··· o compartir y elige Abrir en navegador / Safari. Los navegadores dentro del correo a menudo bloquean volver a la app.";
+"Create new password" = "Crear nueva contraseña";
+"Set a new password to finish your account recovery." = "Establece una nueva contraseña para completar la recuperación.";
+"NEW PASSWORD" = "NUEVA CONTRASEÑA";
+"CONFIRM PASSWORD" = "CONFIRMAR CONTRASEÑA";
+"Minimum 8 characters" = "Mínimo 8 caracteres";
+"Repeat your password" = "Repite tu contraseña";
+"Passwords do not match." = "Las contraseñas no coinciden.";
+"Updating..." = "Actualizando...";
+"Update Password" = "Actualizar contraseña";
+"Back to login" = "Volver al inicio de sesión";
+"Recover password" = "Recuperar contraseña";
+"Enter your account email and we will send a recovery link." = "Introduce el correo de tu cuenta y te enviaremos un enlace de recuperación.";
+"recovery_tip_safari" = "Consejo: al recibir el correo, abre el enlace en Safari si la app no se abre (el navegador integrado de Gmail a menudo bloquea los enlaces a la app).";
+"Sending..." = "Enviando...";
+"Send recovery link" = "Enviar enlace de recuperación";
+"EMAIL" = "CORREO";
+"Google sign-in was cancelled or denied." = "Inicio de sesión con Google cancelado o denegado.";
+"Could not complete Google sign-in. Try again." = "No se pudo completar el inicio con Google. Inténtalo de nuevo.";
+"Missing access token from OAuth callback." = "Falta el token de acceso en la respuesta de OAuth.";
+"Invalid email or password." = "Correo o contraseña no válidos.";
+"Password must be at least 6 characters." = "La contraseña debe tener al menos 6 caracteres.";
+"Check your email to confirm your account, then sign in." = "Revisa tu correo para confirmar la cuenta y luego inicia sesión.";
+"Could not create account. This email may already be registered." = "No se pudo crear la cuenta. Es posible que este correo ya esté registrado.";
+"Enter a valid email address." = "Introduce un correo electrónico válido.";
+"Supabase is not configured. Add SUPABASE_URL and SUPABASE_ANON_KEY in Secrets.local.xcconfig." = "Supabase no está configurado. Añade SUPABASE_URL y SUPABASE_ANON_KEY en Secrets.local.xcconfig.";
+"Could not send reset email. Try again." = "No se pudo enviar el correo de recuperación. Inténtalo de nuevo.";
+"Password must be at least 8 characters." = "La contraseña debe tener al menos 8 caracteres.";
+"Recovery session expired. Request another reset email." = "La sesión de recuperación expiró. Solicita otro correo de restablecimiento.";
+"Could not update password. Request a new recovery link." = "No se pudo actualizar la contraseña. Solicita un nuevo enlace de recuperación.";
+"This recovery link is invalid or expired." = "Este enlace de recuperación no es válido o ha caducado.";
+"Recovery session token missing." = "Falta el token de sesión de recuperación.";
+"Failed to restore session from Supabase." = "No se pudo restaurar la sesión desde Supabase.";
+"Restoring session..." = "Restaurando sesión...";
+"Restoring session" = "Restaurando sesión";
+"Could not load your Herbarium from the server." = "No se pudo cargar tu herbario desde el servidor.";
+"Loading your collection…" = "Cargando tu colección…";
+
+/* Profile defaults */
+"Botanical Enthusiast" = "Entusiasta botánico";

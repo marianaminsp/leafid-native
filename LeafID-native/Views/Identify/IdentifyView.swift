@@ -29,9 +29,6 @@ struct IdentifyView: View {
     @State private var showLibraryPicker = false
     @State private var cameraUnavailable = false
     @State private var showPaywall = false
-    @State private var runningGeminiStressTest = false
-    @State private var showGeminiStressResult = false
-    @State private var geminiStressSummary = ""
 
     var body: some View {
         ZStack {
@@ -40,8 +37,8 @@ struct IdentifyView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: LeafIDTheme.space24) {
                     BoutiqueHeader(
-                        layout: .stacked(plainTop: "The", accentBottom: "Scan"),
-                        subtitle: "Capture a specimen — the Botanist consults the archive."
+                        layout: .stacked(plainTop: String(localized: "The"), accentBottom: String(localized: "Scan")),
+                        subtitle: String(localized: "Capture a specimen — the Botanist consults the archive.")
                     )
 
                     VStack(spacing: LeafIDTheme.space16) {
@@ -53,7 +50,7 @@ struct IdentifyView: View {
                                     Image(systemName: "camera.aperture")
                                         .font(.system(size: 44, weight: .thin))
                                         .foregroundStyle(LeafIDTheme.primary.opacity(0.85))
-                                    Text("Use the camera or your photo library to identify a plant.")
+                                    Text(String(localized: "Use the camera or your photo library to identify a plant."))
                                         .font(LeafIDFont.manrope(size: 14, weight: .medium))
                                         .multilineTextAlignment(.center)
                                         .foregroundStyle(LeafIDTheme.onSurfaceVariant)
@@ -62,33 +59,15 @@ struct IdentifyView: View {
                             }
                             .padding(.horizontal, LeafIDTheme.space4)
 
-                        LeafPrimaryButton(title: "Open camera") {
+                        LeafPrimaryButton(title: String(localized: "Open camera")) {
                             handleOpenCameraAction()
                         }
 
-                        SecondaryActionButton(title: "Choose from library", systemImage: "arrow.up.doc") {
+                        SecondaryActionButton(title: String(localized: "Choose from library"), systemImage: "arrow.up.doc") {
                             if ImagePickerAvailability.photoLibraryAvailable() {
                                 showLibraryPicker = true
                             }
                         }
-
-                        #if DEBUG
-                        SecondaryActionButton(
-                            title: runningGeminiStressTest ? "Running Gemini Random 5..." : "Run Gemini Random 5",
-                            systemImage: "sparkles"
-                        ) {
-                            guard !runningGeminiStressTest else { return }
-                            runningGeminiStressTest = true
-                            Task {
-                                let lines = await BotanyService.runGeminiStressTest()
-                                await MainActor.run {
-                                    runningGeminiStressTest = false
-                                    geminiStressSummary = lines.joined(separator: "\n")
-                                    showGeminiStressResult = true
-                                }
-                            }
-                        }
-                        #endif
                     }
                     .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
                 }
@@ -97,21 +76,14 @@ struct IdentifyView: View {
             }
         }
         .preferredColorScheme(.dark)
-        .alert("Camera unavailable", isPresented: $cameraUnavailable) {
-            Button("OK", role: .cancel) {}
+        .alert(String(localized: "Camera unavailable"), isPresented: $cameraUnavailable) {
+            Button(String(localized: "OK"), role: .cancel) {}
         } message: {
-            Text("Use Choose from library on Simulator, or run on an iPhone.")
+            Text(String(localized: "Use Choose from library on Simulator, or run on an iPhone."))
         }
         .sheet(isPresented: $showPaywall) {
             PaywallView()
         }
-        #if DEBUG
-        .alert("Gemini Random 5", isPresented: $showGeminiStressResult) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text(geminiStressSummary.isEmpty ? "No response lines produced." : geminiStressSummary)
-        }
-        #endif
         .fullScreenCover(isPresented: $showCameraPicker) {
             ScannerView(
                 onClose: { showCameraPicker = false },

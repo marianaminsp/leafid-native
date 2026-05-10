@@ -29,7 +29,7 @@ private struct HomeUploadGalleryButton: View {
                         .font(.system(size: 18, weight: .semibold))
                         .symbolRenderingMode(.hierarchical)
                         .foregroundStyle(LeafIDTheme.primary)
-                    Text("Upload from Gallery")
+                    Text(String(localized: "Upload from Gallery"))
                         .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .semibold))
                         .foregroundStyle(LeafIDTheme.onSurface)
                 }
@@ -67,7 +67,7 @@ private struct HomeEmptyLastFoundCard: View {
                     .tracking(2.4)
                     .foregroundStyle(LeafIDTheme.primary)
                     .textCase(.uppercase)
-                Text("Save a specimen to your Herbarium")
+                Text(String(localized: "Save a specimen to your Herbarium"))
                     .font(LeafIDFont.plusJakarta(size: 17, weight: .semibold))
                     .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                     .lineLimit(2)
@@ -103,10 +103,10 @@ struct HomeView: View {
     private var greetingTitle: String {
         let h = Calendar.current.component(.hour, from: Date())
         switch h {
-        case 5 ..< 12: return "Good Morning"
-        case 12 ..< 17: return "Good Afternoon"
-        case 17 ..< 22: return "Good Evening"
-        default: return "Good Evening"
+        case 5 ..< 12: return String(localized: "Good Morning")
+        case 12 ..< 17: return String(localized: "Good Afternoon")
+        case 17 ..< 22: return String(localized: "Good Evening")
+        default: return String(localized: "Good Evening")
         }
     }
 
@@ -122,7 +122,7 @@ struct HomeView: View {
             .buttonStyle(.plain)
             // Hit testing matches the card silhouette (HIG: tappable area follows the visible control).
             .contentShape(RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous))
-            .accessibilityLabel("Last found, \(specimen.commonName)")
+            .accessibilityLabel("\(String(localized: "Last Found")), \(specimen.commonName)")
             .accessibilityHint(String(localized: "Opens the full specimen card"))
         } else {
             HomeEmptyLastFoundCard()
@@ -145,7 +145,7 @@ struct HomeView: View {
                             .multilineTextAlignment(.leading)
                             .minimumScaleFactor(0.82)
                             .lineLimit(2)
-                        Text("Ready to explore nature?")
+                        Text(String(localized: "Ready to explore nature?"))
                             .font(LeafIDFont.manrope(size: 16, weight: .medium))
                             .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -159,7 +159,7 @@ struct HomeView: View {
 
                     Spacer(minLength: 0)
 
-                    VStack(spacing: LeafIDTheme.space12) {
+                    VStack(spacing: 12) {
                         HStack(spacing: 0) {
                             Spacer(minLength: 0)
                             GalleryScanButton {
@@ -175,22 +175,21 @@ struct HomeView: View {
                         }
                         .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
                     }
-                    .offset(y: -10)
 
                     Spacer(minLength: 0)
 
                     homeLastFoundSection
                         .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
-                        .padding(.bottom, LeafIDTheme.space12)
+                        .padding(.bottom, 8)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
         }
         .preferredColorScheme(.dark)
-        .alert("Camera unavailable", isPresented: $cameraUnavailable) {
-            Button("OK", role: .cancel) {}
+        .alert(String(localized: "Camera unavailable"), isPresented: $cameraUnavailable) {
+            Button(String(localized: "OK"), role: .cancel) {}
         } message: {
-            Text("This device has no camera (e.g. Simulator). Use Upload from Gallery or run on a physical iPhone.")
+            Text(String(localized: "This device has no camera (e.g. Simulator). Use Upload from Gallery or run on a physical iPhone."))
         }
         .sheet(isPresented: $showPaywall) {
             PaywallView()
@@ -294,5 +293,6 @@ struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView()
             .environmentObject(HerbariumViewModel())
+            .environmentObject(AuthViewModel())
     }
 }

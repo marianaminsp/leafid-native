@@ -7,6 +7,7 @@
 import SwiftUI
 
 struct MainTabView: View {
+    @EnvironmentObject private var auth: AuthViewModel
     @StateObject private var herbariumVM = HerbariumViewModel()
     @State private var selectedTab: RootTab = .home
     @State private var pendingHerbariumScan: Scan?
@@ -61,6 +62,9 @@ struct MainTabView: View {
             .frame(maxWidth: .infinity)
         }
         .environmentObject(herbariumVM)
+        .task(id: auth.supabaseUserId) {
+            await herbariumVM.hydrateFromSupabase(auth: auth)
+        }
         .preferredColorScheme(.dark)
     }
 }
@@ -75,10 +79,10 @@ enum RootTab: Int, CaseIterable, Hashable {
 
     var title: String {
         switch self {
-        case .home: return "Home"
-        case .arboretum: return "Arboretum"
-        case .herbarium: return "Herbarium"
-        case .druid: return "Druid"
+        case .home: return String(localized: "Home")
+        case .arboretum: return String(localized: "Arboretum")
+        case .herbarium: return String(localized: "Herbarium")
+        case .druid: return String(localized: "Druid")
         }
     }
 
@@ -118,10 +122,10 @@ private struct FloatingLiquidTabBar: View {
         }
         .overlay {
             RoundedRectangle(cornerRadius: pillRadius, style: .continuous)
-                .strokeBorder(Color.white.opacity(LeafIDTheme.liquidGlassBorderOpacity), lineWidth: 1)
+                .strokeBorder(LeafIDTheme.chromeHighlight.opacity(LeafIDTheme.liquidGlassBorderOpacity), lineWidth: 1)
         }
         .clipShape(RoundedRectangle(cornerRadius: pillRadius, style: .continuous))
-        .shadow(color: Color.black.opacity(0.45), radius: 28, y: 14)
+        .shadow(color: LeafIDTheme.shadowBase.opacity(0.45), radius: 28, y: 14)
     }
 
     private func tabButton(_ tab: RootTab) -> some View {

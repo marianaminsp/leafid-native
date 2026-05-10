@@ -61,7 +61,7 @@ private struct LeafIDToastBanner: View {
         HStack(alignment: .center, spacing: LeafIDTheme.space12) {
             Image(systemName: item.kind == .success ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                 .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(item.kind == .success ? LeafIDTheme.primary : Color.orange.opacity(0.95))
+                .foregroundStyle(item.kind == .success ? LeafIDTheme.primary : LeafIDTheme.error)
             Text(item.message)
                 .font(LeafIDFont.manrope(size: 14, weight: .semibold))
                 .foregroundStyle(LeafIDTheme.onSurface)
@@ -79,7 +79,7 @@ private struct LeafIDToastBanner: View {
             RoundedRectangle(cornerRadius: LeafIDTheme.space16, style: .continuous)
                 .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.2), lineWidth: 1)
         }
-        .shadow(color: Color.black.opacity(0.35), radius: 20, y: 8)
+        .shadow(color: LeafIDTheme.shadowBase.opacity(0.35), radius: 20, y: 8)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isStaticText)
     }

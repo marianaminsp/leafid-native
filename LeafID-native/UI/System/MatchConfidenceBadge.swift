@@ -41,7 +41,7 @@ struct MatchConfidenceBadge: View {
             .overlay {
                 Capsule()
                     .strokeBorder(
-                        useResultsTitle ? Color.white.opacity(0.22) : LeafIDTheme.primary.opacity(0.45),
+                        useResultsTitle ? LeafIDTheme.chromeHighlight.opacity(0.22) : LeafIDTheme.primary.opacity(0.45),
                         lineWidth: 1
                     )
             }

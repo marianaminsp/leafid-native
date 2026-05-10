@@ -27,6 +27,8 @@ struct CompactSpecimenCard: View {
             onOpenInHerbarium: (() -> Void)?
         )
         case lastFound(Scan)
+        /// Arboretum pin sheet: same chrome as map popup with real thumbnail + “Open in Herbarium”.
+        case mapSpecimen(Scan, onOpenInHerbarium: () -> Void)
     }
 
     private let mode: Mode
@@ -55,8 +57,14 @@ struct CompactSpecimenCard: View {
         mode = .lastFound(scan)
     }
 
+    init(mapSpecimen scan: Scan, onOpenInHerbarium: @escaping () -> Void) {
+        mode = .mapSpecimen(scan, onOpenInHerbarium: onOpenInHerbarium)
+    }
+
     var body: some View {
         switch mode {
+        case let .mapSpecimen(scan, onOpen):
+            mapSpecimenBody(scan: scan, onOpenInHerbarium: onOpen)
         case let .grid(commonName, scientificName, locationLine, style, namespace, matchedGeometryId, onOpenInHerbarium):
             gridBody(
                 commonName: commonName,
@@ -77,6 +85,94 @@ struct CompactSpecimenCard: View {
         case .grid: return LeafIDTheme.space16
         case .mapPopup: return LeafIDTheme.space14
         }
+    }
+
+    @ViewBuilder
+    private func mapSpecimenBody(scan: Scan, onOpenInHerbarium: @escaping () -> Void) -> some View {
+        let cornerRadius = LeafIDTheme.radiusCompactCard
+        let locationLine = scan.captureLocationLine
+        VStack(alignment: .leading, spacing: LeafIDTheme.space10) {
+            mapSpecimenThumbnail(scan: scan)
+                .aspectRatio(1, contentMode: .fit)
+            Text(scan.commonName.localizedCapitalized)
+                .font(LeafIDFont.plusJakarta(size: 15, weight: .semibold))
+                .tracking(0.3)
+                .foregroundStyle(LeafIDTheme.onSurface)
+                .lineLimit(2)
+            Text(scan.scientificName)
+                .font(LeafIDFont.manrope(size: 12, weight: .medium))
+                .italic()
+                .tracking(0.2)
+                .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                .lineLimit(2)
+            let clean = locationLine.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !clean.isEmpty {
+                Text(clean)
+                    .font(LeafIDFont.manrope(size: 11, weight: .semibold))
+                    .foregroundStyle(LeafIDTheme.onSurfaceVariant.opacity(0.9))
+                    .lineLimit(2)
+            }
+            Button(action: onOpenInHerbarium) {
+                HStack(spacing: LeafIDTheme.space8) {
+                    Text(String(localized: "Open in Herbarium"))
+                        .font(LeafIDFont.manrope(size: 12, weight: .bold))
+                        .foregroundStyle(LeafIDTheme.primary)
+                    Image(systemName: "arrow.up.forward.circle.fill")
+                        .font(.system(size: 20, weight: .semibold))
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(LeafIDTheme.primary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, LeafIDTheme.space4)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(String(localized: "Open full specimen in Herbarium"))
+        }
+        .padding(gridInnerPadding(style: .mapPopup))
+        .liquidGlass(cornerRadius: cornerRadius)
+        .shadow(
+            color: LeafIDTheme.shadowBase.opacity(LeafIDTheme.shadowCardOpacity),
+            radius: LeafIDTheme.shadowCardRadius,
+            y: LeafIDTheme.shadowCardY
+        )
+    }
+
+    @ViewBuilder
+    private func mapSpecimenThumbnail(scan: Scan) -> some View {
+        let corner = LeafIDTheme.radiusSpecimenThumb
+        let placeholder = RoundedRectangle(cornerRadius: corner, style: .continuous)
+            .fill(LeafIDTheme.specimenField)
+            .overlay {
+                Image(systemName: "leaf.fill")
+                    .font(.title)
+                    .foregroundStyle(LeafIDTheme.primary.opacity(0.6))
+            }
+
+        #if canImport(UIKit)
+        Group {
+            if let remote = scan.resolvedRemoteImageURL {
+                AsyncImage(url: remote) { phase in
+                    switch phase {
+                    case .empty:
+                        ProgressView().tint(LeafIDTheme.primary)
+                    case let .success(image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    case .failure:
+                        lastFoundThumbnailLocalCapture(scan: scan, placeholder: placeholder)
+                    @unknown default:
+                        placeholder
+                    }
+                }
+            } else {
+                lastFoundThumbnailLocalCapture(scan: scan, placeholder: placeholder)
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
+        #else
+        placeholder
+        #endif
     }
 
     @ViewBuilder
@@ -133,7 +229,7 @@ struct CompactSpecimenCard: View {
         .padding(gridInnerPadding(style: style))
         .liquidGlass(cornerRadius: cornerRadius)
         .shadow(
-            color: Color.black.opacity(LeafIDTheme.shadowCardOpacity),
+            color: LeafIDTheme.shadowBase.opacity(LeafIDTheme.shadowCardOpacity),
             radius: LeafIDTheme.shadowCardRadius,
             y: LeafIDTheme.shadowCardY
         )

@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct LeafPrimaryButton: View {
     let title: String
@@ -18,17 +21,22 @@ struct LeafPrimaryButton: View {
     @State private var pressed = false
 
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            #if canImport(UIKit)
+            LeafIDHaptics.impact(.light)
+            #endif
+            action()
+        }) {
             HStack(spacing: LeafIDTheme.space12) {
                 if let leadingSystemImage {
                     Image(systemName: leadingSystemImage)
                         .font(.system(size: 18, weight: .semibold))
                 }
                 Text(title)
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .font(LeafIDFont.plusJakarta(size: 17, weight: .bold))
                     .tracking(0.4)
             }
-            .foregroundStyle(useSolidPrimaryFill ? LeafIDTheme.onPrimary : .white)
+            .foregroundStyle(useSolidPrimaryFill ? LeafIDTheme.onPrimary : LeafIDTheme.chromeHighlight)
             .frame(maxWidth: .infinity)
             .padding(.vertical, LeafIDTheme.space16)
                 .background(
@@ -40,12 +48,12 @@ struct LeafPrimaryButton: View {
                         .strokeBorder(
                             useSolidPrimaryFill
                                 ? LeafIDTheme.onPrimary.opacity(0.12)
-                                : Color.white.opacity(0.18),
+                                : LeafIDTheme.chromeHighlight.opacity(0.18),
                             lineWidth: 1
                         )
                 }
                 .shadow(
-                    color: Color.black.opacity(isEnabled ? LeafIDTheme.shadowButtonOpacity : 0.12),
+                    color: LeafIDTheme.shadowBase.opacity(isEnabled ? LeafIDTheme.shadowButtonOpacity : 0.12),
                     radius: LeafIDTheme.shadowButtonRadius,
                     y: LeafIDTheme.shadowButtonY
                 )

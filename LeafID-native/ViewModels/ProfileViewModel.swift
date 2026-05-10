@@ -33,7 +33,7 @@ final class ProfileViewModel: ObservableObject {
 
     init() {
         displayName = UserDefaults.standard.string(forKey: Self.displayNameKey) ?? "Elena Thorne"
-        roleTitle = UserDefaults.standard.string(forKey: Self.roleTitleKey) ?? "Botanical Enthusiast"
+        roleTitle = UserDefaults.standard.string(forKey: Self.roleTitleKey) ?? String(localized: "Botanical Enthusiast")
     }
 
     func persistDisplayName() {

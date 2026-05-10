@@ -59,6 +59,18 @@ enum LeafIDTheme {
     static let onPrimaryContainer = Color(hex: 0x253600)
     static let outlineVariant = Color(hex: 0x45493F)
 
+    // MARK: - Semantic chrome (avoid ad-hoc `.white` / `.orange` / `.red` in shipping UI)
+
+    /// High-contrast strokes and labels on dark gradients, reticles, and glass hairlines.
+    static let chromeHighlight = Color(hex: 0xFFFFFF)
+    /// Low-confidence / caution emphasis (badges, non-destructive warnings).
+    static let caution = Color(hex: 0xF5A623)
+    /// Validation and error copy on dark surfaces.
+    static let error = Color(hex: 0xFF453A)
+    static var errorForeground: Color { error.opacity(0.9) }
+    /// Unified shadow + scrim base (alpha applied per call site).
+    static let shadowBase = Color(hex: 0x000000)
+
     // MARK: - SCAN button (code.html “SCAN BUTTON”)
 
     /// `w-32 h-32`
@@ -219,24 +231,32 @@ enum LeafIDFont {
     }
 }
 
+#if canImport(UIKit)
+enum LeafIDHaptics {
+    static func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle = .light) {
+        UIImpactFeedbackGenerator(style: style).impactOccurred()
+    }
+}
+#endif
+
 enum LeafIDTypography {
     static func displayTitle(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 34, weight: .heavy, design: .rounded))
+            .font(LeafIDFont.plusJakarta(size: 34, weight: .bold))
             .tracking(0.6)
             .foregroundStyle(LeafIDTheme.onSurface)
     }
 
     static func accentLine(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 34, weight: .heavy, design: .rounded))
+            .font(LeafIDFont.plusJakarta(size: 34, weight: .bold))
             .tracking(0.6)
             .foregroundStyle(LeafIDTheme.primary)
     }
 
     static func headerSubtitle(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 14, weight: .medium, design: .rounded))
+            .font(LeafIDFont.manrope(size: 14, weight: .medium))
             .tracking(1.2)
             .foregroundStyle(LeafIDTheme.onSurfaceVariant)
     }

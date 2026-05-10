@@ -18,7 +18,7 @@ struct GreenDotMarker: View {
                 .frame(width: LeafIDTheme.mapMarkerDotSize, height: LeafIDTheme.mapMarkerDotSize)
                 .overlay {
                     Circle()
-                        .strokeBorder(Color.white.opacity(0.55), lineWidth: LeafIDTheme.mapMarkerRingWidth)
+                        .strokeBorder(LeafIDTheme.chromeHighlight.opacity(0.55), lineWidth: LeafIDTheme.mapMarkerRingWidth)
                 }
                 .shadow(color: LeafIDTheme.leafGreen.opacity(0.55), radius: 6, y: 2)
         }

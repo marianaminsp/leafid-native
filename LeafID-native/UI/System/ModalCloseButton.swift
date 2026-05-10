@@ -6,12 +6,20 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct ModalCloseButton: View {
     var action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            #if canImport(UIKit)
+            LeafIDHaptics.impact(.light)
+            #endif
+            action()
+        }) {
             Image(systemName: "xmark")
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(LeafIDTheme.onSurface)

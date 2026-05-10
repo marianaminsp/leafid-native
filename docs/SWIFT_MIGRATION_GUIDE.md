@@ -55,8 +55,9 @@ Catalog rows keyed by scientific name; app inserts with camelCase fields where t
 
 ### Storage
 
-- Bucket: **`plant-photos`**
-- Upload image bytes (JPEG), then use **`getPublicUrl`** (or signed URL policy) for `photo_url` on `scans`.
+- **Web (Next.js):** bucket **`plant-photos`** (see `lib/botanyService.ts`).
+- **iOS (this repo):** bucket **`plant-images`** with objects at `{auth.uid}/{scan_id}.jpg` and public read — see `supabase/migrations/20260509_0005_plant_images_bucket.sql`.
+- Upload image bytes (JPEG), then store the **public object URL** in `scans.photo_url`.
 
 ---
 

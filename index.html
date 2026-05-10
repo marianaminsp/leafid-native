@@ -5,30 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0B0F08" />
   <title>LeafID — Abrir la app</title>
-  <!-- Fonts aligned with app: Plus Jakarta Sans + Manrope (see Theme.swift / design_system_build) -->
+  <!-- Tokens: Theme.swift — deepForest, surfaceContainerHigh, primary, onPrimary, CornerRadius.card 32 -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --surface: #0B0F08;
-      --surface-high: #1C2116;
+      --deep-forest: #0B0F08;
+      --surface-container-high: #1C2116;
       --on-surface: #F2F5E7;
-      --on-variant: #A9ADA0;
+      --on-surface-variant: #A9ADA0;
       --primary: #93BC10;
       --on-primary: #121212;
-      --outline: rgba(69, 73, 63, 0.35);
+      --outline-variant: #45493F;
       --radius-card: 32px;
-      --radius-btn: 16px;
+      --radius-button: 32px;
     }
     * { box-sizing: border-box; }
     body {
-      margin: 0; min-height: 100vh;
+      margin: 0;
+      min-height: 100vh;
       font-family: "Manrope", system-ui, sans-serif;
-      background: var(--surface);
-      background-image: radial-gradient(ellipse 120% 80% at 50% -20%, rgba(147, 188, 16, 0.08), transparent 55%);
+      background: var(--deep-forest);
       color: var(--on-surface);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       padding: 24px;
       text-align: center;
     }
@@ -45,9 +48,9 @@
       max-width: 22rem;
       width: 100%;
       padding: 28px 24px;
-      background: var(--surface-high);
+      background: var(--surface-container-high);
       border-radius: var(--radius-card);
-      border: 1px solid var(--outline);
+      border: 1px solid rgba(69, 73, 63, 0.35);
       box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
     }
     h1 {
@@ -63,30 +66,40 @@
       font-size: 0.95rem;
       font-weight: 500;
       line-height: 1.5;
-      color: var(--on-variant);
+      color: var(--on-surface-variant);
     }
+    /* LeafPrimaryButton: solid primary fill, onPrimary label, 32pt corner (CornerRadius.card) */
     a.cta {
-      display: inline-block;
+      display: block;
+      width: 100%;
       margin-top: 22px;
-      padding: 16px 28px;
+      padding: 16px 20px;
       background: var(--primary);
       color: var(--on-primary);
       font-family: "Plus Jakarta Sans", system-ui, sans-serif;
-      font-weight: 700;
+      font-weight: 800;
       font-size: 1rem;
+      letter-spacing: 0.02em;
       text-decoration: none;
-      border-radius: var(--radius-btn);
+      text-align: center;
+      border-radius: var(--radius-button);
+      border: none;
       -webkit-tap-highlight-color: transparent;
-      box-shadow: 0 8px 24px rgba(147, 188, 16, 0.25);
+      box-shadow: 0 8px 24px rgba(147, 188, 16, 0.28);
     }
-    a.cta:active { transform: scale(0.98); opacity: 0.95; }
+    a.cta:active {
+      transform: scale(0.98);
+      opacity: 0.95;
+    }
     .note {
       margin-top: 20px;
       font-size: 0.8rem;
       line-height: 1.45;
-      color: var(--on-variant);
+      color: var(--on-surface-variant);
       opacity: 0.9;
       max-width: 20rem;
+      margin-left: auto;
+      margin-right: auto;
     }
     .leaf::before {
       content: "";
@@ -114,23 +127,35 @@
   </div>
   <script>
 (function () {
-  var hash = window.location.hash || "";
-  var params = hash.length > 1 ? hash.slice(1) : "";
+  var search = new URLSearchParams(window.location.search || "");
+  var codeFromQuery = search.get("code");
 
-  if (!params) {
+  var hash = (window.location.hash || "").replace(/^#/, "");
+  var hashParams = new URLSearchParams(hash);
+  var codeFromHash = hashParams.get("code");
+
+  var code = codeFromQuery || codeFromHash || "";
+
+  var deepLink;
+  if (code) {
+    deepLink =
+      "com.marianaminafro.leafid://reset-password?code=" +
+      encodeURIComponent(code);
+  } else if (hash) {
+    /* Legacy: Supabase redirect with fragment (#access_token=…&type=recovery…) */
+    deepLink = "com.marianaminafro.leafid://reset-password?" + hash;
+  } else {
     document.getElementById("msg").textContent =
       "No hay datos de sesión en este enlace. Pide un correo nuevo desde la app (Recuperar contraseña).";
     return;
   }
-
-  var deepLink = "com.marianaminafro.leafid://reset-password?" + params;
 
   var a = document.getElementById("openApp");
   a.setAttribute("href", deepLink);
   document.getElementById("btnWrap").style.display = "block";
 
   document.getElementById("hint").innerHTML =
-    "Toca <strong>Abrir LeafID</strong>. En iOS, los enlaces largos no deben abrirse solos desde esta página.";
+    "Toca <strong>Abrir LeafID</strong>. En iOS, confirma abrir la app cuando el sistema lo pida.";
 })();
   </script>
 </body>

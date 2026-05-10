@@ -116,7 +116,7 @@ struct DruidProfileView: View {
     private var druidHeader: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space10) {
             HStack(alignment: .center, spacing: LeafIDTheme.space16) {
-                Text("Druid")
+                Text(String(localized: "Druid"))
                     .font(LeafIDFont.plusJakarta(size: druidTitlePointSize, weight: .bold))
                     .foregroundStyle(LeafIDTheme.onSurface)
                 Spacer(minLength: 0)
@@ -139,7 +139,7 @@ struct DruidProfileView: View {
                 #endif
             }
             if headerCollapseProgress < 0.94 {
-                Text("Your druid identity, progress, and unlocks.")
+                Text(String(localized: "Your druid identity, progress, and unlocks."))
                     .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
                     .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                     .opacity(Double(max(0, 1 - headerCollapseProgress / 0.82)))
@@ -161,14 +161,17 @@ struct DruidProfileView: View {
                     .fill(LeafIDTheme.passportAvatarGradient)
                     .frame(width: 64, height: 64)
                 Text(initialGlyph)
-                    .font(.system(size: 26, weight: .heavy, design: .rounded))
-                    .foregroundStyle(.white)
+                    .font(LeafIDFont.plusJakarta(size: 26, weight: .bold))
+                    .foregroundStyle(LeafIDTheme.chromeHighlight)
             }
             VStack(alignment: .leading, spacing: LeafIDTheme.space4) {
                 Text(viewModel.realName)
                     .font(LeafIDFont.plusJakarta(size: 30, weight: .bold))
-                    .foregroundStyle(.white)
-                Text("Botanical Explorer")
+                    .foregroundStyle(LeafIDTheme.onSurface)
+                    .lineLimit(3)
+                    .minimumScaleFactor(0.72)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(String(localized: "Botanical Explorer"))
                     .font(LeafIDFont.manrope(size: 16, weight: .medium))
                     .foregroundStyle(LeafIDTheme.slateMuted)
             }
@@ -178,7 +181,7 @@ struct DruidProfileView: View {
 
     private var rankBadgeCard: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space10) {
-            Text("Current path")
+            Text(String(localized: "Current path"))
                 .font(LeafIDFont.manrope(size: 12, weight: .bold))
                 .tracking(1.4)
                 .foregroundStyle(LeafIDTheme.slateMuted)
@@ -188,7 +191,9 @@ struct DruidProfileView: View {
                     .foregroundStyle(LeafIDTheme.leafGreen)
                 Text(viewModel.rankTitle)
                     .font(LeafIDFont.plusJakarta(size: 20, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(LeafIDTheme.onSurface)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
             }
             Text(nextRankHint)
                 .font(LeafIDFont.manrope(size: 13, weight: .medium))
@@ -201,19 +206,23 @@ struct DruidProfileView: View {
 
     private var quotaCard: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
-            HStack {
-                Text("Scan energy")
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
+            HStack(spacing: LeafIDTheme.space10) {
+                Image(systemName: "bolt.fill")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(LeafIDTheme.leafGreen)
+                Text(String(localized: "Scan energy"))
+                    .font(LeafIDFont.plusJakarta(size: 16, weight: .bold))
+                    .foregroundStyle(LeafIDTheme.onSurface)
                 Spacer(minLength: 0)
                 if viewModel.isPremium {
-                    Text("Unlimited")
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    Text(String(localized: "Unlimited"))
+                        .font(LeafIDFont.manrope(size: 13, weight: .semibold))
                         .foregroundStyle(LeafIDTheme.leafGreen)
                 } else {
-                    Text("\(viewModel.remainingScans) left")
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
-                        .foregroundStyle(LeafIDTheme.slateMuted)
+                    Text(viewModel.scanEnergyCounterLabel)
+                        .font(LeafIDFont.manrope(size: 13, weight: .bold))
+                        .monospacedDigit()
+                        .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                 }
             }
 
@@ -223,10 +232,10 @@ struct DruidProfileView: View {
                 .scaleEffect(x: 1, y: 1.4, anchor: .center)
                 .clipShape(Capsule())
 
-            Text(viewModel.isPremium ? "Premium unlocked. You can scan without limits." : "You have 3 free scans. Unlock more to keep exploring.")
-                .font(.system(size: 12, weight: .medium, design: .rounded))
+            Text(viewModel.isPremium ? String(localized: "Premium unlocked. You can scan without limits.") : String(localized: "You have 3 free scans. Unlock more to keep exploring."))
+                .font(LeafIDFont.manrope(size: 12, weight: .medium))
                 .foregroundStyle(LeafIDTheme.slateMuted)
-            LeafPrimaryButton(title: "Unlock more", useSolidPrimaryFill: true) {
+            LeafPrimaryButton(title: String(localized: "Unlock more"), useSolidPrimaryFill: true) {
                 showPaywall = true
             }
         }
@@ -237,9 +246,9 @@ struct DruidProfileView: View {
 
     private var achievementsRow: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
-            Text("Achievements")
+            Text(String(localized: "Achievements"))
                 .font(LeafIDFont.plusJakarta(size: 30, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(LeafIDTheme.onSurface)
 
             let columns = [GridItem(.flexible(), spacing: LeafIDTheme.space12), GridItem(.flexible(), spacing: LeafIDTheme.space12)]
             LazyVGrid(columns: columns, spacing: LeafIDTheme.space12) {
@@ -257,7 +266,9 @@ struct DruidProfileView: View {
                         }
                         Text(tile.definition.title)
                             .font(LeafIDFont.plusJakarta(size: 18, weight: .bold))
-                            .foregroundStyle(unlocked ? .white : LeafIDTheme.slateMuted)
+                            .foregroundStyle(unlocked ? LeafIDTheme.onSurface : LeafIDTheme.slateMuted)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.85)
                         Text(tile.definition.subtitle)
                             .font(LeafIDFont.manrope(size: 14, weight: .medium))
                             .foregroundStyle(LeafIDTheme.slateMuted)
@@ -284,13 +295,13 @@ struct DruidProfileView: View {
     #if DEBUG
     private var foundryAccessCard: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space14) {
-            Text("Foundry")
+            Text(String(localized: "Foundry"))
                 .font(LeafIDFont.plusJakarta(size: 22, weight: .bold))
-                .foregroundStyle(.white)
-            Text("Design system gallery and internal tools.")
+                .foregroundStyle(LeafIDTheme.onSurface)
+            Text(String(localized: "Design system gallery and internal tools."))
                 .font(LeafIDFont.manrope(size: 14, weight: .medium))
                 .foregroundStyle(LeafIDTheme.slateMuted)
-            LeafPrimaryButton(title: "Open Foundry", useSolidPrimaryFill: true) {
+            LeafPrimaryButton(title: String(localized: "Open Foundry"), useSolidPrimaryFill: true) {
                 showFoundryPasswordGate = true
             }
         }
@@ -302,14 +313,14 @@ struct DruidProfileView: View {
 
     private var supportCard: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
-            Text("Support LeafID")
+            Text(String(localized: "Support LeafID"))
                 .font(LeafIDFont.plusJakarta(size: 20, weight: .bold))
-                .foregroundStyle(.white)
-            Text("LeafID is an independent, non-profit project. If it helped you connect with nature, you can support maintenance with a small coffee.")
+                .foregroundStyle(LeafIDTheme.onSurface)
+            Text(String(localized: "LeafID is an independent, non-profit project. If it helped you connect with nature, you can support maintenance with a small coffee."))
                 .font(LeafIDFont.manrope(size: 14, weight: .medium))
                 .foregroundStyle(LeafIDTheme.slateMuted)
                 .lineSpacing(4)
-            LeafPrimaryButton(title: "Buy me a coffee", useSolidPrimaryFill: true) {
+            LeafPrimaryButton(title: String(localized: "Buy me a coffee"), useSolidPrimaryFill: true) {
                 showPaywall = true
             }
         }
@@ -320,17 +331,17 @@ struct DruidProfileView: View {
 
     private var nextRankHint: String {
         switch viewModel.scansCount {
-        case ..<6: return "Complete 6 scans to unlock Forest Sprout."
-        case ..<16: return "Complete 16 scans to unlock Oak Guardian."
-        case ..<50: return "Complete 50 scans to unlock Archdruid."
-        default: return "You reached the highest rank."
+        case ..<6: return String(localized: "Complete 6 scans to unlock Forest Sprout.")
+        case ..<16: return String(localized: "Complete 16 scans to unlock Oak Guardian.")
+        case ..<50: return String(localized: "Complete 50 scans to unlock Archdruid.")
+        default: return String(localized: "You reached the highest rank.")
         }
     }
 
     private var signOutFooter: some View {
         VStack(spacing: LeafIDTheme.space8) {
             LeafPrimaryButton(
-                title: "Log out",
+                title: String(localized: "Log out"),
                 leadingSystemImage: "rectangle.portrait.and.arrow.right",
                 isEnabled: authViewModel.isAuthenticated,
                 useSolidPrimaryFill: true
@@ -346,10 +357,10 @@ struct DruidProfileView: View {
         NavigationStack {
             VStack(alignment: .leading, spacing: LeafIDTheme.space16) {
                 Text("Design System Foundry")
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .font(LeafIDFont.plusJakarta(size: 20, weight: .bold))
                     .foregroundStyle(LeafIDTheme.onSurface)
 
-                SecureField("Password", text: $foundryPasswordEntry)
+                SecureField(String(localized: "Password"), text: $foundryPasswordEntry)
                     .textContentType(.password)
                     .padding(LeafIDTheme.space16)
                     .background(LeafIDTheme.surfaceContainerLow)
@@ -364,11 +375,11 @@ struct DruidProfileView: View {
 
                 if foundryPasswordError {
                     Text("Incorrect password")
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
-                        .foregroundStyle(LeafIDTheme.primary.opacity(0.9))
+                        .font(LeafIDFont.manrope(size: 13, weight: .medium))
+                        .foregroundStyle(LeafIDTheme.errorForeground)
                 }
 
-                Button("Unlock Foundry") {
+                Button(String(localized: "Unlock Foundry")) {
                     if foundryPasswordEntry == "Test" {
                         foundryPasswordError = false
                         showFoundryPasswordGate = false
@@ -378,7 +389,7 @@ struct DruidProfileView: View {
                         foundryPasswordError = true
                     }
                 }
-                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                .font(LeafIDFont.manrope(size: 17, weight: .semibold))
                 .foregroundStyle(LeafIDTheme.primary)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, LeafIDTheme.space14)
@@ -406,14 +417,15 @@ struct DruidProfileView: View {
 
     private var loginOverlay: some View {
         ZStack {
-            Color.black.opacity(0.55).ignoresSafeArea()
+            LeafIDTheme.shadowBase.opacity(0.55).ignoresSafeArea()
             VStack(alignment: .leading, spacing: LeafIDTheme.space16) {
-                Text("Login Overlay")
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
-                Text("Sign in with Google to unlock your Druid Passport.")
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                Text(String(localized: "Welcome back"))
+                    .font(LeafIDFont.plusJakarta(size: 24, weight: .bold))
+                    .foregroundStyle(LeafIDTheme.onSurface)
+                Text(String(localized: "Sign in with Google to unlock your Druid passport and sync your progress."))
+                    .font(LeafIDFont.manrope(size: 15, weight: .medium))
                     .foregroundStyle(LeafIDTheme.slateMuted)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Button {
                     guard let url = authViewModel.googleOAuthURL() else {
@@ -427,10 +439,10 @@ struct DruidProfileView: View {
                     HStack(spacing: LeafIDTheme.space10) {
                         Image(systemName: "globe")
                             .font(.system(size: 16, weight: .semibold))
-                        Text("Continue with Google")
-                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                        Text(String(localized: "Continue with Google"))
+                            .font(LeafIDFont.plusJakarta(size: 16, weight: .bold))
                     }
-                    .foregroundStyle(.white)
+                    .foregroundStyle(LeafIDTheme.onPrimary)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, LeafIDTheme.space14)
                     .background(LeafIDTheme.leafGreen)

@@ -19,10 +19,10 @@ struct LeafID_nativeApp: App {
                 if authViewModel.isLoadingSession {
                     ZStack {
                         LeafIDTheme.deepForest.ignoresSafeArea()
-                        ProgressView("Restoring session...")
-                            .tint(.white)
-                            .foregroundStyle(.white)
-                            .accessibilityLabel("Restoring session")
+                        ProgressView(String(localized: "Restoring session..."))
+                            .tint(LeafIDTheme.primary)
+                            .foregroundStyle(LeafIDTheme.onSurface)
+                            .accessibilityLabel(String(localized: "Restoring session"))
                     }
                 } else if authViewModel.isInPasswordRecovery {
                     PasswordRecoveryView()
@@ -56,10 +56,12 @@ final class AuthViewModel: ObservableObject {
     @Published private(set) var isUpdatingPassword = false
     @Published private(set) var isInPasswordRecovery = false
     @Published private(set) var passwordResetEmailDestination: String?
-    @Published private(set) var displayName = "The Druid"
+    @Published private(set) var displayName = String(localized: "The Druid")
     @Published private(set) var email = ""
     @Published var lastError: String?
     @Published var authNotice: String?
+    /// Set after `hydrateSession` succeeds; cleared on sign-out. Used for Herbarium sync + `scans.user_id`.
+    @Published private(set) var supabaseUserId: UUID?
 
     private let defaults = UserDefaults.standard
     private let sessionAccessTokenKey = "auth.session.access_token"
@@ -89,6 +91,13 @@ final class AuthViewModel: ObservableObject {
 
     init() {
         Task { await restoreSession() }
+    }
+
+    /// JWT for PostgREST / Storage when the user is signed in (RLS expects `Authorization: Bearer <user access token>`).
+    var supabaseAccessToken: String? {
+        guard isAuthenticated else { return nil }
+        let t = defaults.string(forKey: sessionAccessTokenKey)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return t.isEmpty ? nil : t
     }
 
     func googleOAuthURL() -> URL? {
@@ -146,7 +155,7 @@ final class AuthViewModel: ObservableObject {
         if values["error"] != nil {
             clearSession()
             defaults.removeObject(forKey: oauthPKCEVerifierKey)
-            lastError = "Google sign-in was cancelled or denied."
+            lastError = String(localized: "Google sign-in was cancelled or denied.")
             return
         }
 
@@ -163,14 +172,14 @@ final class AuthViewModel: ObservableObject {
                 await hydrateSession(accessToken: session.accessToken)
             } catch {
                 clearSession()
-                lastError = "Could not complete Google sign-in. Try again."
+                lastError = String(localized: "Could not complete Google sign-in. Try again.")
             }
             return
         }
 
         guard let accessToken = values["access_token"], !accessToken.isEmpty else {
             defaults.removeObject(forKey: oauthPKCEVerifierKey)
-            lastError = "Missing access token from OAuth callback."
+            lastError = String(localized: "Missing access token from OAuth callback.")
             return
         }
         defaults.removeObject(forKey: oauthPKCEVerifierKey)
@@ -185,7 +194,7 @@ final class AuthViewModel: ObservableObject {
     func signInWithEmail(email: String, password: String) async {
         let normalizedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !normalizedEmail.isEmpty, !password.isEmpty else {
-            lastError = "Enter both email and password."
+            lastError = String(localized: "Enter both email and password.")
             return
         }
 
@@ -204,18 +213,18 @@ final class AuthViewModel: ObservableObject {
             await hydrateSession(accessToken: session.accessToken)
         } catch {
             clearSession()
-            lastError = "Invalid email or password."
+            lastError = String(localized: "Invalid email or password.")
         }
     }
 
     func signUpWithEmail(email: String, password: String) async {
         let normalizedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !normalizedEmail.isEmpty, !password.isEmpty else {
-            lastError = "Enter both email and password."
+            lastError = String(localized: "Enter both email and password.")
             return
         }
         guard password.count >= 6 else {
-            lastError = "Password must be at least 6 characters."
+            lastError = String(localized: "Password must be at least 6 characters.")
             return
         }
 
@@ -234,18 +243,18 @@ final class AuthViewModel: ObservableObject {
                 )
                 await hydrateSession(accessToken: session.accessToken)
             } else {
-                authNotice = "Check your email to confirm your account, then sign in."
+                authNotice = String(localized: "Check your email to confirm your account, then sign in.")
             }
         } catch {
             clearSession()
-            lastError = "Could not create account. This email may already be registered."
+            lastError = String(localized: "Could not create account. This email may already be registered.")
         }
     }
 
     func sendPasswordReset(email: String) async {
         let normalizedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         guard normalizedEmail.contains("@") else {
-            lastError = "Enter a valid email address."
+            lastError = String(localized: "Enter a valid email address.")
             return
         }
 
@@ -254,7 +263,7 @@ final class AuthViewModel: ObservableObject {
 
         do {
             try await requestPasswordReset(email: normalizedEmail)
-            passwordResetEmailDestination = normalizedEmail
+            passwordResetEmailDestination = nil
             lastError = nil
             ToastCenter.shared.show(
                 String(localized: "Recovery email sent. Check your inbox and spam."),
@@ -263,25 +272,24 @@ final class AuthViewModel: ObservableObject {
         } catch let auth as AuthError {
             switch auth {
             case .configuration:
-                lastError =
-                    "Supabase is not configured. Add SUPABASE_URL and SUPABASE_ANON_KEY in Secrets.local.xcconfig."
+                lastError = String(localized: "Supabase is not configured. Add SUPABASE_URL and SUPABASE_ANON_KEY in Secrets.local.xcconfig.")
             case .serverMessage(let message):
                 lastError = message
             case .requestFailed:
-                lastError = "Could not send reset email. Try again."
+                lastError = String(localized: "Could not send reset email. Try again.")
             }
         } catch {
-            lastError = "Could not send reset email. Try again."
+            lastError = String(localized: "Could not send reset email. Try again.")
         }
     }
 
     func updatePassword(_ newPassword: String) async {
         guard newPassword.count >= 8 else {
-            lastError = "Password must be at least 8 characters."
+            lastError = String(localized: "Password must be at least 8 characters.")
             return
         }
         guard let accessToken = defaults.string(forKey: sessionAccessTokenKey), !accessToken.isEmpty else {
-            lastError = "Recovery session expired. Request another reset email."
+            lastError = String(localized: "Recovery session expired. Request another reset email.")
             return
         }
 
@@ -297,7 +305,7 @@ final class AuthViewModel: ObservableObject {
                 kind: .success
             )
         } catch {
-            lastError = "Could not update password. Request a new recovery link."
+            lastError = String(localized: "Could not update password. Request a new recovery link.")
         }
     }
 
@@ -329,12 +337,12 @@ final class AuthViewModel: ObservableObject {
     private func handlePasswordRecoveryCallback(_ url: URL) async {
         let values = parseOAuthValues(url)
         if values["error"] != nil {
-            lastError = "This recovery link is invalid or expired."
+            lastError = String(localized: "This recovery link is invalid or expired.")
             return
         }
 
         guard let accessToken = values["access_token"], !accessToken.isEmpty else {
-            lastError = "Recovery session token missing."
+            lastError = String(localized: "Recovery session token missing.")
             return
         }
         let refreshToken = values["refresh_token"]
@@ -360,9 +368,10 @@ final class AuthViewModel: ObservableObject {
             }
 
             email = user.email ?? ""
+            supabaseUserId = UUID(uuidString: user.id)
             displayName = profile?.displayName?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
                 ?? user.fullName?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
-                ?? "The Druid"
+                ?? String(localized: "The Druid")
 
             defaults.set(true, forKey: druidLoggedInKey)
             defaults.set(displayName, forKey: druidRealNameKey)
@@ -377,7 +386,7 @@ final class AuthViewModel: ObservableObject {
             NotificationCenter.default.post(name: .druidAuthDidChange, object: nil)
         } catch {
             clearSession()
-            lastError = "Failed to restore session from Supabase."
+            lastError = String(localized: "Failed to restore session from Supabase.")
         }
     }
 
@@ -391,8 +400,9 @@ final class AuthViewModel: ObservableObject {
         defaults.set(false, forKey: profileIsPremiumKey)
         isAuthenticated = false
         isInPasswordRecovery = false
+        supabaseUserId = nil
         email = ""
-        displayName = "The Druid"
+        displayName = String(localized: "The Druid")
         passwordResetEmailDestination = nil
         NotificationCenter.default.post(name: .druidAuthDidChange, object: nil)
     }
@@ -738,9 +748,9 @@ struct LoginView: View {
 
     private var primaryEmailButtonTitle: String {
         if authViewModel.isAuthenticatingEmail {
-            return isSignUpMode ? "Creating account..." : "Signing in..."
+            return isSignUpMode ? String(localized: "Creating account...") : String(localized: "Signing in...")
         }
-        return isSignUpMode ? "Create account" : "Login"
+        return isSignUpMode ? String(localized: "Create account") : String(localized: "Login")
     }
 
     var body: some View {
@@ -763,12 +773,12 @@ struct LoginView: View {
                                     .font(.system(size: 28, weight: .semibold))
                                     .foregroundStyle(LeafIDTheme.primary)
                             }
-                        Text(isSignUpMode ? "Join LeafID" : "Welcome Back")
+                        Text(isSignUpMode ? String(localized: "Join LeafID") : String(localized: "Welcome Back"))
                             .font(LeafIDFont.plusJakarta(size: 46, weight: .bold))
                             .minimumScaleFactor(0.7)
                             .lineLimit(1)
                             .foregroundStyle(LeafIDTheme.onSurface)
-                        Text(isSignUpMode ? "Create an account to save your journey" : "Sign in to continue your journey")
+                        Text(isSignUpMode ? String(localized: "Create an account to save your journey") : String(localized: "Sign in to continue your journey"))
                             .font(LeafIDFont.manrope(size: 20, weight: .medium))
                             .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                             .multilineTextAlignment(.center)
@@ -776,17 +786,17 @@ struct LoginView: View {
                     .padding(.top, LeafIDTheme.space28)
 
                     VStack(alignment: .leading, spacing: LeafIDTheme.space16) {
-                        AuthFieldLabel("EMAIL ADDRESS")
+                        AuthFieldLabel(String(localized: "EMAIL ADDRESS"))
                         AuthTextField(text: $email, placeholder: "name@example.com", systemImage: "envelope.fill")
                             .textInputAutocapitalization(.never)
                             .keyboardType(.emailAddress)
                             .autocorrectionDisabled()
 
                         HStack(alignment: .center) {
-                            AuthFieldLabel("PASSWORD")
+                            AuthFieldLabel(String(localized: "PASSWORD"))
                             Spacer(minLength: 0)
                             if !isSignUpMode {
-                                Button("Forgot?") {
+                                Button(String(localized: "Forgot?")) {
                                     resetEmail = email
                                     showRecoverySheet = true
                                 }
@@ -798,7 +808,7 @@ struct LoginView: View {
 
                         AuthSecureField(
                             text: $password,
-                            placeholder: "Enter your password",
+                            placeholder: String(localized: "Enter your password"),
                             showPassword: $showPassword
                         )
 
@@ -809,7 +819,7 @@ struct LoginView: View {
                             useSolidPrimaryFill: true
                         ) {
                             guard !email.isEmpty, !password.isEmpty else {
-                                authViewModel.lastError = "Enter both email and password."
+                                authViewModel.lastError = String(localized: "Enter both email and password.")
                                 return
                             }
                             Task {
@@ -824,14 +834,13 @@ struct LoginView: View {
 
                     Button {
                         guard let authURL = authViewModel.googleOAuthURL() else {
-                            authViewModel.lastError =
-                                "Supabase is not configured. Add SUPABASE_URL (quoted) and SUPABASE_ANON_KEY in Secrets.local.xcconfig."
+                            authViewModel.lastError = String(localized: "Supabase is not configured. Add SUPABASE_URL (quoted) and SUPABASE_ANON_KEY in Secrets.local.xcconfig.")
                             return
                         }
                         authViewModel.lastError = nil
                         openURL(authURL)
                     } label: {
-                        Text("Continue with Google")
+                        Text(String(localized: "Continue with Google"))
                             .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .semibold))
                             .foregroundStyle(LeafIDTheme.onSurface)
                             .frame(maxWidth: .infinity)
@@ -849,10 +858,10 @@ struct LoginView: View {
                     .opacity(authViewModel.isHandlingOAuthCallback ? 0.55 : 1)
 
                     HStack(spacing: LeafIDTheme.space6) {
-                        Text(isSignUpMode ? "Already have an account?" : "Don't have an account?")
+                        Text(isSignUpMode ? String(localized: "Already have an account?") : String(localized: "Don't have an account?"))
                             .font(LeafIDFont.manrope(size: 16, weight: .medium))
                             .foregroundStyle(LeafIDTheme.onSurfaceVariant)
-                        Button(isSignUpMode ? "Sign in" : "Sign Up") {
+                        Button(isSignUpMode ? String(localized: "Sign in") : String(localized: "Sign Up")) {
                             isSignUpMode.toggle()
                             authViewModel.lastError = nil
                             authViewModel.authNotice = nil
@@ -864,10 +873,10 @@ struct LoginView: View {
                     .padding(.top, LeafIDTheme.space8)
 
                     if authViewModel.isHandlingOAuthCallback {
-                        ProgressView("Completing Google sign in...")
+                        ProgressView(String(localized: "Completing Google sign in..."))
                             .tint(LeafIDTheme.primary)
                             .foregroundStyle(LeafIDTheme.onSurface)
-                            .accessibilityLabel("Completing Google sign in")
+                            .accessibilityLabel(String(localized: "Completing Google sign in..."))
                     } else if let notice = authViewModel.authNotice {
                         Text(notice)
                             .font(LeafIDFont.manrope(size: 14, weight: .medium))
@@ -876,17 +885,8 @@ struct LoginView: View {
                     } else if let lastError = authViewModel.lastError {
                         Text(lastError)
                             .font(LeafIDFont.manrope(size: 14, weight: .medium))
-                            .foregroundStyle(.red.opacity(0.9))
+                            .foregroundStyle(LeafIDTheme.errorForeground)
                             .multilineTextAlignment(.center)
-                    }
-
-                    if let destination = authViewModel.passwordResetEmailDestination {
-                        Text(
-                            "Recovery email sent to \(destination). Check spam or promotions folders if it doesn’t arrive within a few minutes.\n\nFrom Gmail (or similar), open the link in Safari: tap ··· or the share icon, choose Open in Browser / Safari. In-app mail browsers often block returning to the app."
-                        )
-                        .font(LeafIDFont.manrope(size: 14, weight: .medium))
-                        .foregroundStyle(LeafIDTheme.primary.opacity(0.95))
-                        .multilineTextAlignment(.center)
                     }
                 }
                 .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
@@ -912,24 +912,24 @@ private struct PasswordRecoveryView: View {
         ZStack {
             LeafIDTheme.surface.ignoresSafeArea()
             VStack(alignment: .leading, spacing: LeafIDTheme.space20) {
-                Text("Create new password")
+                Text(String(localized: "Create new password"))
                     .font(LeafIDFont.plusJakarta(size: 34, weight: .bold))
                     .foregroundStyle(LeafIDTheme.onSurface)
-                Text("Set a new password to finish your account recovery.")
+                Text(String(localized: "Set a new password to finish your account recovery."))
                     .font(LeafIDFont.manrope(size: 16, weight: .medium))
                     .foregroundStyle(LeafIDTheme.onSurfaceVariant)
 
                 VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
-                    AuthFieldLabel("NEW PASSWORD")
+                    AuthFieldLabel(String(localized: "NEW PASSWORD"))
                     AuthSecureField(
                         text: $newPassword,
-                        placeholder: "Minimum 8 characters",
+                        placeholder: String(localized: "Minimum 8 characters"),
                         showPassword: $showNewPassword
                     )
-                    AuthFieldLabel("CONFIRM PASSWORD")
+                    AuthFieldLabel(String(localized: "CONFIRM PASSWORD"))
                     AuthSecureField(
                         text: $confirmPassword,
-                        placeholder: "Repeat your password",
+                        placeholder: String(localized: "Repeat your password"),
                         showPassword: $showConfirmPassword
                     )
                 }
@@ -937,20 +937,20 @@ private struct PasswordRecoveryView: View {
                 if let localError {
                     Text(localError)
                         .font(LeafIDFont.manrope(size: 14, weight: .medium))
-                        .foregroundStyle(.red.opacity(0.9))
+                        .foregroundStyle(LeafIDTheme.errorForeground)
                 } else if let authError = authViewModel.lastError {
                     Text(authError)
                         .font(LeafIDFont.manrope(size: 14, weight: .medium))
-                        .foregroundStyle(.red.opacity(0.9))
+                        .foregroundStyle(LeafIDTheme.errorForeground)
                 }
 
                 LeafPrimaryButton(
-                    title: authViewModel.isUpdatingPassword ? "Updating..." : "Update Password",
+                    title: authViewModel.isUpdatingPassword ? String(localized: "Updating...") : String(localized: "Update Password"),
                     isEnabled: !authViewModel.isUpdatingPassword && !newPassword.isEmpty && !confirmPassword.isEmpty,
                     useSolidPrimaryFill: true
                 ) {
                     guard newPassword == confirmPassword else {
-                        localError = "Passwords do not match."
+                        localError = String(localized: "Passwords do not match.")
                         return
                     }
                     localError = nil
@@ -959,7 +959,7 @@ private struct PasswordRecoveryView: View {
                     }
                 }
 
-                Button("Back to login") {
+                Button(String(localized: "Back to login")) {
                     authViewModel.exitPasswordRecovery()
                 }
                 .font(LeafIDFont.manrope(size: 15, weight: .medium))
@@ -983,26 +983,24 @@ private struct PasswordRecoveryRequestSheet: View {
             ZStack {
                 LeafIDTheme.surface.ignoresSafeArea()
                 VStack(alignment: .leading, spacing: LeafIDTheme.space16) {
-                    Text("Recover password")
+                    Text(String(localized: "Recover password"))
                         .font(LeafIDFont.plusJakarta(size: 28, weight: .bold))
                         .foregroundStyle(LeafIDTheme.onSurface)
-                    Text("Enter your account email and we will send a recovery link.")
+                    Text(String(localized: "Enter your account email and we will send a recovery link."))
                         .font(LeafIDFont.manrope(size: 15, weight: .medium))
                         .foregroundStyle(LeafIDTheme.onSurfaceVariant)
-                    Text(
-                        "Tip: after you receive the email, open the link in Safari if the app does not open (Gmail’s in-app browser often blocks app links)."
-                    )
-                    .font(LeafIDFont.manrope(size: 13, weight: .medium))
-                    .foregroundStyle(LeafIDTheme.onSurfaceVariant.opacity(0.9))
+                    Text(String(localized: "recovery_tip_safari"))
+                        .font(LeafIDFont.manrope(size: 13, weight: .medium))
+                        .foregroundStyle(LeafIDTheme.onSurfaceVariant.opacity(0.9))
 
-                    AuthFieldLabel("EMAIL")
+                    AuthFieldLabel(String(localized: "EMAIL"))
                     AuthTextField(text: $email, placeholder: "name@example.com", systemImage: "envelope.fill")
                         .textInputAutocapitalization(.never)
                         .keyboardType(.emailAddress)
                         .autocorrectionDisabled()
 
                     LeafPrimaryButton(
-                        title: authViewModel.isSendingPasswordReset ? "Sending..." : "Send recovery link",
+                        title: authViewModel.isSendingPasswordReset ? String(localized: "Sending...") : String(localized: "Send recovery link"),
                         isEnabled: !authViewModel.isSendingPasswordReset && !email.isEmpty,
                         useSolidPrimaryFill: true
                     ) {
@@ -1017,7 +1015,7 @@ private struct PasswordRecoveryRequestSheet: View {
                     if let error = authViewModel.lastError {
                         Text(error)
                             .font(LeafIDFont.manrope(size: 14, weight: .medium))
-                            .foregroundStyle(.red.opacity(0.9))
+                            .foregroundStyle(LeafIDTheme.errorForeground)
                     }
 
                     Spacer(minLength: 0)

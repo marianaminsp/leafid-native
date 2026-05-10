@@ -34,9 +34,7 @@ struct PaywallView: View {
                         paywallHero
                         benefitsSection
                         upgradeButton
-                        Text(
-                            "Las compras dentro de la app aún no están conectadas. Este botón quedará activo en una actualización; puedes cerrar y seguir explorando con el límite gratuito."
-                        )
+                        Text(String(localized: "Paywall disclaimer"))
                         .font(LeafIDFont.manrope(size: 13, weight: .medium))
                         .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                         .fixedSize(horizontal: false, vertical: true)
@@ -60,10 +58,10 @@ struct PaywallView: View {
 
     private var paywallHero: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
-            Text("Haz que tu herbario crezca!")
+            Text(String(localized: "Paywall headline"))
                 .font(LeafIDFont.plusJakarta(size: 30, weight: .bold))
                 .foregroundStyle(LeafIDTheme.onSurface)
-            Text("Desbloquea herramientas botánicas avanzadas y sigue explorando sin límites.")
+            Text(String(localized: "Paywall subtitle"))
                 .font(LeafIDFont.manrope(size: 16, weight: .medium))
                 .foregroundStyle(LeafIDTheme.onSurfaceVariant)
         }
@@ -78,9 +76,9 @@ struct PaywallView: View {
 
     private var benefitsSection: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
-            benefitRow(systemImage: "camera.viewfinder", title: "Escaneos ilimitados")
-            benefitRow(systemImage: "cross.case.fill", title: "Salud de plantas")
-            benefitRow(systemImage: "doc.richtext.fill", title: "PDF")
+            benefitRow(systemImage: "camera.viewfinder", title: String(localized: "Paywall benefit unlimited scans"))
+            benefitRow(systemImage: "cross.case.fill", title: String(localized: "Paywall benefit plant health"))
+            benefitRow(systemImage: "doc.richtext.fill", title: String(localized: "Paywall benefit pdf"))
         }
         .padding(LeafIDTheme.space20)
         .background(LeafIDTheme.surfaceContainerHigh)
@@ -111,7 +109,7 @@ struct PaywallView: View {
             #endif
             onUpgradeTap()
         } label: {
-            Text("Hacerse Premium")
+            Text(String(localized: "Paywall upgrade"))
                 .font(LeafIDFont.plusJakarta(size: 18, weight: .bold))
                 .foregroundStyle(LeafIDTheme.surface)
                 .frame(maxWidth: .infinity)

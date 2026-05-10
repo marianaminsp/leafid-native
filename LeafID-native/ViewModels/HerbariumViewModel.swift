@@ -2,26 +2,24 @@
 //  HerbariumViewModel.swift
 //  LeafID-native
 //
-//  Phase 3: load `scans` for `auth.uid()` via Supabase (see web `loadData` / botanyService).
+//  Loads `scans` for `auth.uid()` via Supabase PostgREST; caches per-user on device.
 //
 
 import Combine
 import Foundation
 
+@MainActor
 final class HerbariumViewModel: ObservableObject {
     @Published var scans: [Scan] = []
+    @Published private(set) var isRemoteLoading = false
 
-    private static let persistenceKey = "herbarium.saved_scans.v1"
+    private var activeUserId: UUID?
 
-    init(useSeedData: Bool = true) {
-        if let loaded = Self.loadPersistedScans(), !loaded.isEmpty {
-            scans = loaded
-        } else if useSeedData {
-            scans = HerbariumViewModel.placeholderCatalog
-        }
+    init() {
+        scans = []
     }
 
-    /// Seeded specimens for grid + map parity (docs/PDR.md §3).
+    /// Seeded specimens for previews / design gallery only (not used in shipping `init`).
     static let placeholderCatalog: [Scan] = [
         Scan(
             id: UUID(uuidString: "10000000-0000-0000-0000-000000000001") ?? UUID(),
@@ -90,7 +88,7 @@ final class HerbariumViewModel: ObservableObject {
 
     private static let placeholderIDSet = Set(placeholderCatalog.map(\.id))
 
-    /// `true` when the list is exactly the built-in demo catalog (no real saves loaded from disk).
+    /// `true` when the list is exactly the built-in preview catalog (e.g. SwiftUI previews).
     var isShowingPlaceholderCatalog: Bool {
         !scans.isEmpty && Set(scans.map(\.id)) == Self.placeholderIDSet
     }
@@ -101,10 +99,52 @@ final class HerbariumViewModel: ObservableObject {
         return scans.first
     }
 
+    /// Loads disk cache (if any) then replaces with Supabase rows for the signed-in user. RLS returns only that user’s scans.
+    func hydrateFromSupabase(auth: AuthViewModel) async {
+        guard BotanyService.isSupabasePreserveConfigured else {
+            isRemoteLoading = false
+            return
+        }
+
+        guard auth.isAuthenticated,
+              let userId = auth.supabaseUserId,
+              let token = auth.supabaseAccessToken
+        else {
+            activeUserId = nil
+            scans = []
+            isRemoteLoading = false
+            return
+        }
+
+        activeUserId = userId
+        isRemoteLoading = true
+
+        if let cached = Self.loadPersistedScans(for: userId) {
+            scans = cached
+        }
+
+        do {
+            let remote = try await BotanyService.fetchScansForCurrentUser(accessToken: token)
+            scans = remote
+            persistScans()
+            NotificationCenter.default.post(name: .herbariumCollectionDidChange, object: nil)
+        } catch {
+            ToastCenter.shared.show(
+                String(localized: "Could not load your Herbarium from the server."),
+                kind: .error
+            )
+            #if DEBUG
+            print("[LeafID] Herbarium sync failed: \(error.localizedDescription)")
+            #endif
+        }
+
+        isRemoteLoading = false
+    }
+
     /// Appends a specimen after Preserve. `Scan.photoURL` should be the Supabase **public** Storage URL when upload succeeded (see `BotanyService.saveUserCapture`); otherwise a local `file://` capture path.
     func appendPreservedScan(_ scan: Scan) {
-        if isShowingPlaceholderCatalog {
-            scans = []
+        if let uid = scan.userId {
+            activeUserId = uid
         }
         scans.insert(scan, at: 0)
         persistScans()
@@ -119,8 +159,23 @@ final class HerbariumViewModel: ObservableObject {
         persistScans()
     }
 
-    private static func loadPersistedScans() -> [Scan]? {
-        guard let data = UserDefaults.standard.data(forKey: persistenceKey) else { return nil }
+    private static func persistenceKey(for userId: UUID) -> String {
+        "herbarium.saved_scans.v2.\(userId.uuidString.lowercased())"
+    }
+
+    private func currentPersistenceKey() -> String? {
+        if let activeUserId {
+            return Self.persistenceKey(for: activeUserId)
+        }
+        if let uid = scans.compactMap(\.userId).first {
+            return Self.persistenceKey(for: uid)
+        }
+        return nil
+    }
+
+    private static func loadPersistedScans(for userId: UUID) -> [Scan]? {
+        let key = persistenceKey(for: userId)
+        guard let data = UserDefaults.standard.data(forKey: key) else { return nil }
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         guard let decoded = try? decoder.decode([Scan].self, from: data) else { return nil }
@@ -136,10 +191,11 @@ final class HerbariumViewModel: ObservableObject {
     }
 
     private func persistScans() {
+        guard let key = currentPersistenceKey() else { return }
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         guard let data = try? encoder.encode(scans) else { return }
-        UserDefaults.standard.set(data, forKey: Self.persistenceKey)
+        UserDefaults.standard.set(data, forKey: key)
         NotificationCenter.default.post(name: .herbariumCollectionDidChange, object: nil)
     }
 }

@@ -30,6 +30,7 @@ struct BotanicalCardImmersiveView: View {
     /// Country where the capture was taken (reverse geocode `CLPlacemark.country`, then fallbacks).
     @State private var resolvedPhotoCountryName: String = ""
     @State private var resolvedPhotoISOCountryCode: String?
+    @State private var culturalLegacyDisplay: String = ""
 
     private func isUsableOriginString(_ raw: String?) -> String? {
         let t = raw?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -228,6 +229,15 @@ struct BotanicalCardImmersiveView: View {
         }
         .task(id: scan.id) {
             await resolvePhotoPlaceAndCoordinates()
+        }
+        .task(id: scan.id) {
+            let base = BotanyService.mergedCulturalLegacy(scan: scan, preview: preview)
+            culturalLegacyDisplay = base
+            culturalLegacyDisplay = await BotanyService.enrichCulturalLegacyDisplay(
+                scan: scan,
+                preview: preview,
+                baseline: base
+            )
         }
         #if canImport(UIKit)
         .sheet(isPresented: $showShareSheet) {
@@ -783,11 +793,7 @@ private func specimenUIKit(scan: Scan) -> some View {
 
 private struct ImmersiveSpecimenMissingPlaceholder: View {
     var body: some View {
-        #if DEBUG
-        Color.red
-        #else
         LeafIDTheme.surfaceContainerLow
-        #endif
     }
 }
 #endif

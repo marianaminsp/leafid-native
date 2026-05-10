@@ -16,6 +16,7 @@ private struct HerbariumHeaderMinYKey: PreferenceKey {
 
 struct HerbariumView: View {
     @EnvironmentObject private var viewModel: HerbariumViewModel
+    @EnvironmentObject private var auth: AuthViewModel
     @Namespace private var specimenNamespace
     @State private var selectedScan: Scan?
     @State private var immersiveUseMatchedGeometry = true
@@ -74,9 +75,9 @@ struct HerbariumView: View {
                                     }
                                 )
 
-                            if viewModel.scans.isEmpty {
+                            if viewModel.scans.isEmpty, !viewModel.isRemoteLoading {
                                 emptyState
-                            } else {
+                            } else if !viewModel.scans.isEmpty {
                                 ForEach(viewModel.scans) { scan in
                                     Button {
                                         immersiveUseMatchedGeometry = true
@@ -98,6 +99,16 @@ struct HerbariumView: View {
                     }
                     .coordinateSpace(name: "herbariumScroll")
                     .onPreferenceChange(HerbariumHeaderMinYKey.self) { headerMinY = $0 }
+                    .refreshable {
+                        await viewModel.hydrateFromSupabase(auth: auth)
+                    }
+                }
+
+                if viewModel.isRemoteLoading && viewModel.scans.isEmpty {
+                    ProgressView(String(localized: "Loading your collection…"))
+                        .tint(LeafIDTheme.primary)
+                        .foregroundStyle(LeafIDTheme.onSurface)
+                        .allowsHitTesting(false)
                 }
 
                 if let scan = selectedScan {
@@ -134,12 +145,12 @@ struct HerbariumView: View {
 
     private var herbariumScrollHeader: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space10) {
-            Text("Herbarium")
+            Text(String(localized: "Herbarium"))
                 .font(LeafIDFont.plusJakarta(size: herbariumTitlePointSize, weight: .bold))
                 .foregroundStyle(LeafIDTheme.onSurface)
 
             if headerCollapseProgress < 0.94 {
-                Text("Your collection of botanical wonders")
+                Text(String(localized: "Your collection of botanical wonders"))
                     .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
                     .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                     .opacity(Double(max(0, 1 - headerCollapseProgress / 0.82)))
@@ -150,18 +161,28 @@ struct HerbariumView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: LeafIDTheme.space16) {
-            Text("No specimens yet")
-                .font(LeafIDFont.plusJakarta(size: 18, weight: .semibold))
+        VStack(spacing: LeafIDTheme.space20) {
+            Image(systemName: "leaf.circle")
+                .font(.system(size: 52, weight: .thin))
+                .foregroundStyle(LeafIDTheme.primary.opacity(0.92))
+                .accessibilityHidden(true)
+            Text(String(localized: "No specimens yet"))
+                .font(LeafIDFont.plusJakarta(size: 20, weight: .bold))
                 .foregroundStyle(LeafIDTheme.onSurface)
-            Text("When you identify a plant, tap Save on the results screen — it will appear here.")
-                .font(LeafIDFont.manrope(size: 14, weight: .medium))
+            Text(String(localized: "When you identify a plant, tap Save on the results screen — it will appear here."))
+                .font(LeafIDFont.manrope(size: 15, weight: .medium))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(LeafIDTheme.onSurfaceVariant)
-                .padding(.horizontal, LeafIDTheme.space24)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(String(localized: "Open Scan to identify a plant, then save it from the results."))
+                .font(LeafIDFont.manrope(size: 13, weight: .semibold))
+                .multilineTextAlignment(.center)
+                .foregroundStyle(LeafIDTheme.primary.opacity(0.9))
+                .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 40)
+        .padding(.vertical, LeafIDTheme.space32)
+        .padding(.horizontal, LeafIDTheme.space16)
         .liquidGlass()
     }
 }
@@ -170,5 +191,6 @@ struct HerbariumView_Previews: PreviewProvider {
     static var previews: some View {
         HerbariumView()
             .environmentObject(HerbariumViewModel())
+            .environmentObject(AuthViewModel())
     }
 }

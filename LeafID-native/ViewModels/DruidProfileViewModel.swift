@@ -20,22 +20,29 @@ final class DruidProfileViewModel: ObservableObject {
     @Published var lastError: String?
 
     @Published var isLoggedIn = false
-    @Published var realName = "The Druid"
+    @Published var realName = String(localized: "The Druid")
     @Published var scansCount = 0
     @Published var isPremium = false
 
     var rankTitle: String {
         switch scansCount {
-        case 0 ... 5: return "Wandering Seed"
-        case 6 ... 15: return "Forest Sprout"
-        case 16 ... 50: return "Oak Guardian"
-        default: return "Archdruid"
+        case 0 ... 5: return String(localized: "Wandering Seed")
+        case 6 ... 15: return String(localized: "Forest Sprout")
+        case 16 ... 50: return String(localized: "Oak Guardian")
+        default: return String(localized: "Archdruid")
         }
     }
 
     var remainingScans: Int {
         if isPremium { return Int.max }
         return max(0, Self.freeScanLimit - scansCount)
+    }
+
+    /// Free tier only: scans used this cycle vs cap (e.g. `1/3`).
+    var scanEnergyCounterLabel: String {
+        guard !isPremium else { return "" }
+        let used = min(Self.freeScanLimit, max(0, scansCount))
+        return "\(used)/\(Self.freeScanLimit)"
     }
 
     var energyProgress: Double {
@@ -73,7 +80,7 @@ final class DruidProfileViewModel: ObservableObject {
         defer { isLoading = false }
 
         isLoggedIn = UserDefaults.standard.bool(forKey: "druid.is_logged_in")
-        realName = UserDefaults.standard.string(forKey: "druid.real_name") ?? "The Druid"
+        realName = UserDefaults.standard.string(forKey: "druid.real_name") ?? String(localized: "The Druid")
         let storedQuota = UserDefaults.standard.integer(forKey: ProfileStatsLocalStore.profileQuotaScansKey)
         let lifetime = ProfileStatsLocalStore.totalScans
         let collectionCount: Int = {

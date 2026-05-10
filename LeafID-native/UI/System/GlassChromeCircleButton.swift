@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct GlassChromeCircleButton: View {
     let systemImage: String
@@ -13,7 +16,12 @@ struct GlassChromeCircleButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            #if canImport(UIKit)
+            LeafIDHaptics.impact(.light)
+            #endif
+            action()
+        }) {
             Image(systemName: systemImage)
                 .font(.system(size: 17, weight: .semibold))
                 .foregroundStyle(LeafIDTheme.onSurface)
