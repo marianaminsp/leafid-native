@@ -2,129 +2,319 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0B0F08" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="referrer" content="no-referrer" />
   <title>LeafID — Abrir la app</title>
-  <!-- Tokens: Theme.swift — deepForest, surfaceContainerHigh, primary, onPrimary, CornerRadius.card 32 -->
+  <!--
+    Tokens mirrored from LeafID-native/Theme/Theme.swift (LeafIDTheme + CornerRadius).
+    Bridge purpose: translate Supabase password-recovery URL → com.marianaminafro.leafid:// deep link.
+    Do not remove element IDs (#msg, #btnWrap, #openApp, #hint) — the inline script depends on them.
+  -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --deep-forest: #0B0F08;
+      /* Surfaces — LeafIDTheme */
+      --surface: #0B0F08;
+      --surface-container-low: #10150C;
       --surface-container-high: #1C2116;
+      --surface-container-highest: #22281C;
+
+      /* Foreground */
       --on-surface: #F2F5E7;
       --on-surface-variant: #A9ADA0;
-      --primary: #93BC10;
-      --on-primary: #121212;
       --outline-variant: #45493F;
+      --chrome-highlight: #FFFFFF;
+
+      /* Brand */
+      --primary: #93BC10;
+      --primary-container: #8DC104;
+      --on-primary: #121212;
+      --on-primary-container: #253600;
+
+      /* Semantic */
+      --error: #FF453A;
+      --caution: #F5A623;
+
+      /* Radii — CornerRadius */
       --radius-card: 32px;
-      --radius-button: 32px;
+      --radius-immersive: 48px;
+      --radius-pill: 999px;
+
+      /* Spacing rhythm — LeafIDTheme.space* */
+      --space-4: 4px;
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-20: 20px;
+      --space-24: 24px;
+      --space-28: 28px;
+      --space-32: 32px;
+
+      /* Glass + shadow — PDR §4 / LiquidGlass */
+      --glass-border: rgba(255, 255, 255, 0.15);
+      --glass-inner-highlight: rgba(255, 255, 255, 0.06);
+      --shadow-card: 0 24px 48px rgba(0, 0, 0, 0.35), 0 2px 0 rgba(255, 255, 255, 0.04) inset;
+      --shadow-button: 0 8px 16px rgba(0, 0, 0, 0.45);
+      --primary-glow: 0 12px 40px rgba(147, 188, 16, 0.35);
+
+      /* Typography scale — LeafIDFont */
+      --font-display: "Plus Jakarta Sans", system-ui, -apple-system, "SF Pro Display", sans-serif;
+      --font-body: "Manrope", system-ui, -apple-system, "SF Pro Text", sans-serif;
     }
+
     * { box-sizing: border-box; }
-    body {
+
+    html, body {
       margin: 0;
-      min-height: 100vh;
-      font-family: "Manrope", system-ui, sans-serif;
-      background: var(--deep-forest);
+      padding: 0;
+      min-height: 100%;
+      background: var(--surface);
       color: var(--on-surface);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    body {
+      font-family: var(--font-body);
+      min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: max(var(--space-24), env(safe-area-inset-top)) var(--space-24)
+               max(var(--space-24), env(safe-area-inset-bottom));
       text-align: center;
+      position: relative;
+      overflow-x: hidden;
     }
+
+    /* Ambient primary halo behind the card — mirrors scanButtonShadow glow */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(60vmin 60vmin at 50% 38%, rgba(147, 188, 16, 0.18), transparent 70%),
+        radial-gradient(80vmin 80vmin at 50% 110%, rgba(141, 193, 4, 0.10), transparent 70%);
+      z-index: 0;
+    }
+
+    main.bridge {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 24rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-20);
+    }
+
+    /* Glass card — LiquidGlassViewModifier parity */
+    .card {
+      width: 100%;
+      padding: var(--space-32) var(--space-28) var(--space-28);
+      background:
+        linear-gradient(180deg, var(--surface-container-highest) 0%, var(--surface-container-high) 100%);
+      border-radius: var(--radius-card);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-card);
+      backdrop-filter: blur(24px) saturate(140%);
+      -webkit-backdrop-filter: blur(24px) saturate(140%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Subtle inner top highlight — matches chromeHighlight hairline */
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: inherit;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 30%);
+    }
+
+    /* Leaf glyph chip — primary glow */
+    .leaf-chip {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto var(--space-20);
+      border-radius: var(--radius-pill);
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12), transparent 60%),
+        linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 8px 24px rgba(147, 188, 16, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      position: relative;
+    }
+
+    .leaf-chip svg {
+      width: 32px;
+      height: 32px;
+      color: var(--on-primary-container);
+    }
+
     .brand {
-      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      font-family: var(--font-display);
       font-weight: 800;
-      font-size: 0.75rem;
-      letter-spacing: 0.2em;
+      font-size: 0.7rem;
+      letter-spacing: 0.24em;
       text-transform: uppercase;
       color: var(--primary);
-      margin-bottom: 8px;
+      margin-bottom: var(--space-8);
     }
-    .card {
-      max-width: 22rem;
-      width: 100%;
-      padding: 28px 24px;
-      background: var(--surface-container-high);
-      border-radius: var(--radius-card);
-      border: 1px solid rgba(69, 73, 63, 0.35);
-      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
-    }
+
     h1 {
-      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      font-family: var(--font-display);
       font-weight: 700;
-      font-size: 1.35rem;
-      letter-spacing: -0.02em;
-      margin: 0 0 12px;
-      line-height: 1.25;
+      font-size: 1.5rem;
+      letter-spacing: -0.01em;
+      margin: 0 0 var(--space-12);
+      line-height: 1.2;
+      color: var(--on-surface);
     }
+
     .lead {
       margin: 0;
+      font-family: var(--font-body);
       font-size: 0.95rem;
       font-weight: 500;
-      line-height: 1.5;
+      line-height: 1.55;
       color: var(--on-surface-variant);
     }
-    /* LeafPrimaryButton: solid primary fill, onPrimary label, 32pt corner (CornerRadius.card) */
+
+    /* CTA — LeafPrimaryButton parity (solid primary fill variant) */
+    .cta-wrap {
+      margin: var(--space-24) 0 0;
+      padding: 0;
+    }
+
     a.cta {
-      display: block;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-12);
       width: 100%;
-      margin-top: 22px;
-      padding: 16px 20px;
-      background: var(--primary);
+      padding: var(--space-16) var(--space-20);
+      background: linear-gradient(180deg, var(--primary) 0%, var(--primary-container) 100%);
       color: var(--on-primary);
-      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      font-family: var(--font-display);
       font-weight: 800;
       font-size: 1rem;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.04em;
       text-decoration: none;
       text-align: center;
-      border-radius: var(--radius-button);
-      border: none;
+      border-radius: var(--radius-card);
+      border: 1px solid rgba(18, 18, 18, 0.12);
+      box-shadow: var(--primary-glow), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                  box-shadow 160ms ease,
+                  opacity 160ms ease;
       -webkit-tap-highlight-color: transparent;
-      box-shadow: 0 8px 24px rgba(147, 188, 16, 0.28);
+      cursor: pointer;
     }
+
+    a.cta:hover {
+      box-shadow: 0 16px 48px rgba(147, 188, 16, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
+
     a.cta:active {
       transform: scale(0.98);
-      opacity: 0.95;
+      box-shadow: 0 6px 16px rgba(147, 188, 16, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.18);
     }
-    .note {
-      margin-top: 20px;
-      font-size: 0.8rem;
-      line-height: 1.45;
-      color: var(--on-surface-variant);
-      opacity: 0.9;
-      max-width: 20rem;
-      margin-left: auto;
-      margin-right: auto;
+
+    a.cta:focus-visible {
+      outline: 2px solid var(--chrome-highlight);
+      outline-offset: 3px;
     }
-    .leaf::before {
+
+    a.cta::after {
       content: "";
-      display: block;
-      width: 36px;
-      height: 36px;
-      margin: 0 auto 8px;
+      width: 14px;
+      height: 14px;
+      background-color: currentColor;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M13.05 4.05a1 1 0 0 1 1.41 0l7 7a1 1 0 0 1 0 1.41l-7 7a1 1 0 1 1-1.41-1.41L18.59 13H4a1 1 0 1 1 0-2h14.59l-5.54-5.54a1 1 0 0 1 0-1.41z'/%3E%3C/svg%3E") center / contain no-repeat;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M13.05 4.05a1 1 0 0 1 1.41 0l7 7a1 1 0 0 1 0 1.41l-7 7a1 1 0 1 1-1.41-1.41L18.59 13H4a1 1 0 1 1 0-2h14.59l-5.54-5.54a1 1 0 0 1 0-1.41z'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
+
+    .note {
+      margin: var(--space-20) 0 0;
+      font-family: var(--font-body);
+      font-size: 0.825rem;
+      line-height: 1.5;
+      color: var(--on-surface-variant);
+      opacity: 0.92;
+    }
+
+    .note strong {
+      color: var(--on-surface);
+      font-weight: 700;
+    }
+
+    /* Footer wordmark — onSurfaceVariant */
+    .wordmark {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      opacity: 0.7;
+    }
+
+    .wordmark .dot {
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
       background: var(--primary);
-      opacity: 0.85;
-      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17 1.02.3 1.6.3C13 20 19 14 19 3c0 0-1 1-2 5z'/%3E%3C/svg%3E") center / contain no-repeat;
-      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17 1.02.3 1.6.3C13 20 19 14 19 3c0 0-1 1-2 5z'/%3E%3C/svg%3E") center / contain no-repeat;
+      margin: 0 var(--space-8);
+      vertical-align: middle;
+    }
+
+    @media (min-width: 480px) {
+      h1 { font-size: 1.625rem; }
+      .card { padding: var(--space-32); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      a.cta { transition: none; }
+      a.cta:active { transform: none; }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="leaf" aria-hidden="true"></div>
-    <div class="brand">LeafID</div>
-    <h1>Volver a la app</h1>
-    <p class="lead" id="msg">Toca el botón para abrir LeafID y terminar de cambiar tu contraseña.</p>
-    <p id="btnWrap" style="display:none;">
-      <a id="openApp" class="cta" href="#">Abrir LeafID</a>
-    </p>
-    <p class="note" id="hint"></p>
-  </div>
+  <main class="bridge">
+    <div class="card">
+      <div class="leaf-chip" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17 1.02.3 1.6.3C13 20 19 14 19 3c0 0-1 1-2 5z"/>
+        </svg>
+      </div>
+      <div class="brand">LeafID</div>
+      <h1>Volver a la app</h1>
+      <p class="lead" id="msg">Toca el botón para abrir LeafID y terminar de cambiar tu contraseña.</p>
+      <p class="cta-wrap" id="btnWrap" style="display:none;">
+        <a id="openApp" class="cta" href="#">Abrir LeafID</a>
+      </p>
+      <p class="note" id="hint"></p>
+    </div>
+    <div class="wordmark" aria-hidden="true">
+      LeafID <span class="dot"></span> Botanical companion
+    </div>
+  </main>
   <script>
 (function () {
   var search = new URLSearchParams(window.location.search || "");
