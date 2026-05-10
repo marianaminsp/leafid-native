@@ -20,16 +20,35 @@ enum ProfileStatsLocalStore {
     private static let lifetimeIdentifyKey = "leafid.lifetime_identify_count"
     private static let cumulativeHerbariumSavesKey = "leafid.cumulative_herbarium_saves"
     private static let lastIdentifyAtKey = "leafid.last_identify_at"
+    /// Shared with `AuthViewModel` / `@AppStorage("profile.scans_count")` for quota + Druid rank.
+    static let profileQuotaScansKey = "profile.scans_count"
 
     /// Total identify operations (demo + live `identify-plant`), persisted across launches.
     static var totalScans: Int {
         UserDefaults.standard.integer(forKey: lifetimeIdentifyKey)
     }
 
+    /// For free-scan gating: same monotonic rule as Druid (`max` of synced quota and local lifetime).
+    static func scansForFreeTierGate(appStorageQuota: Int) -> Int {
+        max(appStorageQuota, totalScans)
+    }
+
     static func incrementTotalScans() {
         let defaults = UserDefaults.standard
-        defaults.set(defaults.integer(forKey: lifetimeIdentifyKey) + 1, forKey: lifetimeIdentifyKey)
+        let next = defaults.integer(forKey: lifetimeIdentifyKey) + 1
+        defaults.set(next, forKey: lifetimeIdentifyKey)
         defaults.set(Date().timeIntervalSince1970, forKey: lastIdentifyAtKey)
+        let quota = defaults.integer(forKey: profileQuotaScansKey)
+        defaults.set(max(quota, next), forKey: profileQuotaScansKey)
+    }
+
+    /// Bumps `profile.scans_count` when local lifetime is ahead (older builds did not mirror every identify).
+    static func reconcileProfileQuotaWithLifetime() {
+        let defaults = UserDefaults.standard
+        let lifetime = totalScans
+        let quota = defaults.integer(forKey: profileQuotaScansKey)
+        guard lifetime > quota else { return }
+        defaults.set(lifetime, forKey: profileQuotaScansKey)
     }
 
     /// Monotonic count of specimens saved to the Herbarium (cumulative, not “current list length”).

@@ -18,7 +18,22 @@ struct HerbariumView: View {
     @EnvironmentObject private var viewModel: HerbariumViewModel
     @Namespace private var specimenNamespace
     @State private var selectedScan: Scan?
+    @State private var immersiveUseMatchedGeometry = true
     @State private var headerMinY: CGFloat = 0
+
+    private let pendingPresentScan: Binding<Scan?>
+    private let restoreTabAfterImmersiveDismiss: Binding<RootTab?>
+    private let rootTabSelection: Binding<RootTab>
+
+    init(
+        pendingPresentScan: Binding<Scan?> = .constant(nil),
+        restoreTabAfterImmersiveDismiss: Binding<RootTab?> = .constant(nil),
+        rootTabSelection: Binding<RootTab> = .constant(.herbarium)
+    ) {
+        self.pendingPresentScan = pendingPresentScan
+        self.restoreTabAfterImmersiveDismiss = restoreTabAfterImmersiveDismiss
+        self.rootTabSelection = rootTabSelection
+    }
 
     private var headerCollapseProgress: CGFloat {
         let y = headerMinY
@@ -64,6 +79,7 @@ struct HerbariumView: View {
                             } else {
                                 ForEach(viewModel.scans) { scan in
                                     Button {
+                                        immersiveUseMatchedGeometry = true
                                         withAnimation(.leafIDSpring) { selectedScan = scan }
                                     } label: {
                                         HerbariumSpecimenRowCard(
@@ -87,10 +103,14 @@ struct HerbariumView: View {
                 if let scan = selectedScan {
                     BotanicalCardImmersiveView(
                         scan: scan,
-                        namespace: specimenNamespace,
-                        matchedGeometryId: scan.id,
+                        namespace: immersiveUseMatchedGeometry ? specimenNamespace : nil,
+                        matchedGeometryId: immersiveUseMatchedGeometry ? scan.id : nil,
                         onClose: {
                             withAnimation(.leafIDSpring) { selectedScan = nil }
+                            if let tab = restoreTabAfterImmersiveDismiss.wrappedValue {
+                                rootTabSelection.wrappedValue = tab
+                                restoreTabAfterImmersiveDismiss.wrappedValue = nil
+                            }
                         }
                     )
                     .transition(.opacity)
@@ -99,6 +119,17 @@ struct HerbariumView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .onAppear { presentPendingScanIfNeeded() }
+        .onChange(of: pendingPresentScan.wrappedValue?.id) { _ in
+            presentPendingScanIfNeeded()
+        }
+    }
+
+    private func presentPendingScanIfNeeded() {
+        guard let scan = pendingPresentScan.wrappedValue else { return }
+        pendingPresentScan.wrappedValue = nil
+        immersiveUseMatchedGeometry = false
+        withAnimation(.leafIDSpring) { selectedScan = scan }
     }
 
     private var herbariumScrollHeader: some View {

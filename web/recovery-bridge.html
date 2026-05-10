@@ -3,29 +3,114 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0B0F08" />
   <title>LeafID — Abrir la app</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet" />
   <style>
-    body { font-family: system-ui, sans-serif; margin: 0; padding: 24px; text-align: center;
-      background: #0B0F08; color: #F2F5E7; min-height: 100vh; box-sizing: border-box; }
-    h1 { font-size: 1.25rem; font-weight: 700; }
-    p { max-width: 28rem; margin: 12px auto; line-height: 1.45; color: #A9ADA0; font-size: 0.95rem; }
-    a.cta {
-      display: inline-block; margin-top: 20px; padding: 16px 28px;
-      background: #93BC10; color: #121212; font-weight: 700; font-size: 1.05rem;
-      text-decoration: none; border-radius: 16px;
-      -webkit-tap-highlight-color: transparent;
+    :root {
+      --surface: #0B0F08;
+      --surface-high: #1C2116;
+      --on-surface: #F2F5E7;
+      --on-variant: #A9ADA0;
+      --primary: #93BC10;
+      --on-primary: #121212;
+      --outline: rgba(69, 73, 63, 0.35);
+      --radius-card: 32px;
+      --radius-btn: 16px;
     }
-    a.cta:active { opacity: 0.9; }
-    .note { font-size: 0.85rem; margin-top: 24px; color: #6b6f66; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh;
+      font-family: "Manrope", system-ui, sans-serif;
+      background: var(--surface);
+      background-image: radial-gradient(ellipse 120% 80% at 50% -20%, rgba(147, 188, 16, 0.08), transparent 55%);
+      color: var(--on-surface);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+    .brand {
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      font-weight: 800;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .card {
+      max-width: 22rem;
+      width: 100%;
+      padding: 28px 24px;
+      background: var(--surface-high);
+      border-radius: var(--radius-card);
+      border: 1px solid var(--outline);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+    }
+    h1 {
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 1.35rem;
+      letter-spacing: -0.02em;
+      margin: 0 0 12px;
+      line-height: 1.25;
+    }
+    .lead {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--on-variant);
+    }
+    a.cta {
+      display: inline-block;
+      margin-top: 22px;
+      padding: 16px 28px;
+      background: var(--primary);
+      color: var(--on-primary);
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      border-radius: var(--radius-btn);
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 8px 24px rgba(147, 188, 16, 0.25);
+    }
+    a.cta:active { transform: scale(0.98); opacity: 0.95; }
+    .note {
+      margin-top: 20px;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      color: var(--on-variant);
+      opacity: 0.9;
+      max-width: 20rem;
+    }
+    .leaf::before {
+      content: "";
+      display: block;
+      width: 36px;
+      height: 36px;
+      margin: 0 auto 8px;
+      background: var(--primary);
+      opacity: 0.85;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17 1.02.3 1.6.3C13 20 19 14 19 3c0 0-1 1-2 5z'/%3E%3C/svg%3E") center / contain no-repeat;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17 1.02.3 1.6.3C13 20 19 14 19 3c0 0-1 1-2 5z'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
   </style>
 </head>
 <body>
-  <h1>Volver a LeafID</h1>
-  <p id="msg">Toca el botón para abrir la app y terminar de cambiar tu contraseña.</p>
-  <p id="btnWrap" style="display:none;">
-    <a id="openApp" class="cta" href="#">Abrir LeafID</a>
-  </p>
-  <p class="note" id="hint"></p>
+  <div class="card">
+    <div class="leaf" aria-hidden="true"></div>
+    <div class="brand">LeafID</div>
+    <h1>Volver a la app</h1>
+    <p class="lead" id="msg">Toca el botón para abrir LeafID y terminar de cambiar tu contraseña.</p>
+    <p id="btnWrap" style="display:none;">
+      <a id="openApp" class="cta" href="#">Abrir LeafID</a>
+    </p>
+    <p class="note" id="hint"></p>
+  </div>
   <script>
 (function () {
   var hash = window.location.hash || "";
@@ -44,8 +129,7 @@
   document.getElementById("btnWrap").style.display = "block";
 
   document.getElementById("hint").innerHTML =
-    "Si Safari mostró un error al abrir solo, <strong>siempre usa este botón</strong>. " +
-    "No usamos redirección automática: en iOS suele fallar con enlaces largos.";
+    "Toca <strong>Abrir LeafID</strong>. En iOS, los enlaces largos no deben abrirse solos desde esta página.";
 })();
   </script>
 </body>

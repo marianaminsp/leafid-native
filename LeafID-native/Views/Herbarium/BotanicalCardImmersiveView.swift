@@ -22,6 +22,7 @@ struct BotanicalCardImmersiveView: View {
 
     @State private var isFlipped = false
     @State private var showShareSheet = false
+    @State private var immersiveDismissDrag: CGFloat = 0
     /// GPS row: coordinates read **only** from the saved JPEG/HEIC EXIF (nil when absent).
     @State private var exifGPSCoordinate: (latitude: Double, longitude: Double)?
     /// City / place where the photo was taken (IPTC, `Scan.location`, preview labels, reverse geocode).
@@ -55,9 +56,9 @@ struct BotanicalCardImmersiveView: View {
         }
         for c in ordered {
             let t = c?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            if !t.isEmpty { return t }
+            if !t.isEmpty { return BotanyService.displaySafeLocation(t) }
         }
-        return "Location unavailable"
+        return BotanyService.displaySafeLocation(nil)
     }
 
     private var mergedPaletteHexes: [String] {
@@ -97,12 +98,7 @@ struct BotanicalCardImmersiveView: View {
     }
 
     private var mergedCulturalLegacy: String {
-        let candidates = [scan.culturalLegacy, preview?.culturalLegacy]
-        for c in candidates {
-            let t = c?.trimmingCharacters(in: .whitespacesAndNewlines.union(.newlines)) ?? ""
-            if !t.isEmpty { return t }
-        }
-        return "Its silhouette remains a recurring motif in contemporary botanical illustration and interior nature-focused design."
+        BotanyService.mergedCulturalLegacy(scan: scan, preview: preview)
     }
 
     private var photoPlaceLineForFront: String {
@@ -116,7 +112,7 @@ struct BotanicalCardImmersiveView: View {
         if !trimmed.isEmpty { return trimmed }
         if let last = ImmersiveCardGeo.countryFromCommaListLastSegment(photoPlaceLineForFront) { return last }
         if let o = isUsableOriginString(preview?.originCountry) ?? isUsableOriginString(scan.originCountry) { return o }
-        return String(localized: "Country unavailable")
+        return BotanyService.displaySafeOrigin(nil)
     }
 
     /// City / first segment of place line when building an origin string.
@@ -153,15 +149,16 @@ struct BotanicalCardImmersiveView: View {
             let horizontalCardInset: CGFloat = 0
             let cardWidth = geo.size.width - (2 * horizontalCardInset)
             let topPad = geo.safeAreaInsets.top + 4
-            let bottomGap: CGFloat = 8
+            let bottomGap: CGFloat = 0
             #if canImport(UIKit)
             let screenH = UIScreen.main.bounds.height
             #else
             let screenH = geo.size.height
             #endif
-            let desiredCardH = screenH * 0.9
+            let desiredCardH = screenH * 0.92
             let maxCardH = geo.size.height - topPad - bottomGap
             let cardHeight = max(320, min(desiredCardH, maxCardH))
+            let bodyContentHeight = max(220, cardHeight - ImmersiveCardActionLayout.footerHeight)
 
             ZStack(alignment: .top) {
                 LeafIDTheme.surface.ignoresSafeArea()
@@ -170,6 +167,7 @@ struct BotanicalCardImmersiveView: View {
                     CardBodyView(
                         scan: scan,
                         isFlipped: isFlipped,
+                        contentHeight: bodyContentHeight,
                         originPhotoLine: originLineForFront,
                         captureCoordinate: displayCaptureCoordinate,
                         paletteHexes: mergedPaletteHexes,
@@ -177,7 +175,8 @@ struct BotanicalCardImmersiveView: View {
                         ethnobotanyText: mergedEthnobotany,
                         culturalLegacyText: mergedCulturalLegacy
                     )
-                    .frame(width: cardWidth, height: cardHeight)
+                    .frame(width: cardWidth, height: bodyContentHeight)
+                    .frame(width: cardWidth, height: cardHeight, alignment: .top)
                     .rotation3DEffect(
                         .degrees(isFlipped ? 180 : 0),
                         axis: (x: 0, y: 1, z: 0),
@@ -205,6 +204,25 @@ struct BotanicalCardImmersiveView: View {
                 .frame(width: cardWidth, height: cardHeight)
                 .padding(.top, topPad)
                 .frame(maxWidth: .infinity, alignment: .top)
+                .offset(y: immersiveDismissDrag)
+                .gesture(
+                    DragGesture(minimumDistance: 28)
+                        .onChanged { value in
+                            let dy = value.translation.height
+                            let dx = value.translation.width
+                            guard dy > 0, abs(dx) < dy + 24 else { return }
+                            immersiveDismissDrag = dy
+                        }
+                        .onEnded { value in
+                            let threshold: CGFloat = 110
+                            let endY = value.predictedEndTranslation.height
+                            let shouldClose = value.translation.height > threshold || endY > 170
+                            if shouldClose {
+                                onClose()
+                            }
+                            immersiveDismissDrag = 0
+                        }
+                )
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
@@ -350,11 +368,23 @@ private enum ImmersiveCardGeo {
     }
 }
 
+/// Shared geometry for the floating action row on the immersive card.
+/// Keeping this in one place prevents front/back drift and overlap regressions.
+private enum ImmersiveCardActionLayout {
+    static let buttonDiameter: CGFloat = 44
+    static let footerTopPadding: CGFloat = 10
+    static let footerBottomPadding: CGFloat = 14
+    static var footerHeight: CGFloat {
+        footerTopPadding + buttonDiameter + footerBottomPadding
+    }
+}
+
 private struct CardShellView: View {
     let isFlipped: Bool
     let onClose: () -> Void
     let onShare: () -> Void
     let onFlip: () -> Void
+    private let bottomScrimHeight: CGFloat = 120
 
     var body: some View {
         VStack(spacing: 0) {
@@ -369,18 +399,39 @@ private struct CardShellView: View {
             Spacer(minLength: 0)
                 .allowsHitTesting(false)
 
-            HStack(spacing: LeafIDTheme.space16) {
-                Spacer(minLength: 0)
-                GlassChromeCircleButton(systemImage: "square.and.arrow.up", accessibilityLabel: "Share", action: onShare)
-                GlassChromeCircleButton(
-                    systemImage: "arrow.right.circle",
-                    accessibilityLabel: isFlipped ? "View specimen photo" : "View card back",
-                    action: onFlip
-                )
-                Spacer(minLength: 0)
+            ZStack(alignment: .bottom) {
+                if isFlipped {
+                    LinearGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: LeafIDTheme.surface.opacity(0.00), location: 0.00),
+                            .init(color: LeafIDTheme.surface.opacity(0.00), location: 0.58),
+                            .init(color: LeafIDTheme.surface.opacity(0.22), location: 0.78),
+                            .init(color: LeafIDTheme.surface.opacity(0.58), location: 0.90),
+                            .init(color: LeafIDTheme.surface.opacity(0.90), location: 1.00),
+                        ]),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(maxWidth: .infinity)
+                    .frame(height: bottomScrimHeight)
+                    .allowsHitTesting(false)
+                }
+
+                HStack(spacing: LeafIDTheme.space16) {
+                    Spacer(minLength: 0)
+                    GlassChromeCircleButton(systemImage: "square.and.arrow.up", accessibilityLabel: "Share", action: onShare)
+                    GlassChromeCircleButton(
+                        systemImage: "arrow.right.circle",
+                        accessibilityLabel: isFlipped ? "View specimen photo" : "View card back",
+                        action: onFlip
+                    )
+                    Spacer(minLength: 0)
+                }
+                .padding(.bottom, ImmersiveCardActionLayout.footerBottomPadding)
             }
+            .frame(maxWidth: .infinity)
+            .frame(height: ImmersiveCardActionLayout.footerHeight)
             .zIndex(32)
-            .padding(.bottom, 20)
         }
     }
 }
@@ -388,6 +439,7 @@ private struct CardShellView: View {
 private struct CardBodyView: View {
     let scan: Scan
     let isFlipped: Bool
+    let contentHeight: CGFloat
     let originPhotoLine: String
     var captureCoordinate: (latitude: Double, longitude: Double)?
     let paletteHexes: [String]
@@ -402,7 +454,8 @@ private struct CardBodyView: View {
                 originPhotoLine: originPhotoLine,
                 captureCoordinate: captureCoordinate
             )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity)
+            .frame(height: contentHeight)
             .contentShape(Rectangle())
             .opacity(isFlipped ? 0 : 1)
 
@@ -413,7 +466,8 @@ private struct CardBodyView: View {
                 ethnobotanyText: ethnobotanyText,
                 culturalLegacyText: culturalLegacyText
             )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity)
+            .frame(height: contentHeight)
             .contentShape(Rectangle())
             .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
             .opacity(isFlipped ? 1 : 0)
@@ -510,7 +564,6 @@ private struct CardBackView: View {
     let spiritText: String
     let ethnobotanyText: String
     let culturalLegacyText: String
-
     var body: some View {
         VStack(spacing: 0) {
             HStack(alignment: .center, spacing: LeafIDTheme.space16) {
@@ -574,6 +627,21 @@ private struct CardBackView: View {
                 .padding(.bottom, LeafIDTheme.space24)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .overlay(alignment: .bottom) {
+                LinearGradient(
+                    gradient: Gradient(stops: [
+                        .init(color: LeafIDTheme.surfaceContainerLow.opacity(0.00), location: 0.00),
+                        .init(color: LeafIDTheme.surfaceContainerLow.opacity(0.00), location: 0.45),
+                        .init(color: LeafIDTheme.surfaceContainerLow.opacity(0.42), location: 0.78),
+                        .init(color: LeafIDTheme.surfaceContainerLow.opacity(0.92), location: 1.00),
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(maxWidth: .infinity)
+                .frame(height: 76)
+                .allowsHitTesting(false)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(LeafIDTheme.surfaceContainerLow)

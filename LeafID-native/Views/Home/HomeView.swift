@@ -73,10 +73,6 @@ private struct HomeEmptyLastFoundCard: View {
                     .lineLimit(2)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-
-            Image(systemName: "chevron.right")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(LeafIDTheme.outlineVariant.opacity(0.45))
         }
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(LeafIDTheme.space20)
@@ -179,12 +175,13 @@ struct HomeView: View {
                         }
                         .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
                     }
+                    .offset(y: -10)
 
                     Spacer(minLength: 0)
 
                     homeLastFoundSection
                         .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
-                        .padding(.bottom, LeafIDTheme.space8)
+                        .padding(.bottom, LeafIDTheme.space12)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
@@ -277,7 +274,7 @@ struct HomeView: View {
     }
 
     private func canUserScan() -> Bool {
-        isPremium || scansCount < 3
+        isPremium || ProfileStatsLocalStore.scansForFreeTierGate(appStorageQuota: scansCount) < 3
     }
 
     private func handleOpenCameraAction() {

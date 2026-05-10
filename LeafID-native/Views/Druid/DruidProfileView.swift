@@ -7,109 +7,146 @@
 
 import SwiftUI
 
+private struct DruidHeaderMinYKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
 struct DruidProfileView: View {
     @EnvironmentObject private var authViewModel: AuthViewModel
+    @EnvironmentObject private var herbarium: HerbariumViewModel
     @StateObject private var viewModel = DruidProfileViewModel()
     @State private var showPaywall = false
-    @State private var showCameraPicker = false
+    @State private var showFoundryPasswordGate = false
+    @State private var showFoundryGallery = false
+    @State private var foundryPasswordEntry = ""
+    @State private var foundryPasswordError = false
+    @State private var headerMinY: CGFloat = 0
     @Environment(\.openURL) private var openURL
+
+    private var headerCollapseProgress: CGFloat {
+        let y = headerMinY
+        let threshold: CGFloat = 96
+        if y >= 0 { return 0 }
+        return min(1, -y / threshold)
+    }
+
+    private var druidTitlePointSize: CGFloat {
+        let expanded: CGFloat = 34
+        let collapsed: CGFloat = 22
+        return expanded + (collapsed - expanded) * headerCollapseProgress
+    }
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                LeafIDTheme.deepForest.ignoresSafeArea()
+            GeometryReader { outerGeo in
+                ZStack {
+                    LeafIDTheme.deepForest.ignoresSafeArea()
 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: LeafIDTheme.space28) {
-                        passportHeader
-                        esenciaVitalCard
-                        achievementsRow
-                        bioPassportPanel
-                        scannerOrCoffeeGate
-                        signOutFooter
+                    VStack(spacing: 0) {
+                        druidHeader
+                            .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
+                            .padding(.top, outerGeo.safeAreaInsets.top + LeafIDTheme.space8)
+                            .padding(.bottom, LeafIDTheme.space8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(LeafIDTheme.surface)
+
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: LeafIDTheme.space28) {
+                                Color.clear
+                                    .frame(height: 1)
+                                    .background(
+                                        GeometryReader { proxy in
+                                            Color.clear.preference(
+                                                key: DruidHeaderMinYKey.self,
+                                                value: proxy.frame(in: .named("druidScroll")).minY
+                                            )
+                                        }
+                                    )
+
+                                identityRow
+                                rankBadgeCard
+                                quotaCard
+                                achievementsRow
+                                supportCard
+                                #if DEBUG
+                                foundryAccessCard
+                                #endif
+                                signOutFooter
+                            }
+                            .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
+                            .padding(.top, LeafIDTheme.space12)
+                            .padding(.bottom, 140)
+                        }
+                        .coordinateSpace(name: "druidScroll")
+                        .onPreferenceChange(DruidHeaderMinYKey.self) { headerMinY = $0 }
                     }
-                    .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
-                    .padding(.top, LeafIDTheme.space12)
-                    .padding(.bottom, LeafIDTheme.space32)
-                }
 
-                if !viewModel.isLoggedIn {
-                    loginOverlay
+                    if !viewModel.isLoggedIn {
+                        loginOverlay
+                    }
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
         }
         .preferredColorScheme(.dark)
-        .task { await viewModel.refresh() }
+        .task { await viewModel.refresh(herbarium: herbarium) }
         .onReceive(NotificationCenter.default.publisher(for: .druidAuthDidChange)) { _ in
-            Task { await viewModel.refresh() }
+            Task { await viewModel.refresh(herbarium: herbarium) }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .herbariumCollectionDidChange)) { _ in
+            Task { await viewModel.refresh(herbarium: herbarium) }
         }
         .sheet(isPresented: $showPaywall) {
             PaywallView()
         }
-        .fullScreenCover(isPresented: $showCameraPicker) {
-            ScannerView(onClose: { showCameraPicker = false }, onCaptured: { _, _, _, _ in
-                showCameraPicker = false
-            })
+        #if DEBUG
+        .sheet(isPresented: $showFoundryPasswordGate) {
+            foundryPasswordSheet
         }
+        .fullScreenCover(isPresented: $showFoundryGallery) {
+            DesignSystemGalleryView(dismiss: { showFoundryGallery = false })
+        }
+        #endif
     }
 
-    private var passportHeader: some View {
-        HStack(alignment: .center, spacing: LeafIDTheme.space20) {
-            ZStack {
-                Circle()
-                    .fill(LeafIDTheme.passportAvatarGradient)
-                    .frame(width: 88, height: 88)
-                Text(initialGlyph)
-                    .font(.system(size: 36, weight: .heavy, design: .rounded))
-                    .foregroundStyle(.white)
-            }
-            .overlay {
-                Circle()
-                    .strokeBorder(Color.white.opacity(0.12), lineWidth: 1)
-            }
-
-            VStack(alignment: .leading, spacing: LeafIDTheme.space8) {
-                Text(viewModel.realName)
-                    .font(.system(size: 24, weight: .heavy, design: .rounded))
-                    .tracking(0.5)
-                    .foregroundStyle(.white)
-                Text(viewModel.rankTitle)
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
-                    .tracking(1.0)
-                    .foregroundStyle(LeafIDTheme.slateMuted)
-                if viewModel.isLoading {
-                    StatusBadge(state: .loading)
-                } else if viewModel.lastError != nil {
-                    StatusBadge(state: .error)
-                } else {
-                    StatusBadge(state: .active)
+    private var druidHeader: some View {
+        VStack(alignment: .leading, spacing: LeafIDTheme.space10) {
+            HStack(alignment: .center, spacing: LeafIDTheme.space16) {
+                Text("Druid")
+                    .font(LeafIDFont.plusJakarta(size: druidTitlePointSize, weight: .bold))
+                    .foregroundStyle(LeafIDTheme.onSurface)
+                Spacer(minLength: 0)
+                #if DEBUG
+                Button {
+                    showFoundryPasswordGate = true
+                } label: {
+                    Image(systemName: "gearshape.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                        .frame(width: 44, height: 44)
+                        .background(LeafIDTheme.surfaceContainerHigh.opacity(0.85))
+                        .clipShape(Circle())
+                        .overlay {
+                            Circle()
+                                .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.12), lineWidth: 1)
+                        }
                 }
+                .buttonStyle(.plain)
+                #endif
             }
-            Spacer(minLength: 0)
+            if headerCollapseProgress < 0.94 {
+                Text("Your druid identity, progress, and unlocks.")
+                    .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
+                    .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                    .opacity(Double(max(0, 1 - headerCollapseProgress / 0.82)))
+            }
         }
-        .padding(LeafIDTheme.space24)
-        .background(
-            RoundedRectangle(cornerRadius: LeafIDTheme.liquidGlassCornerRadius, style: .continuous)
-                .fill(.ultraThinMaterial)
-        )
-        .overlay {
-            RoundedRectangle(cornerRadius: LeafIDTheme.liquidGlassCornerRadius, style: .continuous)
-                .strokeBorder(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.22),
-                            LeafIDTheme.leafGreen.opacity(0.35),
-                            Color.white.opacity(0.08),
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1.5
-                )
-        }
-        .clipShape(RoundedRectangle(cornerRadius: LeafIDTheme.liquidGlassCornerRadius, style: .continuous))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .animation(.easeOut(duration: 0.2), value: headerCollapseProgress)
     }
 
     private var initialGlyph: String {
@@ -117,10 +154,55 @@ struct DruidProfileView: View {
         return String(name.prefix(1)).uppercased()
     }
 
-    private var esenciaVitalCard: some View {
+    private var identityRow: some View {
+        HStack(spacing: LeafIDTheme.space14) {
+            ZStack {
+                Circle()
+                    .fill(LeafIDTheme.passportAvatarGradient)
+                    .frame(width: 64, height: 64)
+                Text(initialGlyph)
+                    .font(.system(size: 26, weight: .heavy, design: .rounded))
+                    .foregroundStyle(.white)
+            }
+            VStack(alignment: .leading, spacing: LeafIDTheme.space4) {
+                Text(viewModel.realName)
+                    .font(LeafIDFont.plusJakarta(size: 30, weight: .bold))
+                    .foregroundStyle(.white)
+                Text("Botanical Explorer")
+                    .font(LeafIDFont.manrope(size: 16, weight: .medium))
+                    .foregroundStyle(LeafIDTheme.slateMuted)
+            }
+            Spacer(minLength: 0)
+        }
+    }
+
+    private var rankBadgeCard: some View {
+        VStack(alignment: .leading, spacing: LeafIDTheme.space10) {
+            Text("Current path")
+                .font(LeafIDFont.manrope(size: 12, weight: .bold))
+                .tracking(1.4)
+                .foregroundStyle(LeafIDTheme.slateMuted)
+                .textCase(.uppercase)
+            HStack(spacing: LeafIDTheme.space8) {
+                Image(systemName: "leaf.fill")
+                    .foregroundStyle(LeafIDTheme.leafGreen)
+                Text(viewModel.rankTitle)
+                    .font(LeafIDFont.plusJakarta(size: 20, weight: .bold))
+                    .foregroundStyle(.white)
+            }
+            Text(nextRankHint)
+                .font(LeafIDFont.manrope(size: 13, weight: .medium))
+                .foregroundStyle(LeafIDTheme.slateMuted)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(LeafIDTheme.space20)
+        .liquidGlass()
+    }
+
+    private var quotaCard: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
             HStack {
-                Text("Esencia Vital")
+                Text("Scan energy")
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
                 Spacer(minLength: 0)
@@ -141,96 +223,186 @@ struct DruidProfileView: View {
                 .scaleEffect(x: 1, y: 1.4, anchor: .center)
                 .clipShape(Capsule())
 
-            Text(viewModel.isPremium ? "Premium energy unlocked." : "Free plan: 3 total scans")
+            Text(viewModel.isPremium ? "Premium unlocked. You can scan without limits." : "You have 3 free scans. Unlock more to keep exploring.")
                 .font(.system(size: 12, weight: .medium, design: .rounded))
                 .foregroundStyle(LeafIDTheme.slateMuted)
+            LeafPrimaryButton(title: "Unlock more", useSolidPrimaryFill: true) {
+                showPaywall = true
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(LeafIDTheme.space20)
         .liquidGlass()
     }
 
     private var achievementsRow: some View {
-        HStack(spacing: LeafIDTheme.space10) {
-            ForEach(Array(achievementSymbols.enumerated()), id: \.offset) { index, symbol in
-                let lit = index < litAchievementCount
-                Image(systemName: symbol)
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(lit ? LeafIDTheme.leafGreen : LeafIDTheme.slateMuted.opacity(0.45))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, LeafIDTheme.space10)
-                    .background(LeafIDTheme.deepGreen.opacity(lit ? 0.8 : 0.35))
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
+            Text("Achievements")
+                .font(LeafIDFont.plusJakarta(size: 30, weight: .bold))
+                .foregroundStyle(.white)
+
+            let columns = [GridItem(.flexible(), spacing: LeafIDTheme.space12), GridItem(.flexible(), spacing: LeafIDTheme.space12)]
+            LazyVGrid(columns: columns, spacing: LeafIDTheme.space12) {
+                ForEach(druidAchievementTiles) { tile in
+                    let unlocked = tile.isEarned
+                    VStack(alignment: .leading, spacing: LeafIDTheme.space8) {
+                        HStack {
+                            Image(systemName: tile.definition.symbolName)
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundStyle(unlocked ? LeafIDTheme.primary : LeafIDTheme.slateMuted)
+                            Spacer(minLength: 0)
+                            Image(systemName: unlocked ? "checkmark.circle.fill" : "lock.fill")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(unlocked ? LeafIDTheme.primary : LeafIDTheme.slateMuted.opacity(0.8))
+                        }
+                        Text(tile.definition.title)
+                            .font(LeafIDFont.plusJakarta(size: 18, weight: .bold))
+                            .foregroundStyle(unlocked ? .white : LeafIDTheme.slateMuted)
+                        Text(tile.definition.subtitle)
+                            .font(LeafIDFont.manrope(size: 14, weight: .medium))
+                            .foregroundStyle(LeafIDTheme.slateMuted)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 126, alignment: .topLeading)
+                    .padding(LeafIDTheme.space16)
+                    .background(LeafIDTheme.surfaceContainerHigh)
+                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .opacity(unlocked ? 1 : 0.8)
+                }
             }
         }
     }
 
-    private var achievementSymbols: [String] {
-        ["leaf.fill", "leaf.fill", "leaf.fill", "leaf.fill", "sparkles"]
+    /// Real collection only — demo catalog does not unlock achievements.
+    private var scansForAchievements: [Scan] {
+        herbarium.isShowingPlaceholderCatalog ? [] : herbarium.scans
     }
 
-    private var litAchievementCount: Int {
-        switch viewModel.scansCount {
-        case 0: return 0
-        case 1 ... 5: return 1
-        case 6 ... 15: return 2
-        case 16 ... 50: return 4
-        default: return 5
-        }
+    private var druidAchievementTiles: [AchievementTileState] {
+        AchievementUnlockStore.tiles(scans: scansForAchievements)
     }
 
-    private var bioPassportPanel: some View {
+    #if DEBUG
+    private var foundryAccessCard: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space14) {
-            Text("Passport bio")
-                .font(.system(size: 13, weight: .semibold, design: .rounded))
-                .tracking(1.2)
+            Text("Foundry")
+                .font(LeafIDFont.plusJakarta(size: 22, weight: .bold))
+                .foregroundStyle(.white)
+            Text("Design system gallery and internal tools.")
+                .font(LeafIDFont.manrope(size: 14, weight: .medium))
                 .foregroundStyle(LeafIDTheme.slateMuted)
-            Text(viewModel.profile?.bio ?? "")
-                .font(.system(size: 16, weight: .regular, design: .rounded))
-                .tracking(0.25)
-                .foregroundStyle(.white.opacity(0.92))
-                .lineSpacing(6)
+            LeafPrimaryButton(title: "Open Foundry", useSolidPrimaryFill: true) {
+                showFoundryPasswordGate = true
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(LeafIDTheme.space24)
+        .padding(LeafIDTheme.space20)
+        .liquidGlass()
+    }
+    #endif
+
+    private var supportCard: some View {
+        VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
+            Text("Support LeafID")
+                .font(LeafIDFont.plusJakarta(size: 20, weight: .bold))
+                .foregroundStyle(.white)
+            Text("LeafID is an independent, non-profit project. If it helped you connect with nature, you can support maintenance with a small coffee.")
+                .font(LeafIDFont.manrope(size: 14, weight: .medium))
+                .foregroundStyle(LeafIDTheme.slateMuted)
+                .lineSpacing(4)
+            LeafPrimaryButton(title: "Buy me a coffee", useSolidPrimaryFill: true) {
+                showPaywall = true
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(LeafIDTheme.space20)
         .liquidGlass()
     }
 
-    private var scannerOrCoffeeGate: some View {
-        VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
-            if viewModel.canUserScan() {
-                LeafPrimaryButton(title: "Open scanner") {
-                    showCameraPicker = true
-                }
-            } else {
-                LeafPrimaryButton(title: "Buy me a Coffee") {
-                    showPaywall = true
-                }
-            }
+    private var nextRankHint: String {
+        switch viewModel.scansCount {
+        case ..<6: return "Complete 6 scans to unlock Forest Sprout."
+        case ..<16: return "Complete 16 scans to unlock Oak Guardian."
+        case ..<50: return "Complete 50 scans to unlock Archdruid."
+        default: return "You reached the highest rank."
         }
     }
 
     private var signOutFooter: some View {
-        HStack {
-            Spacer(minLength: 0)
-            Button {
+        VStack(spacing: LeafIDTheme.space8) {
+            LeafPrimaryButton(
+                title: "Log out",
+                leadingSystemImage: "rectangle.portrait.and.arrow.right",
+                isEnabled: authViewModel.isAuthenticated,
+                useSolidPrimaryFill: true
+            ) {
                 authViewModel.signOut()
-            } label: {
-                HStack(spacing: LeafIDTheme.space8) {
-                    Image(systemName: "rectangle.portrait.and.arrow.right")
-                        .font(.system(size: 12, weight: .semibold))
-                    Text("Sign out")
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
-                }
-                .foregroundStyle(LeafIDTheme.slateMuted)
-                .padding(.vertical, LeafIDTheme.space8)
             }
-            .buttonStyle(.plain)
-            .opacity(viewModel.isLoggedIn ? 1 : 0)
-            .disabled(!viewModel.isLoggedIn)
-            Spacer(minLength: 0)
         }
-        .padding(.top, LeafIDTheme.space4)
+        .padding(.top, LeafIDTheme.space10)
     }
+
+    #if DEBUG
+    private var foundryPasswordSheet: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: LeafIDTheme.space16) {
+                Text("Design System Foundry")
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .foregroundStyle(LeafIDTheme.onSurface)
+
+                SecureField("Password", text: $foundryPasswordEntry)
+                    .textContentType(.password)
+                    .padding(LeafIDTheme.space16)
+                    .background(LeafIDTheme.surfaceContainerLow)
+                    .clipShape(RoundedRectangle(cornerRadius: LeafIDTheme.space12, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: LeafIDTheme.space12, style: .continuous)
+                            .strokeBorder(
+                                foundryPasswordError ? LeafIDTheme.primary.opacity(0.45) : LeafIDTheme.outlineVariant.opacity(0.15),
+                                lineWidth: 1
+                            )
+                    }
+
+                if foundryPasswordError {
+                    Text("Incorrect password")
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundStyle(LeafIDTheme.primary.opacity(0.9))
+                }
+
+                Button("Unlock Foundry") {
+                    if foundryPasswordEntry == "Test" {
+                        foundryPasswordError = false
+                        showFoundryPasswordGate = false
+                        foundryPasswordEntry = ""
+                        showFoundryGallery = true
+                    } else {
+                        foundryPasswordError = true
+                    }
+                }
+                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                .foregroundStyle(LeafIDTheme.primary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, LeafIDTheme.space14)
+                .background(LeafIDTheme.surfaceContainerHigh)
+                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous))
+
+                Spacer(minLength: 0)
+            }
+            .padding(LeafIDTheme.space24)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background(LeafIDTheme.surface.ignoresSafeArea())
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    ModalCloseButton {
+                        showFoundryPasswordGate = false
+                        foundryPasswordEntry = ""
+                        foundryPasswordError = false
+                    }
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+    #endif
 
     private var loginOverlay: some View {
         ZStack {
@@ -244,9 +416,13 @@ struct DruidProfileView: View {
                     .foregroundStyle(LeafIDTheme.slateMuted)
 
                 Button {
-                    if let url = authViewModel.googleOAuthURL() {
-                        openURL(url)
+                    guard let url = authViewModel.googleOAuthURL() else {
+                        authViewModel.lastError =
+                            "Supabase is not configured. Add SUPABASE_URL (quoted) and SUPABASE_ANON_KEY in Secrets.local.xcconfig."
+                        return
                     }
+                    authViewModel.lastError = nil
+                    openURL(url)
                 } label: {
                     HStack(spacing: LeafIDTheme.space10) {
                         Image(systemName: "globe")

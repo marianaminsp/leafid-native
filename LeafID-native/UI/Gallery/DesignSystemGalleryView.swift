@@ -216,8 +216,7 @@ struct DesignSystemGalleryView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
-                        .foregroundStyle(LeafIDTheme.primary)
+                    ModalCloseButton { dismiss() }
                 }
             }
         }

@@ -182,7 +182,7 @@ struct IdentifyView: View {
     }
 
     private func canUserScan() -> Bool {
-        isPremium || scansCount < 3
+        isPremium || ProfileStatsLocalStore.scansForFreeTierGate(appStorageQuota: scansCount) < 3
     }
 
     private func handleOpenCameraAction() {

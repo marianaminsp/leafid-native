@@ -493,8 +493,14 @@ struct ScanResultsView: View {
                         herbarium: herbarium
                     )
                     if saved != nil {
+                        #if canImport(UIKit)
+                        UINotificationFeedbackGenerator().notificationOccurred(.success)
+                        #endif
                         onClose()
                     } else {
+                        #if canImport(UIKit)
+                        UINotificationFeedbackGenerator().notificationOccurred(.error)
+                        #endif
                         showSaveFailureAlert = true
                     }
                 }

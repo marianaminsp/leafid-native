@@ -67,14 +67,20 @@ final class DruidProfileViewModel: ObservableObject {
         UserDefaults.standard.set(name, forKey: "druid.real_name")
     }
 
-    func refresh() async {
+    func refresh(herbarium: HerbariumViewModel? = nil) async {
         isLoading = true
         lastError = nil
         defer { isLoading = false }
 
         isLoggedIn = UserDefaults.standard.bool(forKey: "druid.is_logged_in")
         realName = UserDefaults.standard.string(forKey: "druid.real_name") ?? "The Druid"
-        scansCount = UserDefaults.standard.integer(forKey: "profile.scans_count")
+        let storedQuota = UserDefaults.standard.integer(forKey: ProfileStatsLocalStore.profileQuotaScansKey)
+        let lifetime = ProfileStatsLocalStore.totalScans
+        let collectionCount: Int = {
+            guard let h = herbarium, !h.isShowingPlaceholderCatalog else { return 0 }
+            return h.scans.count
+        }()
+        scansCount = max(storedQuota, lifetime, collectionCount)
         isPremium = UserDefaults.standard.bool(forKey: "profile.is_premium")
 
         // Placeholder: replace with Supabase `profiles` + aggregates once auth is fully wired.
@@ -91,7 +97,7 @@ final class DruidProfileViewModel: ObservableObject {
             isPremium: isPremium,
             ancientSeedsCount: 12
         )
-        specimenCount = scansCount
+        specimenCount = collectionCount
         ancientSeedsCount = profile?.ancientSeedsCount ?? 0
     }
 }

@@ -111,7 +111,8 @@ struct ImagePickerBridge: UIViewControllerRepresentable {
             Task { @MainActor in
                 guard let image, let data = PickedImageEncoding.jpegData(from: image) else { return }
                 let exifCoordinate = PickedImageMetadata.coordinate(from: info)
-                let useDevice = parent.sourceType == .camera
+                // Use real device location as fallback for both camera and library picks when EXIF GPS is missing.
+                let useDevice = true
                 #if canImport(CoreLocation)
                 let (coordinate, locality) = await CapturePickLocationEngine.coordinateAndLocality(
                     exifCoordinate: exifCoordinate,

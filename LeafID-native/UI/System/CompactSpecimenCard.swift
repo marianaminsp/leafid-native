@@ -17,14 +17,38 @@ struct CompactSpecimenCard: View {
     }
 
     private enum Mode {
-        case grid(commonName: String, scientificName: String, style: GridStyle, namespace: Namespace.ID?, matchedGeometryId: UUID?)
+        case grid(
+            commonName: String,
+            scientificName: String,
+            locationLine: String?,
+            style: GridStyle,
+            namespace: Namespace.ID?,
+            matchedGeometryId: UUID?,
+            onOpenInHerbarium: (() -> Void)?
+        )
         case lastFound(Scan)
     }
 
     private let mode: Mode
 
-    init(commonName: String, scientificName: String, style: GridStyle, namespace: Namespace.ID? = nil, matchedGeometryId: UUID? = nil) {
-        mode = .grid(commonName: commonName, scientificName: scientificName, style: style, namespace: namespace, matchedGeometryId: matchedGeometryId)
+    init(
+        commonName: String,
+        scientificName: String,
+        locationLine: String? = nil,
+        style: GridStyle,
+        namespace: Namespace.ID? = nil,
+        matchedGeometryId: UUID? = nil,
+        onOpenInHerbarium: (() -> Void)? = nil
+    ) {
+        mode = .grid(
+            commonName: commonName,
+            scientificName: scientificName,
+            locationLine: locationLine,
+            style: style,
+            namespace: namespace,
+            matchedGeometryId: matchedGeometryId,
+            onOpenInHerbarium: onOpenInHerbarium
+        )
     }
 
     init(lastFound scan: Scan) {
@@ -33,8 +57,16 @@ struct CompactSpecimenCard: View {
 
     var body: some View {
         switch mode {
-        case let .grid(commonName, scientificName, style, namespace, matchedGeometryId):
-            gridBody(commonName: commonName, scientificName: scientificName, style: style, namespace: namespace, matchedGeometryId: matchedGeometryId)
+        case let .grid(commonName, scientificName, locationLine, style, namespace, matchedGeometryId, onOpenInHerbarium):
+            gridBody(
+                commonName: commonName,
+                scientificName: scientificName,
+                locationLine: locationLine,
+                style: style,
+                namespace: namespace,
+                matchedGeometryId: matchedGeometryId,
+                onOpenInHerbarium: onOpenInHerbarium
+            )
         case let .lastFound(scan):
             lastFoundBody(scan: scan)
         }
@@ -48,7 +80,15 @@ struct CompactSpecimenCard: View {
     }
 
     @ViewBuilder
-    private func gridBody(commonName: String, scientificName: String, style: GridStyle, namespace: Namespace.ID?, matchedGeometryId: UUID?) -> some View {
+    private func gridBody(
+        commonName: String,
+        scientificName: String,
+        locationLine: String?,
+        style: GridStyle,
+        namespace: Namespace.ID?,
+        matchedGeometryId: UUID?,
+        onOpenInHerbarium: (() -> Void)?
+    ) -> some View {
         let cornerRadius = LeafIDTheme.radiusCompactCard
         VStack(alignment: .leading, spacing: LeafIDTheme.space10) {
             gridThumbnail(namespace: namespace, matchedGeometryId: matchedGeometryId)
@@ -63,6 +103,32 @@ struct CompactSpecimenCard: View {
                 .tracking(0.2)
                 .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                 .lineLimit(2)
+            if let locationLine {
+                let clean = locationLine.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !clean.isEmpty {
+                    Text(clean)
+                        .font(LeafIDFont.manrope(size: 11, weight: .semibold))
+                        .foregroundStyle(LeafIDTheme.onSurfaceVariant.opacity(0.9))
+                        .lineLimit(2)
+                }
+            }
+            if style == .mapPopup, let openHerbarium = onOpenInHerbarium {
+                Button(action: openHerbarium) {
+                    HStack(spacing: LeafIDTheme.space8) {
+                        Text("Open in Herbarium")
+                            .font(LeafIDFont.manrope(size: 12, weight: .bold))
+                            .foregroundStyle(LeafIDTheme.primary)
+                        Image(systemName: "arrow.up.forward.circle.fill")
+                            .font(.system(size: 20, weight: .semibold))
+                            .symbolRenderingMode(.hierarchical)
+                            .foregroundStyle(LeafIDTheme.primary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, LeafIDTheme.space4)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Open full specimen in Herbarium")
+            }
         }
         .padding(gridInnerPadding(style: style))
         .liquidGlass(cornerRadius: cornerRadius)
@@ -108,6 +174,17 @@ struct CompactSpecimenCard: View {
                     .tracking(-0.35)
                     .foregroundStyle(LeafIDTheme.onSurface)
                     .lineLimit(2)
+                Text(scan.captureLocationLine)
+                    .font(LeafIDFont.manrope(size: 13, weight: .medium))
+                    .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                    .lineLimit(1)
+                if let gps = scan.captureGPSLine {
+                    Text(gps)
+                        .font(LeafIDFont.manrope(size: 11, weight: .medium))
+                        .monospaced()
+                        .foregroundStyle(LeafIDTheme.onSurfaceVariant.opacity(0.82))
+                        .lineLimit(1)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 

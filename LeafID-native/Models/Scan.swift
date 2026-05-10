@@ -87,6 +87,21 @@ extension Scan {
         return location
     }
 
+    /// Capture-location line for UI surfaces: prefer reverse-geocoded locality, then saved location.
+    var captureLocationLine: String {
+        let local = locality?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if !local.isEmpty {
+            return BotanyService.displaySafeLocation(local)
+        }
+        return BotanyService.displaySafeLocation(location)
+    }
+
+    /// Optional formatted GPS string for components that support coordinate chips/rows.
+    var captureGPSLine: String? {
+        guard let latitude, let longitude else { return nil }
+        return BotanyService.formatCardinalGPS(latitude: latitude, longitude: longitude)
+    }
+
     /// Main “type” row on card back (family preferred, else phylum).
     var botanicalTypeSummary: String {
         let f = family?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""

@@ -9,6 +9,8 @@ import SwiftUI
 struct MainTabView: View {
     @StateObject private var herbariumVM = HerbariumViewModel()
     @State private var selectedTab: RootTab = .home
+    @State private var pendingHerbariumScan: Scan?
+    @State private var restoreTabAfterHerbariumImmersive: RootTab?
 
     var body: some View {
         Group {
@@ -16,19 +18,47 @@ struct MainTabView: View {
             case .home:
                 HomeView()
             case .arboretum:
-                ArboretumView()
+                ArboretumView(
+                    onRequestHerbariumDetail: { scan in
+                        restoreTabAfterHerbariumImmersive = .arboretum
+                        pendingHerbariumScan = scan
+                        selectedTab = .herbarium
+                    }
+                )
             case .herbarium:
-                HerbariumView()
+                HerbariumView(
+                    pendingPresentScan: $pendingHerbariumScan,
+                    restoreTabAfterImmersiveDismiss: $restoreTabAfterHerbariumImmersive,
+                    rootTabSelection: $selectedTab
+                )
             case .druid:
                 DruidProfileView()
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            FloatingLiquidTabBar(selection: $selectedTab)
-                .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
-                .padding(.top, LeafIDTheme.space8)
-                .padding(.bottom, LeafIDTheme.space10)
+            ZStack(alignment: .bottom) {
+                LinearGradient(
+                    gradient: Gradient(stops: [
+                        .init(color: LeafIDTheme.surface.opacity(0.00), location: 0.00),
+                        .init(color: LeafIDTheme.surface.opacity(0.00), location: 0.60),
+                        .init(color: LeafIDTheme.surface.opacity(0.20), location: 0.78),
+                        .init(color: LeafIDTheme.surface.opacity(0.55), location: 0.90),
+                        .init(color: LeafIDTheme.surface.opacity(0.88), location: 1.00),
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(maxWidth: .infinity)
+                .frame(height: 108)
+                .allowsHitTesting(false)
+
+                FloatingLiquidTabBar(selection: $selectedTab)
+                    .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
+                    .padding(.top, LeafIDTheme.space8)
+                    .padding(.bottom, LeafIDTheme.space10)
+            }
+            .frame(maxWidth: .infinity)
         }
         .environmentObject(herbariumVM)
         .preferredColorScheme(.dark)

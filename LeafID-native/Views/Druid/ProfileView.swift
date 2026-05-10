@@ -40,7 +40,11 @@ struct ProfileView: View {
     private var species: Int { profileModel.distinctSpeciesCount(from: herbarium) }
     private var scans: Int { profileModel.scansCount(from: herbarium) }
     private var collectionFeed: [ProfileFeedItem] { profileModel.collectionFeed(from: herbarium) }
-    private var achievementTiles: [AchievementTileState] { AchievementUnlockStore.tiles(scans: herbarium.scans) }
+    private var scansForAchievements: [Scan] {
+        herbarium.isShowingPlaceholderCatalog ? [] : herbarium.scans
+    }
+
+    private var achievementTiles: [AchievementTileState] { AchievementUnlockStore.tiles(scans: scansForAchievements) }
     private var localSnapshot: ProfileStatsSnapshot { ProfileStatsLocalStore.snapshot(from: herbarium.scans) }
 
     var body: some View {
@@ -77,7 +81,9 @@ struct ProfileView: View {
 
                             recentDiscoveriesSection
 
+                            #if DEBUG
                             profileFoundryFooter
+                            #endif
                         }
                         .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
                         .padding(.top, LeafIDTheme.space8)
@@ -92,6 +98,7 @@ struct ProfileView: View {
         .sheet(isPresented: $showSettings) {
             profileSettingsSheet
         }
+        #if DEBUG
         .sheet(isPresented: $showFoundryPasswordGate) {
             FoundryPasswordGateSheet(
                 isPresented: $showFoundryPasswordGate,
@@ -101,6 +108,7 @@ struct ProfileView: View {
         .fullScreenCover(isPresented: $showFoundryGallery) {
             DesignSystemGalleryView(dismiss: { showFoundryGallery = false })
         }
+        #endif
     }
 
     private var profileScrollHeader: some View {
@@ -248,6 +256,7 @@ struct ProfileView: View {
         }
     }
 
+    #if DEBUG
     private var profileFoundryFooter: some View {
         Button {
             showFoundryPasswordGate = true
@@ -285,6 +294,7 @@ struct ProfileView: View {
         .buttonStyle(.plain)
         .accessibilityLabel("Open Design System Foundry")
     }
+    #endif
 
     private var profileBentoStatsSection: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space14) {
@@ -371,9 +381,8 @@ struct ProfileView: View {
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { showSettings = false }
-                        .foregroundStyle(LeafIDTheme.primary)
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    ModalCloseButton { showSettings = false }
                 }
             }
         }
@@ -486,11 +495,8 @@ private struct FoundryPasswordGateSheet: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(LeafIDTheme.surface.ignoresSafeArea())
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        isPresented = false
-                    }
-                    .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    ModalCloseButton { isPresented = false }
                 }
             }
             .onAppear { passwordFocused = true }

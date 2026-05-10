@@ -14,11 +14,25 @@
 				<string>com.googleusercontent.apps.133761573510-233kdml7mn0p0d19pksj62h1t27oaide</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>leafid.recovery</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.marianaminafro.leafid</string>
+			</array>
+		</dict>
 	</array>
 	<key>GEMINI_API_KEY</key>
 	<string>$(GEMINI_API_KEY)</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>LeafID uses your location to center Arboretum on your position and geotag discoveries on the map.</string>
 	<key>OPENROUTER_API_KEY</key>
-	<string>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</string>
+	<string>$(OPENROUTER_API_KEY)</string>
+	<key>PASSWORD_RESET_REDIRECT</key>
+	<string>$(PASSWORD_RESET_REDIRECT)</string>
 	<key>SUPABASE_ANON_KEY</key>
 	<string>$(SUPABASE_ANON_KEY)</string>
 	<key>SUPABASE_URL</key>

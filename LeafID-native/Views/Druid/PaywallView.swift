@@ -6,9 +6,14 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct PaywallView: View {
     var onUpgradeTap: () -> Void = {}
+
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
@@ -29,6 +34,12 @@ struct PaywallView: View {
                         paywallHero
                         benefitsSection
                         upgradeButton
+                        Text(
+                            "Las compras dentro de la app aún no están conectadas. Este botón quedará activo en una actualización; puedes cerrar y seguir explorando con el límite gratuito."
+                        )
+                        .font(LeafIDFont.manrope(size: 13, weight: .medium))
+                        .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                        .fixedSize(horizontal: false, vertical: true)
                     }
                     .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
                     .padding(.top, LeafIDTheme.space24)
@@ -37,6 +48,11 @@ struct PaywallView: View {
             }
             .navigationTitle("Premium")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    ModalCloseButton { dismiss() }
+                }
+            }
         }
         .preferredColorScheme(.dark)
     }
@@ -89,6 +105,9 @@ struct PaywallView: View {
 
     private var upgradeButton: some View {
         Button {
+            #if canImport(UIKit)
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            #endif
             onUpgradeTap()
         } label: {
             Text("Hacerse Premium")

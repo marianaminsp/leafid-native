@@ -123,7 +123,16 @@ final class HerbariumViewModel: ObservableObject {
         guard let data = UserDefaults.standard.data(forKey: persistenceKey) else { return nil }
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        return try? decoder.decode([Scan].self, from: data)
+        guard let decoded = try? decoder.decode([Scan].self, from: data) else { return nil }
+        return decoded.map { scan in
+            var sanitized = scan
+            let locality = scan.locality?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let baseLocation = locality.isEmpty ? scan.location : locality
+            sanitized.location = BotanyService.displaySafeLocation(baseLocation)
+            let safeOrigin = BotanyService.displaySafeOrigin(scan.originCountry)
+            sanitized.originCountry = safeOrigin.isEmpty ? nil : safeOrigin
+            return sanitized
+        }
     }
 
     private func persistScans() {
@@ -131,5 +140,6 @@ final class HerbariumViewModel: ObservableObject {
         encoder.dateEncodingStrategy = .iso8601
         guard let data = try? encoder.encode(scans) else { return }
         UserDefaults.standard.set(data, forKey: Self.persistenceKey)
+        NotificationCenter.default.post(name: .herbariumCollectionDidChange, object: nil)
     }
 }

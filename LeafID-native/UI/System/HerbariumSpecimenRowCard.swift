@@ -23,7 +23,7 @@ struct HerbariumSpecimenRowCard: View {
                     .font(LeafIDFont.manrope(size: 13, weight: .semibold))
                     .foregroundStyle(LeafIDTheme.primary)
 
-                Text(scan.location)
+                Text(scan.captureLocationLine)
                     .font(LeafIDFont.manrope(size: 13, weight: .medium))
                     .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                     .lineLimit(2)

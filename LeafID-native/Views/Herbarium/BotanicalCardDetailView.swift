@@ -298,15 +298,16 @@ private struct BotanicalCardFrontFace: View {
                             Image(systemName: "location.fill")
                                 .font(.system(size: LeafIDTheme.botanicalFrontLocationSize, weight: .semibold))
                                 .foregroundStyle(LeafIDTheme.primary)
-                            Text(scan.botanicalOriginLine.uppercased())
+                            Text(scan.captureLocationLine.uppercased())
                                 .font(LeafIDFont.manrope(size: LeafIDTheme.botanicalFrontLocationSize, weight: .semibold))
                                 .tracking(1.8)
                                 .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                                 .lineLimit(2)
                         }
-                        if let lat = scan.latitude, let lon = scan.longitude {
-                            Text(String(format: "GPS %.4f, %.4f", lat, lon))
+                        if let gps = scan.captureGPSLine {
+                            Text(gps)
                                 .font(LeafIDFont.manrope(size: 12, weight: .semibold))
+                                .monospaced()
                                 .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                                 .lineLimit(1)
                         }
@@ -425,7 +426,11 @@ private struct BotanicalCardBackFace: View {
 
                 narrativeBlock(title: "Botanical Spirit", text: scan.botanicalSpirit)
                 narrativeBlock(title: "Ethnobotany", text: scan.ethnobotany)
-                narrativeBlock(title: "Cultural Legacy", text: scan.culturalLegacy)
+                narrativeBlock(
+                    title: "Cultural Legacy",
+                    text: BotanyService.mergedCulturalLegacy(scan: scan, preview: nil),
+                    useDescriptionFallback: false
+                )
             }
             .padding(.horizontal, LeafIDTheme.botanicalFrontOverlayPaddingH)
             .padding(.top, LeafIDTheme.space20)
@@ -493,7 +498,7 @@ private struct BotanicalCardBackFace: View {
         }
     }
 
-    private func narrativeBlock(title: String, text: String?) -> some View {
+    private func narrativeBlock(title: String, text: String?, useDescriptionFallback: Bool = true) -> some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space10) {
             Text(title)
                 .font(LeafIDFont.manrope(size: 10, weight: .bold))
@@ -509,7 +514,7 @@ private struct BotanicalCardBackFace: View {
                     .frame(height: 16)
                     .redacted(reason: .placeholder)
             } else {
-                Text(displayOrFallback(text, fallback: scan.descriptionText))
+                Text(displayOrFallback(text, fallback: useDescriptionFallback ? scan.descriptionText : nil))
                     .font(LeafIDFont.manrope(size: 15, weight: .medium))
                     .foregroundStyle(LeafIDTheme.onSurface)
                     .lineSpacing(5)

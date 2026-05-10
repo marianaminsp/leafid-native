@@ -6,6 +6,9 @@
 //
 
 import Foundation
+#if canImport(CryptoKit)
+import CryptoKit
+#endif
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -16,17 +19,32 @@ import ImageIO
 import CoreLocation
 #endif
 
-enum BotanyServiceError: Error {
+enum BotanyServiceError: Error, LocalizedError {
     case emptyImagePayload
     case identifyFailed(String)
     case invalidResponse
+
+    var errorDescription: String? {
+        switch self {
+        case .emptyImagePayload:
+            return String(localized: "Photo data is missing. Try another image.")
+        case .identifyFailed(let detail):
+            return detail
+        case .invalidResponse:
+            return String(localized: "Couldn’t read the identification response. Try again.")
+        }
+    }
 }
 
 private enum LeafIDSupabaseConfig {
     static var urlString: String? {
         let raw = Bundle.main.object(forInfoDictionaryKey: "SUPABASE_URL") as? String
-        let t = raw?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        var t = raw?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if t.hasPrefix("\""), t.hasSuffix("\""), t.count >= 2 {
+            t = String(t.dropFirst().dropLast())
+        }
         guard !t.isEmpty, t.hasPrefix("http"), !t.contains("$(") else { return nil }
+        guard let host = URL(string: t)?.host, host.contains(".") else { return nil }
         return t
     }
 
@@ -100,6 +118,11 @@ private enum OpenRouterConfig {
 }
 
 enum BotanyService {
+    private static let unknownOriginFallback = "Origin unavailable"
+    private static let identifyCacheKey = "leafid.identify.cache.v1"
+    private static let identifyCacheMaxEntries = 160
+    private static let perceptualMatchMaxHammingDistance = 6
+
     /// `true` when the app POSTs to your Supabase `identify-plant` function (that function uses Plant.id on the server). `false` = demo-only results, no network identify.
     static var isPlantIdentificationLive: Bool {
         LeafIDSupabaseConfig.identifyEndpoint != nil && LeafIDSupabaseConfig.anonKey != nil
@@ -172,6 +195,12 @@ enum BotanyService {
             throw BotanyServiceError.emptyImagePayload
         }
         guard !payload.base64.isEmpty else { throw BotanyServiceError.emptyImagePayload }
+        let sourceImageData = payload.paletteData ?? captureJPEGData
+
+        if let cached = cachedIdentifyResult(for: sourceImageData) {
+            ProfileStatsLocalStore.incrementTotalScans()
+            return cached
+        }
 
         guard let endpoint = LeafIDSupabaseConfig.identifyEndpoint,
               let anon = LeafIDSupabaseConfig.anonKey
@@ -179,14 +208,14 @@ enum BotanyService {
             try await Task.sleep(nanoseconds: 600_000_000)
             ProfileStatsLocalStore.incrementTotalScans()
             let offline = IdentifyPreviewResult.offlineDemoPreview()
-            return IdentifyPreviewResult(
+            let preview = IdentifyPreviewResult(
                 commonName: offline.commonName,
                 scientificName: offline.scientificName,
                 confidence: offline.confidence,
-                locationLabel: offline.locationLabel,
+                locationLabel: displaySafeLocation(offline.locationLabel),
                 family: offline.family,
                 descriptionText: offline.descriptionText,
-                originCountry: offline.originCountry,
+                originCountry: displaySafeOrigin(offline.originCountry),
                 isNewDiscovery: offline.isNewDiscovery,
                 usedFallback: offline.usedFallback,
                 tagSecondary: offline.tagSecondary,
@@ -201,6 +230,8 @@ enum BotanyService {
                 ethnobotany: offline.ethnobotany,
                 culturalLegacy: offline.culturalLegacy
             )
+            storeIdentifyCache(preview: preview, imageData: sourceImageData)
+            return preview
         }
 
         var request = URLRequest(url: endpoint)
@@ -295,19 +326,14 @@ enum BotanyService {
             : nil
         let openRouter = openRouterFirst
 
+        let wikiOrigin = await freeOriginFromWikipedia(scientificName: scientific, commonName: common)
         let mergedOrigin = plantOrigin
             ?? normalizedOrigin(gemini?.origin)
             ?? normalizedOrigin(gemini?.origin_country)
             ?? normalizedOrigin(openRouter?.origin)
             ?? normalizedOrigin(openRouter?.origin_country)
-        let locationLabel: String
-        if fallback, let diag = decoded.diagnostic_error?.trimmingCharacters(in: .whitespacesAndNewlines), !diag.isEmpty {
-            locationLabel = diag
-        } else if let mergedOrigin {
-            locationLabel = mergedOrigin
-        } else {
-            locationLabel = "Approximate — enable location for Arboretum pins"
-        }
+            ?? wikiOrigin
+        let locationLabel = displaySafeLocation(mergedOrigin ?? unknownOriginFallback)
 
         let palette = guaranteedPalette(
             imagePalette: paletteHexes(from: payload.paletteData ?? captureJPEGData),
@@ -323,21 +349,32 @@ enum BotanyService {
             openRouter?.ethnobotany,
             compactCareHints(sun: chipSun, water: chipWater, commonName: common)
         ) ?? ""
-        let culturalLegacy = firstMeaningful(
+        var culturalLegacy = firstMeaningful(
             gemini?.cultural_legacy,
             openRouter?.cultural_legacy,
             mergedOrigin.map { "Associated region: \($0)." }
         ) ?? ""
+        culturalLegacy = culturalLegacy.trimmingCharacters(in: .whitespacesAndNewlines.union(.newlines))
+        if culturalLegacy.isEmpty {
+            culturalLegacy = fallbackCulturalLegacyPhrase(
+                commonName: common,
+                scientificName: scientific,
+                family: family,
+                originLine: mergedOrigin
+            )
+        } else {
+            culturalLegacy = clampNarrativeLine(culturalLegacy)
+        }
 
         ProfileStatsLocalStore.incrementTotalScans()
-        return IdentifyPreviewResult(
+        let preview = IdentifyPreviewResult(
             commonName: common,
             scientificName: scientific,
             confidence: confidence,
             locationLabel: locationLabel,
             family: family.uppercased(),
             descriptionText: curiosity,
-            originCountry: mergedOrigin ?? "",
+            originCountry: displaySafeOrigin(mergedOrigin),
             isNewDiscovery: isNew,
             usedFallback: fallback,
             tagSecondary: tagSecondary,
@@ -349,6 +386,8 @@ enum BotanyService {
             ethnobotany: ethnobotany,
             culturalLegacy: culturalLegacy
         )
+        storeIdentifyCache(preview: preview, imageData: sourceImageData)
+        return preview
     }
 
     /// Persists a `Scan` into the local collection; extend with Storage upload + Supabase insert.
@@ -394,7 +433,7 @@ enum BotanyService {
         #else
         mergedLat = captureLatitude
         mergedLon = captureLongitude
-        locationLine = result.locationLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+        locationLine = displaySafeLocation(result.locationLabel)
         #endif
 
         #if canImport(CoreLocation)
@@ -403,8 +442,10 @@ enum BotanyService {
             mergedLatitude: mergedLat,
             mergedLongitude: mergedLon
         )
+        let captureCountry = await countryForCapture(mergedLatitude: mergedLat, mergedLongitude: mergedLon)
         #else
         let locality: String? = nil
+        let captureCountry: String? = nil
         #endif
 
         let localPhotoURLString = photoURL
@@ -419,6 +460,18 @@ enum BotanyService {
             }
         }
 
+        let localityFallback = locality?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let canonicalLocationSource: String = {
+            if let localityFallback, !localityFallback.isEmpty {
+                let current = locationLine.trimmingCharacters(in: .whitespacesAndNewlines)
+                if current.isEmpty || isWeakCaptureLocationString(current) {
+                    return localityFallback
+                }
+            }
+            return locationLine
+        }()
+        let safeLocationLine = displaySafeLocation(canonicalLocationSource)
+        let safeOrigin = displaySafeOrigin(result.originCountry.nilIfEmpty ?? captureCountry)
         let scan = Scan(
             id: id,
             userId: nil,
@@ -427,7 +480,7 @@ enum BotanyService {
             scientificName: result.scientificName,
             photoURL: resolvedPhotoURL,
             confidence: result.confidence,
-            location: locationLine,
+            location: safeLocationLine,
             createdAt: Date(),
             latitude: mergedLat,
             longitude: mergedLon,
@@ -437,13 +490,13 @@ enum BotanyService {
             sunExposure: result.chipSunExposure.nilIfEmpty,
             watering: result.chipWatering.nilIfEmpty,
             phylum: result.chipPhylum.nilIfEmpty,
-            originCountry: result.originCountry.nilIfEmpty,
+            originCountry: safeOrigin.nilIfEmpty,
             tagSecondary: result.tagSecondary.nilIfEmpty,
             isNewDiscovery: result.isNewDiscovery,
             paletteHexes: result.paletteHexes,
             botanicalSpirit: result.botanicalSpirit.nilIfEmpty,
             ethnobotany: result.ethnobotany.nilIfEmpty,
-            culturalLegacy: result.culturalLegacy.nilIfEmpty
+            culturalLegacy: culturalLegacyForPersist(from: result).nilIfEmpty
         )
 
         let remoteInsertSucceeded: Bool
@@ -459,7 +512,7 @@ enum BotanyService {
         }
 
         #if canImport(UIKit) && canImport(CoreLocation)
-        if let lat = mergedLat, let lon = mergedLon, isWeakCaptureLocationString(locationLine) {
+        if let lat = mergedLat, let lon = mergedLon, isWeakCaptureLocationString(safeLocationLine) {
             scheduleReverseGeocodeForCaptureLocation(scanId: id, latitude: lat, longitude: lon, herbarium: herbarium)
         }
         #endif
@@ -498,7 +551,7 @@ enum BotanyService {
         #else
         mergedLat = captureLatitude
         mergedLon = captureLongitude
-        locationLine = result.locationLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+        locationLine = displaySafeLocation(result.locationLabel)
         #endif
 
         #if canImport(CoreLocation)
@@ -507,9 +560,22 @@ enum BotanyService {
             mergedLatitude: mergedLat,
             mergedLongitude: mergedLon
         )
+        let captureCountry = await countryForCapture(mergedLatitude: mergedLat, mergedLongitude: mergedLon)
         #else
         let locality: String? = nil
+        let captureCountry: String? = nil
         #endif
+
+        let canonicalLocationSource: String = {
+            let localityFallback = locality?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if !localityFallback.isEmpty {
+                let current = locationLine.trimmingCharacters(in: .whitespacesAndNewlines)
+                if current.isEmpty || isWeakCaptureLocationString(current) {
+                    return localityFallback
+                }
+            }
+            return locationLine
+        }()
 
         return Scan(
             id: id,
@@ -519,7 +585,7 @@ enum BotanyService {
             scientificName: result.scientificName,
             photoURL: photoURL,
             confidence: result.confidence,
-            location: locationLine,
+            location: displaySafeLocation(canonicalLocationSource),
             createdAt: nil,
             latitude: mergedLat,
             longitude: mergedLon,
@@ -529,13 +595,13 @@ enum BotanyService {
             sunExposure: result.chipSunExposure.nilIfEmpty,
             watering: result.chipWatering.nilIfEmpty,
             phylum: result.chipPhylum.nilIfEmpty,
-            originCountry: result.originCountry.nilIfEmpty,
+            originCountry: displaySafeOrigin(result.originCountry.nilIfEmpty ?? captureCountry).nilIfEmpty,
             tagSecondary: result.tagSecondary.nilIfEmpty,
             isNewDiscovery: result.isNewDiscovery,
             paletteHexes: result.paletteHexes,
             botanicalSpirit: result.botanicalSpirit.nilIfEmpty,
             ethnobotany: result.ethnobotany.nilIfEmpty,
-            culturalLegacy: result.culturalLegacy.nilIfEmpty
+            culturalLegacy: culturalLegacyForPersist(from: result).nilIfEmpty
         )
     }
 
@@ -556,12 +622,30 @@ enum BotanyService {
         if t.isEmpty { return true }
         if t == "—" { return true }
         if t == "location pending" { return true }
+        if t == "origin unavailable" { return true }
         if t.contains("origin data not provided") { return true }
         if t.contains("origin not provided") { return true }
         if t.contains("not provided") { return true }
         if t == "unknown" { return true }
         if t == "region not specified" { return true }
+        if t.contains("plant.id [non_json]") { return true }
+        if t.contains("api key") { return true }
+        if t.contains("insufficient") && t.contains("credit") { return true }
+        if t.contains("http ") { return true }
+        if t.contains("error") && t.contains("identify") { return true }
         return false
+    }
+
+    static func displaySafeLocation(_ raw: String?) -> String {
+        let t = raw?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if t.isEmpty || isWeakCaptureLocationString(t) { return unknownOriginFallback }
+        return t
+    }
+
+    static func displaySafeOrigin(_ raw: String?) -> String {
+        let t = raw?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if t.isEmpty || isWeakCaptureLocationString(t) { return unknownOriginFallback }
+        return t
     }
 
     /// Shared GPS caption for cards (monospaced Manrope applied at call site).
@@ -571,6 +655,310 @@ enum BotanyService {
         let la = abs(latitude)
         let lo = abs(longitude)
         return "\(latHem) \(String(format: "%.4f", la))° · \(lonHem) \(String(format: "%.4f", lo))°"
+    }
+
+    /// Aligned with identify prompts (`cultural_legacy` <= 220 chars).
+    static let culturalLegacyMaxLength = 220
+
+    static func clampNarrativeLine(_ raw: String, maxLen: Int = culturalLegacyMaxLength) -> String {
+        let t = raw.trimmingCharacters(in: .whitespacesAndNewlines.union(.newlines))
+        guard t.count > maxLen else { return t }
+        let end = t.index(t.startIndex, offsetBy: max(0, maxLen - 1))
+        return String(t[...end]).trimmingCharacters(in: .whitespacesAndNewlines) + "…"
+    }
+
+    /// Safe, generic cultural framing (no medical claims; avoids specific unverified folklore).
+    static func fallbackCulturalLegacyPhrase(
+        commonName: String,
+        scientificName: String,
+        family: String,
+        originLine: String?
+    ) -> String {
+        let common = commonName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let sci = scientificName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let subject = common.isEmpty ? sci : common
+        let famRaw = family.trimmingCharacters(in: .whitespacesAndNewlines)
+        let fam = famRaw.isEmpty ? "plant" : famRaw.lowercased()
+        let origin = originLine?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let originPhrase: String
+        if origin.isEmpty || isWeakCaptureLocationString(origin) || origin == unknownOriginFallback {
+            originPhrase = "many regions"
+        } else {
+            originPhrase = origin
+        }
+        let line =
+            "Often celebrated in gardens and design, \(subject) ties to living traditions around \(originPhrase)—plants in the \(fam) family recur in art, shade, and seasonal symbolism worldwide."
+        return clampNarrativeLine(line)
+    }
+
+    /// Single source for card surfaces: saved field, live preview, then template from taxonomy/origin.
+    static func mergedCulturalLegacy(scan: Scan, preview: IdentifyPreviewResult? = nil) -> String {
+        let candidates = [scan.culturalLegacy, preview?.culturalLegacy]
+        for c in candidates {
+            let t = c?.trimmingCharacters(in: .whitespacesAndNewlines.union(.newlines)) ?? ""
+            if !t.isEmpty { return clampNarrativeLine(t) }
+        }
+        var famMerged = scan.family?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if famMerged.isEmpty, let pf = preview?.family.trimmingCharacters(in: .whitespacesAndNewlines), !pf.isEmpty {
+            famMerged = pf
+        }
+        let fromScan = scan.originCountry?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let fromPreview = preview.map { $0.originCountry.trimmingCharacters(in: .whitespacesAndNewlines) } ?? ""
+        let originHint = fromScan.isEmpty ? fromPreview : fromScan
+        let originLine = originHint.isEmpty ? scan.botanicalOriginLine : originHint
+        return fallbackCulturalLegacyPhrase(
+            commonName: scan.commonName,
+            scientificName: scan.scientificName,
+            family: famMerged.isEmpty ? "plants" : famMerged,
+            originLine: originLine
+        )
+    }
+
+    static func culturalLegacyForPersist(from result: IdentifyPreviewResult) -> String {
+        let trimmed = result.culturalLegacy.trimmingCharacters(in: .whitespacesAndNewlines.union(.newlines))
+        if !trimmed.isEmpty { return clampNarrativeLine(trimmed) }
+        return fallbackCulturalLegacyPhrase(
+            commonName: result.commonName,
+            scientificName: result.scientificName,
+            family: result.family,
+            originLine: result.originCountry
+        )
+    }
+
+    private struct CachedIdentifyEntry: Codable {
+        let perceptualHash: String
+        let exactHash: String?
+        let savedAtEpoch: TimeInterval
+        let preview: CachedIdentifyPreview
+    }
+
+    private struct CachedIdentifyPreview: Codable {
+        let commonName: String
+        let scientificName: String
+        let confidence: Double
+        let locationLabel: String
+        let family: String
+        let descriptionText: String
+        let originCountry: String
+        let isNewDiscovery: Bool
+        let usedFallback: Bool
+        let tagSecondary: String
+        let chipSunExposure: String
+        let chipWatering: String
+        let chipPhylum: String
+        let paletteHexes: [String]
+        let botanicalSpirit: String
+        let ethnobotany: String
+        let culturalLegacy: String
+
+        init(preview: IdentifyPreviewResult) {
+            commonName = preview.commonName
+            scientificName = preview.scientificName
+            confidence = preview.confidence
+            locationLabel = preview.locationLabel
+            family = preview.family
+            descriptionText = preview.descriptionText
+            originCountry = preview.originCountry
+            isNewDiscovery = preview.isNewDiscovery
+            usedFallback = preview.usedFallback
+            tagSecondary = preview.tagSecondary
+            chipSunExposure = preview.chipSunExposure
+            chipWatering = preview.chipWatering
+            chipPhylum = preview.chipPhylum
+            paletteHexes = preview.paletteHexes
+            botanicalSpirit = preview.botanicalSpirit
+            ethnobotany = preview.ethnobotany
+            culturalLegacy = preview.culturalLegacy
+        }
+
+        var asPreview: IdentifyPreviewResult {
+            IdentifyPreviewResult(
+                commonName: commonName,
+                scientificName: scientificName,
+                confidence: confidence,
+                locationLabel: locationLabel,
+                family: family,
+                descriptionText: descriptionText,
+                originCountry: originCountry,
+                isNewDiscovery: isNewDiscovery,
+                usedFallback: usedFallback,
+                tagSecondary: tagSecondary,
+                chipSunExposure: chipSunExposure,
+                chipWatering: chipWatering,
+                chipPhylum: chipPhylum,
+                paletteHexes: paletteHexes,
+                botanicalSpirit: botanicalSpirit,
+                ethnobotany: ethnobotany,
+                culturalLegacy: culturalLegacy
+            )
+        }
+    }
+
+    private static func cachedIdentifyResult(for imageData: Data?) -> IdentifyPreviewResult? {
+        guard let imageData,
+              let queryPHash = perceptualHashHex(for: imageData)
+        else { return nil }
+        let queryExact = exactHashHex(for: imageData)
+        let entries = loadIdentifyCacheEntries()
+
+        if let queryExact {
+            if let exactHit = entries.first(where: { $0.exactHash == queryExact }) {
+                return exactHit.preview.asPreview
+            }
+        }
+
+        var best: (distance: Int, preview: IdentifyPreviewResult)?
+        for entry in entries {
+            guard let d = hammingDistanceHex(queryPHash, entry.perceptualHash) else { continue }
+            if d <= perceptualMatchMaxHammingDistance {
+                if best == nil || d < best!.distance {
+                    best = (distance: d, preview: entry.preview.asPreview)
+                }
+            }
+        }
+        return best?.preview
+    }
+
+    private static func storeIdentifyCache(preview: IdentifyPreviewResult, imageData: Data?) {
+        guard let imageData,
+              let pHash = perceptualHashHex(for: imageData)
+        else { return }
+        let exact = exactHashHex(for: imageData)
+        var entries = loadIdentifyCacheEntries()
+
+        if let idx = entries.firstIndex(where: { $0.exactHash != nil && $0.exactHash == exact }) {
+            entries.remove(at: idx)
+        }
+        entries.insert(
+            CachedIdentifyEntry(
+                perceptualHash: pHash,
+                exactHash: exact,
+                savedAtEpoch: Date().timeIntervalSince1970,
+                preview: CachedIdentifyPreview(preview: preview)
+            ),
+            at: 0
+        )
+        if entries.count > identifyCacheMaxEntries {
+            entries = Array(entries.prefix(identifyCacheMaxEntries))
+        }
+        saveIdentifyCacheEntries(entries)
+    }
+
+    private static func loadIdentifyCacheEntries() -> [CachedIdentifyEntry] {
+        guard let data = UserDefaults.standard.data(forKey: identifyCacheKey),
+              let decoded = try? JSONDecoder().decode([CachedIdentifyEntry].self, from: data)
+        else { return [] }
+        return decoded
+    }
+
+    private static func saveIdentifyCacheEntries(_ entries: [CachedIdentifyEntry]) {
+        guard let data = try? JSONEncoder().encode(entries) else { return }
+        UserDefaults.standard.set(data, forKey: identifyCacheKey)
+    }
+
+    private static func exactHashHex(for data: Data) -> String? {
+        #if canImport(CryptoKit)
+        let digest = SHA256.hash(data: data)
+        return digest.map { String(format: "%02x", $0) }.joined()
+        #else
+        return nil
+        #endif
+    }
+
+    #if canImport(UIKit)
+    private static func perceptualHashHex(for data: Data) -> String? {
+        guard let img = UIImage(data: data), let cg = img.cgImage else { return nil }
+        let side = 8
+        guard let context = CGContext(
+            data: nil,
+            width: side,
+            height: side,
+            bitsPerComponent: 8,
+            bytesPerRow: side,
+            space: CGColorSpaceCreateDeviceGray(),
+            bitmapInfo: CGImageAlphaInfo.none.rawValue
+        ) else { return nil }
+        context.interpolationQuality = .low
+        context.draw(cg, in: CGRect(x: 0, y: 0, width: side, height: side))
+        guard let ptr = context.data?.assumingMemoryBound(to: UInt8.self) else { return nil }
+        var values: [UInt8] = []
+        values.reserveCapacity(side * side)
+        for i in 0 ..< (side * side) { values.append(ptr[i]) }
+        let avg = values.reduce(0, { $0 + Int($1) }) / values.count
+        var bits = ""
+        bits.reserveCapacity(values.count)
+        for v in values { bits.append(Int(v) >= avg ? "1" : "0") }
+        return binaryToHex(bits)
+    }
+    #else
+    private static func perceptualHashHex(for _: Data) -> String? { nil }
+    #endif
+
+    private static func binaryToHex(_ binary: String) -> String {
+        var result = ""
+        var idx = binary.startIndex
+        while idx < binary.endIndex {
+            let next = binary.index(idx, offsetBy: 4, limitedBy: binary.endIndex) ?? binary.endIndex
+            let chunk = String(binary[idx ..< next])
+            let value = Int(chunk, radix: 2) ?? 0
+            result += String(format: "%1x", value)
+            idx = next
+        }
+        return result
+    }
+
+    private static func hammingDistanceHex(_ a: String, _ b: String) -> Int? {
+        let lhs = Array(a.lowercased())
+        let rhs = Array(b.lowercased())
+        guard lhs.count == rhs.count else { return nil }
+        var distance = 0
+        for i in 0 ..< lhs.count {
+            guard let lv = Int(String(lhs[i]), radix: 16), let rv = Int(String(rhs[i]), radix: 16) else { return nil }
+            distance += (lv ^ rv).nonzeroBitCount
+        }
+        return distance
+    }
+
+    private static func freeOriginFromWikipedia(scientificName: String, commonName: String) async -> String? {
+        let queries = [scientificName, commonName].map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+        for q in queries {
+            guard let encoded = q.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                  let url = URL(string: "https://en.wikipedia.org/api/rest_v1/page/summary/\(encoded)")
+            else { continue }
+            do {
+                let (data, response) = try await URLSession.shared.data(from: url)
+                guard let http = response as? HTTPURLResponse, (200 ... 299).contains(http.statusCode) else { continue }
+                if let summary = try? JSONDecoder().decode(WikipediaSummary.self, from: data),
+                   let extracted = shortOriginFromText(summary.extract) {
+                    return extracted
+                }
+            } catch {
+                continue
+            }
+        }
+        return nil
+    }
+
+    private struct WikipediaSummary: Decodable {
+        let extract: String?
+    }
+
+    private static func shortOriginFromText(_ raw: String?) -> String? {
+        let text = raw?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !text.isEmpty else { return nil }
+        let lower = text.lowercased()
+        let markers = ["native to ", "originating in ", "endemic to "]
+        for marker in markers {
+            guard let range = lower.range(of: marker) else { continue }
+            let start = range.upperBound
+            let tail = String(text[start...])
+            let sentenceEnd = tail.firstIndex(where: { ".;".contains($0) }) ?? tail.endIndex
+            let candidate = String(tail[..<sentenceEnd]).trimmingCharacters(in: .whitespacesAndNewlines)
+            if let normalized = normalizedOrigin(candidate), normalized.count <= 64 {
+                return normalized
+            }
+        }
+        return nil
     }
 
     /// Decodes top-level `IdentifyPlantJSON` or common wrapper objects from edge functions.
@@ -1102,9 +1490,9 @@ enum BotanyService {
         let locationLine: String = {
             if !iptcLine.isEmpty, !isWeakCaptureLocationString(iptcLine) { return iptcLine }
             if !resultLoc.isEmpty, !isWeakCaptureLocationString(resultLoc) { return resultLoc }
-            if !iptcLine.isEmpty { return iptcLine }
-            if !resultLoc.isEmpty { return resultLoc }
-            return "Location pending"
+            if !iptcLine.isEmpty { return displaySafeLocation(iptcLine) }
+            if !resultLoc.isEmpty { return displaySafeLocation(resultLoc) }
+            return unknownOriginFallback
         }()
         return (locationLine, mergedLat, mergedLon)
     }
@@ -1138,6 +1526,20 @@ enum BotanyService {
         if !trimmed.isEmpty { return trimmed }
         guard let la = mergedLatitude, let lo = mergedLongitude else { return nil }
         return await reverseGeocodeLocality(latitude: la, longitude: lo)
+    }
+
+    private static func countryForCapture(
+        mergedLatitude: Double?,
+        mergedLongitude: Double?
+    ) async -> String? {
+        guard let la = mergedLatitude, let lo = mergedLongitude else { return nil }
+        return await withCheckedContinuation { continuation in
+            let geocoder = CLGeocoder()
+            geocoder.reverseGeocodeLocation(CLLocation(latitude: la, longitude: lo)) { placemarks, _ in
+                let country = placemarks?.first?.country?.trimmingCharacters(in: .whitespacesAndNewlines)
+                continuation.resume(returning: country?.isEmpty == false ? country : nil)
+            }
+        }
     }
     #endif
 

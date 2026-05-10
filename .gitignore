@@ -57,6 +57,7 @@ iOSInjectionProject/
 .env
 .env.*
 !.env.example
+LeafID-native/Config/Secrets.local.xcconfig
 
 # Supabase (local CLI runtime)
 supabase/.branches/

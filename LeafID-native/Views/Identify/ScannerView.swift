@@ -362,7 +362,7 @@ private struct ScannerLiveView: View {
                 VStack(spacing: 0) {
                     HStack(spacing: 0) {
                         GlassChromeCircleButton(
-                            systemImage: "chevron.left",
+                            systemImage: "xmark",
                             accessibilityLabel: String(localized: "Close")
                         ) {
                             onClose()
@@ -414,11 +414,7 @@ private struct ScannerLiveView: View {
                     .foregroundStyle(LeafIDTheme.onSurface)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
-                Button(String(localized: "Close")) {
-                    onClose()
-                }
-                .font(LeafIDFont.manrope(size: 15, weight: .semibold))
-                .foregroundStyle(LeafIDTheme.primary)
+                ModalCloseButton(action: onClose)
             }
         }
         .allowsHitTesting(true)
@@ -528,7 +524,7 @@ private struct ScannerAnalyzeView: View {
                 VStack(spacing: 0) {
                     HStack(alignment: .center, spacing: 0) {
                         GlassChromeCircleButton(
-                            systemImage: "chevron.left",
+                            systemImage: "xmark",
                             accessibilityLabel: String(localized: "Close")
                         ) {
                             onClose()
@@ -599,9 +595,28 @@ private struct ScannerAnalyzeView: View {
             }
         } catch {
             progressTask.cancel()
+            #if canImport(UIKit)
+            await MainActor.run {
+                UINotificationFeedbackGenerator().notificationOccurred(.error)
+            }
+            #endif
+            let fallback = String(localized: "Couldn’t reach the botanist. Try again.")
+            let detail: String = {
+                let raw: String = {
+                    if let b = error as? BotanyServiceError {
+                        return b.localizedDescription
+                    }
+                    let s = error.localizedDescription.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !s.isEmpty, s != "(null)" { return s }
+                    return fallback
+                }()
+                let maxLen = 220
+                if raw.count <= maxLen { return raw }
+                return String(raw.prefix(maxLen)).trimmingCharacters(in: .whitespacesAndNewlines) + "…"
+            }()
             await MainActor.run {
                 isAnalyzing = false
-                failedMessage = String(localized: "Couldn’t reach the botanist. Try again.")
+                failedMessage = detail
             }
         }
     }
