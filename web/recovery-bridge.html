@@ -37,7 +37,6 @@
     return;
   }
 
-  /* Query form parses reliably in iOS; your app reads `url.query` the same as the hash (parseOAuthValues). */
   var deepLink = "com.marianaminafro.leafid://reset-password?" + params;
 
   var a = document.getElementById("openApp");
@@ -46,9 +45,7 @@
 
   document.getElementById("hint").innerHTML =
     "Si Safari mostró un error al abrir solo, <strong>siempre usa este botón</strong>. " +
-    "No uses redirección automática: en iOS suele fallar con enlaces largos.";
-
-  /* Optional: try programmatic navigation only after user tap (same href). No auto replace — avoids “dirección no válida”. */
+    "No usamos redirección automática: en iOS suele fallar con enlaces largos.";
 })();
   </script>
 </body>
