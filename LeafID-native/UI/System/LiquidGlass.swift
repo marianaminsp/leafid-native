@@ -2,7 +2,7 @@
 //  LiquidGlass.swift
 //  LeafID-native
 //
-//  Foundry: glass surface primitive (docs/PDR.md §4).
+//  Glass surface primitive (docs/PDR.md §4).
 //
 
 import SwiftUI

@@ -33,6 +33,7 @@ struct LeafID_nativeApp: App {
                 }
             }
                 .environmentObject(authViewModel)
+                .leafIDToastHost()
                 .onAppear {
                     ProfileStatsLocalStore.reconcileProfileQuotaWithLifetime()
                 }
@@ -255,6 +256,10 @@ final class AuthViewModel: ObservableObject {
             try await requestPasswordReset(email: normalizedEmail)
             passwordResetEmailDestination = normalizedEmail
             lastError = nil
+            ToastCenter.shared.show(
+                String(localized: "Recovery email sent. Check your inbox and spam."),
+                kind: .success
+            )
         } catch let auth as AuthError {
             switch auth {
             case .configuration:
@@ -287,6 +292,10 @@ final class AuthViewModel: ObservableObject {
             try await updateSupabasePassword(accessToken: accessToken, newPassword: newPassword)
             isInPasswordRecovery = false
             lastError = nil
+            ToastCenter.shared.show(
+                String(localized: "Password updated. Sign in with your new password."),
+                kind: .success
+            )
         } catch {
             lastError = "Could not update password. Request a new recovery link."
         }

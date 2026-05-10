@@ -471,7 +471,7 @@ struct ScanResultsView: View {
                 .lineSpacing(LeafIDTheme.space4)
 
             if !BotanyService.isPlantIdentificationLive {
-                Text("Demo mode: connect Supabase (`identify-plant` + Plant.id) for live results.")
+                Text("Live identification needs Supabase with the identify-plant function configured.")
                     .font(LeafIDFont.manrope(size: 11, weight: .semibold))
                     .foregroundStyle(LeafIDTheme.primary.opacity(0.85))
                     .padding(.vertical, LeafIDTheme.space6)
@@ -496,6 +496,10 @@ struct ScanResultsView: View {
                         #if canImport(UIKit)
                         UINotificationFeedbackGenerator().notificationOccurred(.success)
                         #endif
+                        ToastCenter.shared.show(
+                            String(localized: "Saved to your Herbarium."),
+                            kind: .success
+                        )
                         onClose()
                     } else {
                         #if canImport(UIKit)

@@ -53,6 +53,7 @@ struct PaywallView: View {
                     ModalCloseButton { dismiss() }
                 }
             }
+            .presentationDragIndicator(.visible)
         }
         .preferredColorScheme(.dark)
     }

@@ -382,7 +382,13 @@ struct ProfileView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    ModalCloseButton { showSettings = false }
+                    ModalCloseButton {
+                        showSettings = false
+                        ToastCenter.shared.show(
+                            String(localized: "Profile settings updated."),
+                            kind: .success
+                        )
+                    }
                 }
             }
         }

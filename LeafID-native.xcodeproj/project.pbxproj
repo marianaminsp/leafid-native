@@ -58,6 +58,7 @@
 		E1A100000000000000000032 /* ArboretumViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000032 /* ArboretumViewModel.swift */; };
 		E1A10000000000000000007B /* Achievements.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000007B /* Achievements.swift */; };
 		E1A10000000000000000007C /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000007C /* PaywallView.swift */; };
+		E1A10000000000000000007D /* ToastCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000007D /* ToastCenter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -113,6 +114,7 @@
 		E1A200000000000000000032 /* ArboretumViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArboretumViewModel.swift; sourceTree = "<group>"; };
 		E1A20000000000000000007B /* Achievements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Achievements.swift; sourceTree = "<group>"; };
 		E1A20000000000000000007C /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		E1A20000000000000000007D /* ToastCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastCenter.swift; sourceTree = "<group>"; };
 		E1A20000000000000000007E /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		E1A2000000000000000000FF /* LeafID-native.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LeafID-native.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -297,6 +299,7 @@
 				E1A20000000000000000001E /* GalleryScanButton.swift */,
 				E1A20000000000000000001F /* SecondaryActionButton.swift */,
 				E1A200000000000000000021 /* ModalCloseButton.swift */,
+				E1A20000000000000000007D /* ToastCenter.swift */,
 				E1A200000000000000000022 /* MatchConfidenceBadge.swift */,
 				E1A200000000000000000023 /* ScanningProgressBar.swift */,
 				E1A200000000000000000024 /* GlassScanHeaderPill.swift */,
@@ -432,6 +435,7 @@
 				E1A10000000000000000001F /* SecondaryActionButton.swift in Sources */,
 				E1A100000000000000000020 /* HomeView.swift in Sources */,
 				E1A100000000000000000021 /* ModalCloseButton.swift in Sources */,
+				E1A10000000000000000007D /* ToastCenter.swift in Sources */,
 				E1A100000000000000000022 /* MatchConfidenceBadge.swift in Sources */,
 				E1A100000000000000000023 /* ScanningProgressBar.swift in Sources */,
 				E1A100000000000000000024 /* GlassScanHeaderPill.swift in Sources */,

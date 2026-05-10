@@ -622,7 +622,7 @@ private struct ScannerAnalyzeView: View {
     }
 
     private func analyzeErrorBanner(message: String, geo: GeometryProxy) -> some View {
-        VStack {
+        VStack(spacing: LeafIDTheme.space12) {
             HStack(alignment: .top, spacing: LeafIDTheme.space10) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.system(size: 16, weight: .semibold))
@@ -632,27 +632,33 @@ private struct ScannerAnalyzeView: View {
                     .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: LeafIDTheme.space8)
-                Button(String(localized: "Retry")) {
-                    failedMessage = nil
-                    analysisRunId = UUID()
-                }
-                .font(LeafIDFont.manrope(size: 13, weight: .semibold))
-                .foregroundStyle(LeafIDTheme.primary)
             }
-            .padding(LeafIDTheme.space16)
-            .background {
-                RoundedRectangle(cornerRadius: LeafIDTheme.space12, style: .continuous)
-                    .fill(.ultraThinMaterial)
+            Button {
+                failedMessage = nil
+                analysisRunId = UUID()
+            } label: {
+                Text(String(localized: "Retry identification"))
+                    .font(LeafIDFont.manrope(size: 14, weight: .semibold))
+                    .foregroundStyle(LeafIDTheme.onPrimary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, LeafIDTheme.space12)
+                    .background(LeafIDTheme.primary)
+                    .clipShape(RoundedRectangle(cornerRadius: LeafIDTheme.space12, style: .continuous))
             }
-            .overlay {
-                RoundedRectangle(cornerRadius: LeafIDTheme.space12, style: .continuous)
-                    .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.22), lineWidth: 1)
-            }
-            .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
-            .padding(.top, geo.safeAreaInsets.top + 52 + LeafIDTheme.space8)
-
-            Spacer(minLength: 0)
+            .buttonStyle(.plain)
+            .accessibilityHint(String(localized: "Runs plant identification again with the same photo."))
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(LeafIDTheme.space16)
+        .background {
+            RoundedRectangle(cornerRadius: LeafIDTheme.space12, style: .continuous)
+                .fill(.ultraThinMaterial)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: LeafIDTheme.space12, style: .continuous)
+                .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.22), lineWidth: 1)
+        }
+        .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
+        .padding(.top, geo.safeAreaInsets.top + 52 + LeafIDTheme.space8)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 }
