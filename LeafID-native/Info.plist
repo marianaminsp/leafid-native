@@ -37,6 +37,15 @@
 	</array>
 	<key>PASSWORD_RESET_REDIRECT</key>
 	<string>$(PASSWORD_RESET_REDIRECT)</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>HankenGrotesk-Medium.ttf</string>
+		<string>HankenGrotesk-Regular.ttf</string>
+		<string>SpaceMono-Bold.ttf</string>
+		<string>SpaceMono-Regular.ttf</string>
+		<string>Syne-Bold.ttf</string>
+		<string>Syne-ExtraBold.ttf</string>
+	</array>
 	<key>SUPABASE_ANON_KEY</key>
 	<string>$(SUPABASE_ANON_KEY)</string>
 	<key>SUPABASE_URL</key>

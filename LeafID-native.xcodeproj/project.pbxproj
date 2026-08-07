@@ -8,8 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		160999D0354EC2E83E55C01E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 05246439EFD4918AA442102C /* PrivacyInfo.xcprivacy */; };
+		A7B95EB746E74AC5B1FE4699 /* HankenGrotesk-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5BF4C64011EA49D3AED0CDB6 /* HankenGrotesk-Medium.ttf */; };
+		030794FC907A40A8AE40DE37 /* HankenGrotesk-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8D461E95EBD54ED697593C73 /* HankenGrotesk-Regular.ttf */; };
+		F0ECF9E7237B45B8832CD463 /* SpaceMono-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4726B6878D8645C7BCB63588 /* SpaceMono-Bold.ttf */; };
+		03CCE9D6A59A453C80140DAD /* SpaceMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9C505C9D49064792B3255F81 /* SpaceMono-Regular.ttf */; };
+		A2A4D39341B34A79983BC939 /* Syne-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C79F6C6F06FB4E04969A05D9 /* Syne-Bold.ttf */; };
+		6B39EEC660414F83A03617E0 /* Syne-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C969F72065384D23806EB09A /* Syne-ExtraBold.ttf */; };
 		167C26458EE044BB6DDF3EB7 /* LeafID_nativeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB032EC4293372983E7DC408 /* LeafID_nativeTests.swift */; };
 		A0134776E5296FC7ECBE31E7 /* KeychainTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A466B09C5D53DDD8529A2AA /* KeychainTokenStore.swift */; };
+		7C22BDA973724B41A9AE79A7 /* NeoBrutalistTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D04E70FC6048F2A985AABD /* NeoBrutalistTheme.swift */; };
 		A221302A25F07F610660AF06 /* BotanicalCardImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EFF63FB5F8EC9823649D1F /* BotanicalCardImageProcessor.swift */; };
 		E1A100000000000000000001 /* LeafID_nativeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000001 /* LeafID_nativeApp.swift */; };
 		E1A100000000000000000002 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000002 /* Theme.swift */; };
@@ -76,7 +83,14 @@
 
 /* Begin PBXFileReference section */
 		05246439EFD4918AA442102C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		5BF4C64011EA49D3AED0CDB6 /* HankenGrotesk-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "HankenGrotesk-Medium.ttf"; sourceTree = "<group>"; };
+		8D461E95EBD54ED697593C73 /* HankenGrotesk-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "HankenGrotesk-Regular.ttf"; sourceTree = "<group>"; };
+		4726B6878D8645C7BCB63588 /* SpaceMono-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceMono-Bold.ttf"; sourceTree = "<group>"; };
+		9C505C9D49064792B3255F81 /* SpaceMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceMono-Regular.ttf"; sourceTree = "<group>"; };
+		C79F6C6F06FB4E04969A05D9 /* Syne-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Syne-Bold.ttf"; sourceTree = "<group>"; };
+		C969F72065384D23806EB09A /* Syne-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Syne-ExtraBold.ttf"; sourceTree = "<group>"; };
 		4A466B09C5D53DDD8529A2AA /* KeychainTokenStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeychainTokenStore.swift; sourceTree = "<group>"; };
+		F3D04E70FC6048F2A985AABD /* NeoBrutalistTheme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NeoBrutalistTheme.swift; sourceTree = "<group>"; };
 		A0EFF63FB5F8EC9823649D1F /* BotanicalCardImageProcessor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BotanicalCardImageProcessor.swift; sourceTree = "<group>"; };
 		5E614D3E6FDABD490B7A73C1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		70799B872F8C07650054228B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -199,6 +213,7 @@
 				E1A20000000000000000000D /* Assets.xcassets */,
 				E1A200000000000000000080 /* Localizable.strings */,
 				05246439EFD4918AA442102C /* PrivacyInfo.xcprivacy */,
+				112A303DD78141D4B9EF310E /* Resources */,
 			);
 			path = "LeafID-native";
 			sourceTree = "<group>";
@@ -216,6 +231,7 @@
 			isa = PBXGroup;
 			children = (
 				E1A200000000000000000002 /* Theme.swift */,
+				F3D04E70FC6048F2A985AABD /* NeoBrutalistTheme.swift */,
 			);
 			path = Theme;
 			sourceTree = "<group>";
@@ -375,6 +391,27 @@
 			path = Config;
 			sourceTree = "<group>";
 		};
+		112A303DD78141D4B9EF310E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E5B287152D01435885D74C76 /* Fonts */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		E5B287152D01435885D74C76 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				5BF4C64011EA49D3AED0CDB6 /* HankenGrotesk-Medium.ttf */,
+				8D461E95EBD54ED697593C73 /* HankenGrotesk-Regular.ttf */,
+				4726B6878D8645C7BCB63588 /* SpaceMono-Bold.ttf */,
+				9C505C9D49064792B3255F81 /* SpaceMono-Regular.ttf */,
+				C79F6C6F06FB4E04969A05D9 /* Syne-Bold.ttf */,
+				C969F72065384D23806EB09A /* Syne-ExtraBold.ttf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
 		F2352C5F92B8261B38C84ACE /* LeafID-nativeTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -471,6 +508,12 @@
 			files = (
 				E1A10000000000000000000D /* Assets.xcassets in Resources */,
 				160999D0354EC2E83E55C01E /* PrivacyInfo.xcprivacy in Resources */,
+				A7B95EB746E74AC5B1FE4699 /* HankenGrotesk-Medium.ttf in Resources */,
+				030794FC907A40A8AE40DE37 /* HankenGrotesk-Regular.ttf in Resources */,
+				F0ECF9E7237B45B8832CD463 /* SpaceMono-Bold.ttf in Resources */,
+				03CCE9D6A59A453C80140DAD /* SpaceMono-Regular.ttf in Resources */,
+				A2A4D39341B34A79983BC939 /* Syne-Bold.ttf in Resources */,
+				6B39EEC660414F83A03617E0 /* Syne-ExtraBold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -540,6 +583,7 @@
 				E1A10000000000000000002A /* ScanningDensityProgress.swift in Sources */,
 				A0134776E5296FC7ECBE31E7 /* KeychainTokenStore.swift in Sources */,
 				A221302A25F07F610660AF06 /* BotanicalCardImageProcessor.swift in Sources */,
+				7C22BDA973724B41A9AE79A7 /* NeoBrutalistTheme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
