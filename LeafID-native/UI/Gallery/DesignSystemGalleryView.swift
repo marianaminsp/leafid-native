@@ -271,5 +271,7 @@ struct DesignSystemGalleryView: View {
 struct DesignSystemGalleryView_Previews: PreviewProvider {
     static var previews: some View {
         DesignSystemGalleryView()
+            .environmentObject(HerbariumViewModel())
+            .environmentObject(AuthViewModel())
     }
 }

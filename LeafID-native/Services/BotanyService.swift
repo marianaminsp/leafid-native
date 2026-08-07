@@ -60,6 +60,12 @@ private enum LeafIDSupabaseConfig {
         if base.hasSuffix("/") { base.removeLast() }
         return URL(string: base + "/functions/v1/identify-plant")
     }
+
+    static var narrateEndpoint: URL? {
+        guard var base = urlString else { return nil }
+        if base.hasSuffix("/") { base.removeLast() }
+        return URL(string: base + "/functions/v1/narrate-plant")
+    }
 }
 
 private struct IdentifyPlantJSON: Decodable {
@@ -91,32 +97,6 @@ private struct GeminiNarrative: Decodable {
     let palette_hexes: [String]?
 }
 
-private enum GeminiConfig {
-    /// Stable model id for `generateContent` (unversioned `gemini-1.5-flash` often 404s as aliases change).
-    /// See https://ai.google.dev/api/rest/v1beta/models — `gemini-2.0-flash` / `gemini-1.5-flash-002` are typical.
-    private static let generateContentModel = "gemini-2.0-flash"
-
-    static func generateContentURL() -> URL? {
-        let raw = Bundle.main.object(forInfoDictionaryKey: "GEMINI_API_KEY") as? String
-        let key = raw?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        guard !key.isEmpty, !key.contains("$(") else { return nil }
-        var c = URLComponents(string: "https://generativelanguage.googleapis.com/v1beta/models/\(generateContentModel):generateContent")
-        c?.queryItems = [URLQueryItem(name: "key", value: key)]
-        return c?.url
-    }
-}
-
-private enum OpenRouterConfig {
-    static var apiKey: String? {
-        let raw = Bundle.main.object(forInfoDictionaryKey: "OPENROUTER_API_KEY") as? String
-        let key = raw?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        guard !key.isEmpty, !key.contains("$(") else { return nil }
-        return key
-    }
-
-    static let endpoint = URL(string: "https://openrouter.ai/api/v1/chat/completions")
-}
-
 enum BotanyService {
     private static let unknownOriginFallback = "Origin unavailable"
     private static let identifyCacheKey = "leafid.identify.cache.v1"
@@ -132,6 +112,11 @@ enum BotanyService {
     static var isSupabasePreserveConfigured: Bool {
         LeafIDSupabaseConfig.urlString != nil && LeafIDSupabaseConfig.anonKey != nil
     }
+
+    /// Kill-switch for the on-device Botanical Card auto-processing pipeline (crop + level + brand
+    /// grade). Flip to `false` to fall back to showing raw captures everywhere without a build change
+    /// to the flag's *effect* (the rendering fallback always exists) — only the *generation* stops.
+    static let isCardImageProcessingEnabled = true
 
     /// Default capture when opening the scanner from the hero button (until live camera is wired).
     #if canImport(UIKit)
@@ -307,51 +292,38 @@ enum BotanyService {
             tagSecondary = "Field conditions"
         }
 
-        // Prefer OpenRouter when configured (avoids burning Gemini free-tier quota); Gemini fills gaps.
-        let openRouterFirst = await openRouterNarrative(
+        // Cultural/historical narrative is generated server-side (narrate-plant edge function),
+        // same free-tier-conscious provider order (OpenRouter free router, Gemini fallback) as
+        // before — just moved off-device so the LLM keys never ship inside the app binary.
+        let narrative = await fetchNarrative(
             commonName: common,
             scientificName: scientific,
             family: family,
             originCountry: plantOrigin ?? "Unknown",
             useFallbackPrompt: fallback
         )
-        let needsGemini = OpenRouterConfig.apiKey == nil || hasMissingNarrativeFields(openRouterFirst)
-        let gemini = needsGemini
-            ? await geminiNarrative(
-                commonName: common,
-                scientificName: scientific,
-                family: family,
-                originCountry: plantOrigin ?? "Unknown"
-            )
-            : nil
-        let openRouter = openRouterFirst
 
         let wikiOrigin = await freeOriginFromWikipedia(scientificName: scientific, commonName: common)
         let mergedOrigin = plantOrigin
-            ?? normalizedOrigin(gemini?.origin)
-            ?? normalizedOrigin(gemini?.origin_country)
-            ?? normalizedOrigin(openRouter?.origin)
-            ?? normalizedOrigin(openRouter?.origin_country)
+            ?? normalizedOrigin(narrative?.origin)
+            ?? normalizedOrigin(narrative?.origin_country)
             ?? wikiOrigin
         let locationLabel = displaySafeLocation(mergedOrigin ?? unknownOriginFallback)
 
         let palette = guaranteedPalette(
             imagePalette: paletteHexes(from: payload.paletteData ?? captureJPEGData),
-            geminiPalette: combinedAIPalette(primary: gemini, secondary: openRouter)
+            geminiPalette: narrative?.colors ?? narrative?.palette_hexes
         )
         let spirit = firstMeaningful(
-            gemini?.botanical_spirit,
-            openRouter?.botanical_spirit,
+            narrative?.botanical_spirit,
             nonPlaceholderCuriosity(curiosity)
         ) ?? "\(common) (\(scientific)) — \(family)."
         let ethnobotany = firstMeaningful(
-            gemini?.ethnobotany,
-            openRouter?.ethnobotany,
+            narrative?.ethnobotany,
             compactCareHints(sun: chipSun, water: chipWater, commonName: common)
         ) ?? ""
         var culturalLegacy = firstMeaningful(
-            gemini?.cultural_legacy,
-            openRouter?.cultural_legacy,
+            narrative?.cultural_legacy,
             mergedOrigin.map { "Associated region: \($0)." }
         ) ?? ""
         culturalLegacy = culturalLegacy.trimmingCharacters(in: .whitespacesAndNewlines.union(.newlines))
@@ -440,7 +412,13 @@ enum BotanyService {
 
         #if canImport(CoreLocation)
         if mergedLat == nil || mergedLon == nil {
-            let deviceShot = await OneShotLocationRequest().requestCoordinateAndLocality(maxWaitSeconds: 2.5)
+            // Backfilling GPS during save shouldn't block the save flow on a first-time permission
+            // dialog — keep both waits short here; Arboretum's explicit "locate me" is where we're
+            // willing to wait out a real permission prompt.
+            let deviceShot = await OneShotLocationRequest().requestCoordinateAndLocality(
+                fixWaitSeconds: 2.5,
+                authorizationWaitSeconds: 2.5
+            )
             if let c = deviceShot.0 {
                 mergedLat = c.latitude
                 mergedLon = c.longitude
@@ -527,9 +505,16 @@ enum BotanyService {
             let inserted = await insertScanRowRest(scan, accessToken: token)
             if !inserted {
                 #if DEBUG
-                print("[LeafID] scans insert failed; specimen kept locally. Check RLS and table columns.")
+                print("[LeafID][scans][insert] specimen kept locally only; see preceding error for cause (RLS / column drift / network).")
                 #endif
             }
+        } else {
+            #if DEBUG
+            let cfg = isSupabasePreserveConfigured ? "configured" : "NOT configured"
+            let tok = accessToken == nil ? "missing" : "present"
+            let uid = userId == nil ? "missing" : "present"
+            print("[LeafID][scans][insert] skipped remote POST: supabase=\(cfg) accessToken=\(tok) userId=\(uid) id=\(scan.id.uuidString)")
+            #endif
         }
 
         herbarium.appendPreservedScan(scan)
@@ -537,8 +522,24 @@ enum BotanyService {
 
         #if canImport(UIKit) && canImport(CoreLocation)
         if let lat = mergedLat, let lon = mergedLon, isWeakCaptureLocationString(safeLocationLine) {
-            scheduleReverseGeocodeForCaptureLocation(scanId: id, latitude: lat, longitude: lon, herbarium: herbarium)
+            scheduleReverseGeocodeForCaptureLocation(
+                scanId: id,
+                latitude: lat,
+                longitude: lon,
+                herbarium: herbarium,
+                accessToken: accessToken
+            )
         }
+        #endif
+
+        #if canImport(UIKit) && canImport(CoreImage) && canImport(Vision)
+        scheduleCardImageGeneration(
+            scanId: id,
+            sourceJPEGData: imageJPEGData,
+            userId: userId,
+            accessToken: accessToken,
+            herbarium: herbarium
+        )
         #endif
 
         return id
@@ -691,7 +692,9 @@ enum BotanyService {
         return String(t[...end]).trimmingCharacters(in: .whitespacesAndNewlines) + "…"
     }
 
-    /// Safe, generic cultural framing (no medical claims; avoids specific unverified folklore).
+    /// Safe, generic cultural framing oriented toward History / Mythology / Art themes.
+    /// Avoids medical claims and invented folklore — speaks to documented patterns at the
+    /// family / regional level when species-specific copy is unavailable.
     static func fallbackCulturalLegacyPhrase(
         commonName: String,
         scientificName: String,
@@ -711,7 +714,7 @@ enum BotanyService {
             originPhrase = origin
         }
         let line =
-            "Often celebrated in gardens and design, \(subject) ties to living traditions around \(originPhrase)—plants in the \(fam) family recur in art, shade, and seasonal symbolism worldwide."
+            "Across history, mythology, and botanical art, \(subject) and other plants in the \(fam) family appear in herbals, garden traditions, and ornamental illustration tied to \(originPhrase)."
         return clampNarrativeLine(line)
     }
 
@@ -738,10 +741,19 @@ enum BotanyService {
         )
     }
 
-    /// When Plant.id / on-device copy is thin or empty, enrich from Wikipedia REST summary, then optional Gemini (same API key as narrative).
+    /// When the only available text is the generic fallback (no real Plant.id / preview source),
+    /// enrich from Wikipedia REST summary, then optional Gemini (same API key as narrative),
+    /// targeting a History / Mythology / Art angle for the species.
     static func enrichCulturalLegacyDisplay(scan: Scan, preview: IdentifyPreviewResult?, baseline: String) async -> String {
         let trimmed = baseline.trimmingCharacters(in: .whitespacesAndNewlines.union(.newlines))
-        if trimmed.count >= 80 { return baseline }
+
+        // Real source check: if we already have authored copy from the identify pipeline
+        // (Plant.id / Gemini / OpenRouter) saved on the scan or attached to a live preview,
+        // skip enrichment to avoid overwriting curated content.
+        let scanSource = scan.culturalLegacy?.trimmingCharacters(in: .whitespacesAndNewlines.union(.newlines)) ?? ""
+        let previewSource = preview?.culturalLegacy.trimmingCharacters(in: .whitespacesAndNewlines.union(.newlines)) ?? ""
+        let hasRealSource = !scanSource.isEmpty || !previewSource.isEmpty
+        if hasRealSource { return baseline }
 
         let sci = scan.scientificName.trimmingCharacters(in: .whitespacesAndNewlines)
         let com = scan.commonName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -750,7 +762,7 @@ enum BotanyService {
         }
 
         let fam = (scan.family ?? preview?.family ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        if let gem = await geminiCulturalLegacyFact(commonName: com, scientificName: sci, family: fam) {
+        if let gem = await fetchLegacyFact(commonName: com, scientificName: sci, family: fam) {
             let g = gem.trimmingCharacters(in: .whitespacesAndNewlines.union(.newlines))
             if !g.isEmpty { return clampNarrativeLine(g) }
         }
@@ -1048,54 +1060,6 @@ enum BotanyService {
         return out
     }
 
-    private struct GeminiCulturalLegacyOnly: Decodable {
-        let cultural_legacy: String?
-    }
-
-    private static func geminiCulturalLegacyFact(commonName: String, scientificName: String, family: String) async -> String? {
-        guard let endpoint = GeminiConfig.generateContentURL() else { return nil }
-        var request = URLRequest(url: endpoint)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 18
-        let prompt = """
-        Return ONLY valid JSON (no markdown, no code fences). Single key "cultural_legacy": one engaging sentence (<=220 chars) about cultural, historical, or everyday significance of this plant for a general audience. No medical claims.
-        Species: \(scientificName)
-        Common name: \(commonName)
-        Family: \(family)
-        """
-        let userTurn: [String: Any] = [
-            "role": "user",
-            "parts": [["text": prompt] as [String: Any]],
-        ]
-        let body: [String: Any] = ["contents": [userTurn]]
-        guard let payload = try? JSONSerialization.data(withJSONObject: body) else { return nil }
-        request.httpBody = payload
-        let configuration = URLSessionConfiguration.ephemeral
-        configuration.timeoutIntervalForRequest = 18
-        configuration.timeoutIntervalForResource = 22
-        let session = URLSession(configuration: configuration)
-        let data: Data
-        let response: URLResponse
-        do {
-            (data, response) = try await session.data(for: request)
-        } catch {
-            return nil
-        }
-        guard let http = response as? HTTPURLResponse, (200 ... 299).contains(http.statusCode) else { return nil }
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let candidates = json["candidates"] as? [[String: Any]],
-              let content = candidates.first?["content"] as? [String: Any],
-              let parts = content["parts"] as? [[String: Any]],
-              let text = parts.first?["text"] as? String
-        else { return nil }
-        guard let normalized = normalizedJSONObjectString(from: text),
-              let raw = normalized.data(using: .utf8),
-              let decoded = try? JSONDecoder().decode(GeminiCulturalLegacyOnly.self, from: raw)
-        else { return nil }
-        return decoded.cultural_legacy
-    }
-
     /// Decodes top-level `IdentifyPlantJSON` or common wrapper objects from edge functions.
     private static func decodeIdentifyPlantJSON(from data: Data) throws -> IdentifyPlantJSON {
         if let v = try? JSONDecoder().decode(IdentifyPlantJSON.self, from: data) {
@@ -1130,208 +1094,70 @@ enum BotanyService {
         return "\(commonName): \(w!)."
     }
 
-    private static func geminiNarrative(
-        commonName: String,
-        scientificName: String,
-        family: String,
-        originCountry: String
-    ) async -> GeminiNarrative? {
-        guard let endpoint = GeminiConfig.generateContentURL() else { return nil }
-        var request = URLRequest(url: endpoint)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 30
-        let prompt = """
-        Return ONLY valid JSON (no markdown, no explanations, no code fences).
-        Required keys:
-        - origin
-        - botanical_spirit
-        - ethnobotany
-        - cultural_legacy
-        - colors
-        Rules:
-        - origin: short location string (country or region)
-        - botanical_spirit / ethnobotany / cultural_legacy: each <= 220 chars
-        - colors: array with exactly 3 hex values in #RRGGBB format
-        Species: \(scientificName)
-        Common name: \(commonName)
-        Family: \(family)
-        Origin: \(originCountry)
-        """
-        let userTurn: [String: Any] = [
-            "role": "user",
-            "parts": [
-                ["text": prompt] as [String: Any],
-            ],
-        ]
-        let body: [String: Any] = ["contents": [userTurn]]
-        guard let payload = try? JSONSerialization.data(withJSONObject: body) else { return nil }
-        request.httpBody = payload
-
-        let configuration = URLSessionConfiguration.ephemeral
-        configuration.timeoutIntervalForRequest = 30
-        configuration.timeoutIntervalForResource = 45
-        configuration.waitsForConnectivity = true
-        let session = URLSession(configuration: configuration)
-
-        let data: Data
-        let response: URLResponse
-        do {
-            (data, response) = try await session.data(for: request)
-        } catch {
-            #if DEBUG
-            print("[Gemini Error] \(error.localizedDescription)")
-            #endif
-            return nil
-        }
-        guard let http = response as? HTTPURLResponse, (200 ... 299).contains(http.statusCode) else {
-            #if DEBUG
-            let code = (response as? HTTPURLResponse)?.statusCode ?? -1
-            let rawBody = String(data: data, encoding: .utf8) ?? "<non-utf8>"
-            print("[Gemini HTTP \(code)] \(rawBody.prefix(500))")
-            if code == 429 {
-                print("[Gemini] 429 = free-tier quota; OpenRouter is used first when configured.")
-            }
-            #endif
-            return nil
-        }
-        #if DEBUG
-        let rawBody = String(data: data, encoding: .utf8) ?? "<non-utf8>"
-        print("[Gemini RAW Response] \(rawBody.prefix(800))")
-        #endif
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let candidates = json["candidates"] as? [[String: Any]],
-              let content = candidates.first?["content"] as? [String: Any],
-              let parts = content["parts"] as? [[String: Any]],
-              let text = parts.first?["text"] as? String
-        else { return nil }
-
-        #if DEBUG
-        print("[Gemini Text Payload] \(text.prefix(400))")
-        #endif
-
-        guard let normalized = normalizedJSONObjectString(from: text),
-              let raw = normalized.data(using: .utf8)
-        else { return nil }
-        return try? JSONDecoder().decode(GeminiNarrative.self, from: raw)
-    }
-
-    private static func normalizedJSONObjectString(from text: String) -> String? {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        let withoutFence: String
-        if trimmed.hasPrefix("```") {
-            withoutFence = trimmed
-                .replacingOccurrences(of: "```json", with: "")
-                .replacingOccurrences(of: "```JSON", with: "")
-                .replacingOccurrences(of: "```", with: "")
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-        } else {
-            withoutFence = trimmed
-        }
-
-        guard let start = withoutFence.firstIndex(of: "{"),
-              let end = withoutFence.lastIndex(of: "}")
-        else { return nil }
-        return String(withoutFence[start ... end])
-    }
-
-    private static func openRouterNarrative(
+    /// Cultural/historical narrative, generated server-side by the `narrate-plant` edge function
+    /// (same free-tier-conscious OpenRouter-free → Gemini-direct order the client used to do itself).
+    private static func fetchNarrative(
         commonName: String,
         scientificName: String,
         family: String,
         originCountry: String,
         useFallbackPrompt: Bool
     ) async -> GeminiNarrative? {
-        guard let key = OpenRouterConfig.apiKey, let endpoint = OpenRouterConfig.endpoint else { return nil }
+        guard let endpoint = LeafIDSupabaseConfig.narrateEndpoint, let anon = LeafIDSupabaseConfig.anonKey else { return nil }
         var request = URLRequest(url: endpoint)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
-        request.timeoutInterval = 6
-
-        let prompt = narrativeJSONPrompt(
-            commonName: commonName,
-            scientificName: scientificName,
-            family: family,
-            originCountry: originCountry,
-            useFallbackPrompt: useFallbackPrompt
-        )
+        request.setValue("Bearer \(anon)", forHTTPHeaderField: "Authorization")
+        request.setValue(anon, forHTTPHeaderField: "apikey")
+        request.timeoutInterval = 20
         let body: [String: Any] = [
-            "model": "openrouter/free",
-            "messages": [
-                ["role": "user", "content": prompt],
-            ],
-            "temperature": 0.6,
+            "commonName": commonName,
+            "scientificName": scientificName,
+            "family": family,
+            "originCountry": originCountry,
+            "useFallbackPrompt": useFallbackPrompt,
         ]
         guard let payload = try? JSONSerialization.data(withJSONObject: body) else { return nil }
         request.httpBody = payload
 
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            if let http = response as? HTTPURLResponse, http.statusCode == 429 { return nil }
-            #if DEBUG
-            print("[OpenRouter RAW Response] \(String(data: data, encoding: .utf8) ?? "<non-utf8>")")
-            #endif
-            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let choices = json["choices"] as? [[String: Any]],
-                  let message = choices.first?["message"] as? [String: Any],
-                  let text = message["content"] as? String,
-                  let normalized = normalizedJSONObjectString(from: text),
-                  let raw = normalized.data(using: .utf8)
-            else { return nil }
-            #if DEBUG
-            print("[OpenRouter Text Payload] \(text)")
-            #endif
-            return try? JSONDecoder().decode(GeminiNarrative.self, from: raw)
+            guard let http = response as? HTTPURLResponse, (200 ... 299).contains(http.statusCode) else { return nil }
+            return try? JSONDecoder().decode(GeminiNarrative.self, from: data)
         } catch {
             #if DEBUG
-            print("[OpenRouter Error] \(error.localizedDescription)")
+            print("[narrate-plant Error] \(error.localizedDescription)")
             #endif
             return nil
         }
     }
 
-    private static func narrativeJSONPrompt(
-        commonName: String,
-        scientificName: String,
-        family: String,
-        originCountry: String,
-        useFallbackPrompt: Bool
-    ) -> String {
-        if useFallbackPrompt {
-            return """
-            Return ONLY valid JSON (no markdown, no explanations, no code fences).
-            Required keys:
-            - origin
-            - botanical_spirit
-            - ethnobotany
-            - cultural_legacy
-            - colors
-            Rules:
-            - Write about a mysterious plant found in nature (generic, poetic, grounded).
-            - Never use the words "under review" or "unknown".
-            - origin: short location string (country or region)
-            - botanical_spirit / ethnobotany / cultural_legacy: each <= 220 chars
-            - colors: array with exactly 3 hex values in #RRGGBB format
-            """
+    /// Single historical/mythological/artistic fact for legacy scans missing cultural content —
+    /// same edge function as `fetchNarrative`, `mode: "legacy_fact"` swaps in the narrower prompt.
+    private static func fetchLegacyFact(commonName: String, scientificName: String, family: String) async -> String? {
+        guard let endpoint = LeafIDSupabaseConfig.narrateEndpoint, let anon = LeafIDSupabaseConfig.anonKey else { return nil }
+        var request = URLRequest(url: endpoint)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(anon)", forHTTPHeaderField: "Authorization")
+        request.setValue(anon, forHTTPHeaderField: "apikey")
+        request.timeoutInterval = 18
+        let body: [String: Any] = [
+            "commonName": commonName,
+            "scientificName": scientificName,
+            "family": family,
+            "mode": "legacy_fact",
+        ]
+        guard let payload = try? JSONSerialization.data(withJSONObject: body) else { return nil }
+        request.httpBody = payload
+
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let http = response as? HTTPURLResponse, (200 ... 299).contains(http.statusCode) else { return nil }
+            return try? JSONDecoder().decode(GeminiNarrative.self, from: data).cultural_legacy
+        } catch {
+            return nil
         }
-        return """
-        Return ONLY valid JSON (no markdown, no explanations, no code fences).
-        Required keys:
-        - origin
-        - botanical_spirit
-        - ethnobotany
-        - cultural_legacy
-        - colors
-        Rules:
-        - origin: short location string (country or region)
-        - botanical_spirit / ethnobotany / cultural_legacy: each <= 220 chars
-        - colors: array with exactly 3 hex values in #RRGGBB format
-        Species: \(scientificName)
-        Common name: \(commonName)
-        Family: \(family)
-        Origin: \(originCountry)
-        """
     }
 
     #if canImport(UIKit)
@@ -1391,19 +1217,6 @@ enum BotanyService {
         return Array(merged.prefix(3))
     }
 
-    private static func combinedAIPalette(primary: GeminiNarrative?, secondary: GeminiNarrative?) -> [String] {
-        let p1 = (primary?.colors ?? primary?.palette_hexes ?? [])
-        let p2 = (secondary?.colors ?? secondary?.palette_hexes ?? [])
-        return p1 + p2
-    }
-
-    private static func hasMissingNarrativeFields(_ narrative: GeminiNarrative?) -> Bool {
-        guard let narrative else { return true }
-        return firstMeaningful(narrative.botanical_spirit) == nil
-            || firstMeaningful(narrative.ethnobotany) == nil
-            || firstMeaningful(narrative.cultural_legacy) == nil
-    }
-
     private static func firstMeaningful(_ values: String?...) -> String? {
         for v in values {
             let t = v?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -1442,11 +1255,12 @@ enum BotanyService {
         ]
         var lines: [String] = []
         for s in samples {
-            let res = await geminiNarrative(
+            let res = await fetchNarrative(
                 commonName: s.common,
                 scientificName: s.scientific,
                 family: s.family,
-                originCountry: s.origin
+                originCountry: s.origin,
+                useFallbackPrompt: false
             )
             let origin = normalizedOrigin(res?.origin) ?? normalizedOrigin(res?.origin_country) ?? "-"
             let spirit = (res?.botanical_spirit ?? "-").prefix(48)
@@ -1572,11 +1386,15 @@ enum BotanyService {
     #endif
 
     #if canImport(UIKit) && canImport(CoreLocation)
+    /// Reverse-geocodes the capture point and patches `locality`/`location` onto the saved scan —
+    /// locally right away, and (when Preserve is configured) back to Supabase via PostgREST, so it
+    /// survives the next `hydrateFromSupabase` wholesale refresh instead of silently reverting.
     private static func scheduleReverseGeocodeForCaptureLocation(
         scanId: UUID,
         latitude: Double,
         longitude: Double,
-        herbarium: HerbariumViewModel
+        herbarium: HerbariumViewModel,
+        accessToken: String?
     ) {
         let geocoder = CLGeocoder()
         let location = CLLocation(latitude: latitude, longitude: longitude)
@@ -1598,13 +1416,29 @@ enum BotanyService {
                 return nil
             }()
             guard !line.isEmpty || localityName != nil else { return }
-            DispatchQueue.main.async {
+            Task { @MainActor in
+                var patchedLocality: String?
+                var patchedLocation: String?
                 herbarium.patchPreservedScan(id: scanId) { scan in
-                    if scan.locality == nil, let loc = localityName { scan.locality = loc }
+                    if scan.locality == nil, let loc = localityName {
+                        scan.locality = loc
+                        patchedLocality = loc
+                    }
                     guard !line.isEmpty else { return }
                     guard BotanyService.isWeakCaptureLocationString(scan.location) else { return }
                     scan.location = line
+                    patchedLocation = line
                 }
+                guard let token = accessToken, patchedLocality != nil || patchedLocation != nil else { return }
+                var columns: [String: Any] = [:]
+                if let patchedLocality { columns["locality"] = patchedLocality }
+                if let patchedLocation { columns["location"] = patchedLocation }
+                let ok = await patchScanColumnsRest(scanId: scanId, accessToken: token, columns: columns)
+                #if DEBUG
+                if !ok {
+                    print("[LeafID][scans][patch] locality/location patch failed scanId=\(scanId.uuidString)")
+                }
+                #endif
             }
         }
     }
@@ -1712,6 +1546,23 @@ enum BotanyService {
         }
     }
 
+    /// Sibling of the raw capture — never overwrites `writeCaptureJPEG`'s file.
+    private static func writeCardImageJPEG(_ data: Data, scanId: UUID) -> URL? {
+        guard !data.isEmpty else { return nil }
+        guard let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        let captures = dir.appendingPathComponent("captures", isDirectory: true)
+        do {
+            try FileManager.default.createDirectory(at: captures, withIntermediateDirectories: true)
+            let url = captures.appendingPathComponent("\(scanId.uuidString)_card.jpg")
+            try data.write(to: url, options: .atomic)
+            return url
+        } catch {
+            return nil
+        }
+    }
+
     // MARK: - Supabase Preserve (Storage `plant-images` + `public.scans` via PostgREST)
 
     /// When `false`, PostgREST inserts omit `latitude` / `longitude` / `locality` so inserts succeed if those columns are not migrated yet. Set to `true` after adding nullable columns on `public.scans`.
@@ -1785,17 +1636,21 @@ enum BotanyService {
         }
     }
 
-    /// Uploads JPEG to `plant-images/{userId}/{scanId}.jpg` and returns the **public** object URL for `scans.photo_url`.
+    /// Uploads JPEG to `plant-images/{userId}/{scanId}{suffix}.jpg` and returns the **public** object
+    /// URL. `suffix` defaults to `""` (the raw capture, `scans.photo_url`); pass `"_card"` for the
+    /// derived Botanical Card hero image (`scans.card_image_url`) — same bucket, same owner-scoped
+    /// RLS policy (keyed on the `{userId}/` path prefix, unaffected by the filename).
     private static func uploadJPEGToPlantImagesBucket(
         jpegData: Data,
         scanId: UUID,
         userId: UUID,
-        accessToken: String
+        accessToken: String,
+        suffix: String = ""
     ) async -> String? {
         guard let root = supabaseProjectRootURLString(), let anon = LeafIDSupabaseConfig.anonKey else { return nil }
         guard !jpegData.isEmpty else { return nil }
         let owner = userId.uuidString.lowercased()
-        let fileName = "\(scanId.uuidString.lowercased()).jpg"
+        let fileName = "\(scanId.uuidString.lowercased())\(suffix).jpg"
         let objectPath = "\(owner)/\(fileName)"
         let encodedPath = objectPath.split(separator: "/")
             .map { String($0).addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? String($0) }
@@ -1880,6 +1735,14 @@ enum BotanyService {
 
         guard let body = try? JSONSerialization.data(withJSONObject: [row]) else { return false }
 
+        #if DEBUG
+        let prettyBody = (try? JSONSerialization.data(withJSONObject: [row], options: [.prettyPrinted, .sortedKeys]))
+            .flatMap { String(data: $0, encoding: .utf8) } ?? "<unavailable>"
+        print("[LeafID][scans][insert] POST \(url.absoluteString)")
+        print("[LeafID][scans][insert] columns: \(row.keys.sorted())")
+        print("[LeafID][scans][insert] JSON:\n\(prettyBody)")
+        #endif
+
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
@@ -1895,22 +1758,248 @@ enum BotanyService {
 
         do {
             let (data, response) = try await session.data(for: request)
-            guard let http = response as? HTTPURLResponse else { return false }
+            guard let http = response as? HTTPURLResponse else {
+                #if DEBUG
+                print("[LeafID][scans][insert] non-HTTP response; aborting")
+                #endif
+                return false
+            }
             if (200 ... 299).contains(http.statusCode) {
+                #if DEBUG
+                print("[LeafID][scans][insert] HTTP \(http.statusCode) OK id=\(scan.id.uuidString)")
+                #endif
                 return true
             }
             #if DEBUG
-            let msg = String(data: data, encoding: .utf8) ?? ""
-            print("[LeafID] scans insert HTTP \(http.statusCode): \(msg)")
+            logScansInsertFailure(statusCode: http.statusCode, data: data, scanId: scan.id)
             #endif
             return false
         } catch {
             #if DEBUG
-            print("[LeafID] scans insert error: \(error.localizedDescription)")
+            print("[LeafID][scans][insert] network error id=\(scan.id.uuidString): \(error.localizedDescription)")
             #endif
             return false
         }
     }
+
+    #if DEBUG
+    /// Pretty-prints the PostgREST error envelope (`{ code, message, details, hint }`)
+    /// and adds a quick diagnostic hint for the most common failure codes seen on
+    /// `public.scans` inserts (RLS denial, schema-cache drift, FK violation, auth).
+    private static func logScansInsertFailure(statusCode: Int, data: Data, scanId: UUID) {
+        let raw = String(data: data, encoding: .utf8) ?? ""
+        print("[LeafID][scans][insert] HTTP \(statusCode) FAIL id=\(scanId.uuidString)")
+        print("[LeafID][scans][insert] body: \(raw)")
+
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
+        let code = json["code"] as? String ?? ""
+        let message = json["message"] as? String ?? ""
+        let details = json["details"] as? String ?? ""
+        let hint = json["hint"] as? String ?? ""
+        if !code.isEmpty || !message.isEmpty {
+            print("[LeafID][scans][insert] postgREST code=\(code) message=\(message) details=\(details) hint=\(hint)")
+        }
+
+        let diagnostic: String?
+        switch (statusCode, code) {
+        case (401, _):
+            diagnostic = "401: missing/expired JWT — re-auth and retry."
+        case (403, _), (_, "42501"):
+            diagnostic = "RLS denied: `auth.uid() = user_id` on policy `scans_insert_own` failed. Confirm Scan.userId matches the signed-in user's id."
+        case (_, "PGRST204"):
+            diagnostic = "PGRST204: column missing in PostgREST schema cache — Swift payload lists a column the live `public.scans` does not have."
+        case (_, "23502"):
+            diagnostic = "23502: NOT NULL violation — a required column was sent as null."
+        case (_, "23503"):
+            diagnostic = "23503: FK violation — likely `user_id` not found in `auth.users` (stale/cached auth?)."
+        case (_, "23505"):
+            diagnostic = "23505: unique violation — `id` already exists in `public.scans`."
+        case (_, "22P02"):
+            diagnostic = "22P02: invalid type cast — likely a uuid/text mismatch (e.g. `tree_id`)."
+        default:
+            diagnostic = nil
+        }
+        if let diagnostic { print("[LeafID][scans][insert] hint -> \(diagnostic)") }
+    }
+    #endif
+
+    // MARK: - Generic PATCH (used by card-image generation + reverse-geocode locality fix)
+
+    /// Patches arbitrary columns on an existing `public.scans` row via PostgREST, using the user's
+    /// JWT so RLS `using (auth.uid() = user_id)` succeeds. Returns `true` on 2xx.
+    private static func patchScanColumnsRest(scanId: UUID, accessToken: String, columns: [String: Any]) async -> Bool {
+        guard let root = supabaseProjectRootURLString(), let anon = LeafIDSupabaseConfig.anonKey else { return false }
+        guard !columns.isEmpty else { return false }
+        var components = URLComponents(string: "\(root)/rest/v1/scans")
+        components?.queryItems = [URLQueryItem(name: "id", value: "eq.\(scanId.uuidString)")]
+        guard let url = components?.url else { return false }
+        guard let body = try? JSONSerialization.data(withJSONObject: columns) else { return false }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue(anon, forHTTPHeaderField: "apikey")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("return=minimal", forHTTPHeaderField: "Prefer")
+        request.httpBody = body
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.timeoutIntervalForRequest = 30
+        configuration.timeoutIntervalForResource = 45
+        let session = URLSession(configuration: configuration)
+
+        do {
+            let (data, response) = try await session.data(for: request)
+            guard let http = response as? HTTPURLResponse else { return false }
+            if (200 ... 299).contains(http.statusCode) {
+                #if DEBUG
+                print("[LeafID][scans][patch] HTTP \(http.statusCode) OK id=\(scanId.uuidString) columns=\(columns.keys.sorted())")
+                #endif
+                return true
+            }
+            #if DEBUG
+            let msg = String(data: data, encoding: .utf8) ?? ""
+            print("[LeafID][scans][patch] HTTP \(http.statusCode) FAIL id=\(scanId.uuidString) columns=\(columns.keys.sorted()) body=\(msg)")
+            #endif
+            return false
+        } catch {
+            #if DEBUG
+            print("[LeafID][scans][patch] network error id=\(scanId.uuidString): \(error.localizedDescription)")
+            #endif
+            return false
+        }
+    }
+
+    // MARK: - Botanical Card auto-processing (crop + level + brand grade; see BotanicalCardImageProcessor)
+
+    #if canImport(UIKit) && canImport(CoreImage) && canImport(Vision)
+    /// In-flight guard so a row and the immersive card mounting concurrently for the same scan
+    /// don't both kick off processing. Main-actor isolated — only ever touched from `ensureCardImageIfNeeded`.
+    @MainActor
+    private static var cardImageGenerationInFlight = Set<UUID>()
+
+    /// Fire-and-forget, called from `saveUserCapture` right after the scan is appended — never blocks
+    /// the Save button. Mirrors `scheduleReverseGeocodeForCaptureLocation`'s shape.
+    private static func scheduleCardImageGeneration(
+        scanId: UUID,
+        sourceJPEGData: Data,
+        userId: UUID?,
+        accessToken: String?,
+        herbarium: HerbariumViewModel
+    ) {
+        guard isCardImageProcessingEnabled else { return }
+        Task.detached(priority: .utility) {
+            await generateAndPersistCardImage(
+                scanId: scanId,
+                sourceJPEGData: sourceJPEGData,
+                userId: userId,
+                accessToken: accessToken,
+                herbarium: herbarium
+            )
+        }
+    }
+
+    /// Runs the CoreImage/Vision pipeline, writes the derived JPEG locally, uploads it (Preserve
+    /// configured + authenticated), and patches both the in-memory scan and — critically — the
+    /// remote row, so it survives the next `hydrateFromSupabase` wholesale refresh.
+    private static func generateAndPersistCardImage(
+        scanId: UUID,
+        sourceJPEGData: Data,
+        userId: UUID?,
+        accessToken: String?,
+        herbarium: HerbariumViewModel
+    ) async {
+        guard let processedData = BotanicalCardImageProcessor.makeCardImageJPEG(from: sourceJPEGData) else {
+            #if DEBUG
+            print("[LeafID][cardimage] processing failed scanId=\(scanId.uuidString)")
+            #endif
+            return
+        }
+        guard let localURL = writeCardImageJPEG(processedData, scanId: scanId) else {
+            #if DEBUG
+            print("[LeafID][cardimage] local write failed scanId=\(scanId.uuidString)")
+            #endif
+            return
+        }
+
+        var resolvedCardImageURL = localURL.absoluteString
+        await herbarium.patchPreservedScan(id: scanId) { scan in
+            scan.cardImageURL = resolvedCardImageURL
+        }
+
+        guard isSupabasePreserveConfigured, let token = accessToken, let ownerId = userId else {
+            #if DEBUG
+            print("[LeafID][cardimage] generated locally only (Preserve not configured/authenticated) scanId=\(scanId.uuidString)")
+            #endif
+            return
+        }
+        guard let publicURL = await uploadJPEGToPlantImagesBucket(
+            jpegData: processedData,
+            scanId: scanId,
+            userId: ownerId,
+            accessToken: token,
+            suffix: "_card"
+        ) else {
+            #if DEBUG
+            print("[LeafID][cardimage] Storage upload failed; keeping local card image scanId=\(scanId.uuidString)")
+            #endif
+            return
+        }
+        resolvedCardImageURL = publicURL
+        await herbarium.patchPreservedScan(id: scanId) { scan in
+            scan.cardImageURL = resolvedCardImageURL
+        }
+        let patched = await patchScanColumnsRest(
+            scanId: scanId,
+            accessToken: token,
+            columns: ["card_image_url": resolvedCardImageURL]
+        )
+        #if DEBUG
+        print("[LeafID][cardimage] \(patched ? "generated + patched" : "generated, remote patch FAILED") scanId=\(scanId.uuidString)")
+        #endif
+    }
+
+    /// Lazily backfills `cardImageURL` for a scan saved before this feature shipped (or where
+    /// generation hasn't landed yet). No-ops if already present or already in flight — safe to call
+    /// from `.task`/`.onAppear` on every row/card render.
+    @MainActor
+    static func ensureCardImageIfNeeded(for scan: Scan, herbarium: HerbariumViewModel, auth: AuthViewModel) async {
+        guard isCardImageProcessingEnabled else { return }
+        guard scan.cardImageURL == nil else { return }
+        guard !cardImageGenerationInFlight.contains(scan.id) else { return }
+        cardImageGenerationInFlight.insert(scan.id)
+        defer { cardImageGenerationInFlight.remove(scan.id) }
+
+        guard let sourceData = await sourceJPEGDataForCardGeneration(scan: scan) else { return }
+        await generateAndPersistCardImage(
+            scanId: scan.id,
+            sourceJPEGData: sourceData,
+            userId: scan.userId ?? auth.supabaseUserId,
+            accessToken: auth.supabaseAccessToken,
+            herbarium: herbarium
+        )
+    }
+
+    /// Local capture file first (no network); falls back to downloading `photoURL` when only a
+    /// remote copy exists (e.g. a scan preserved from another device).
+    private static func sourceJPEGDataForCardGeneration(scan: Scan) async -> Data? {
+        if let localURL = scan.resolvedLocalCaptureURL,
+           let data = try? Data(contentsOf: localURL), !data.isEmpty
+        {
+            return data
+        }
+        guard let remoteURL = scan.resolvedRemoteImageURL else { return nil }
+        do {
+            let (data, response) = try await URLSession.shared.data(from: remoteURL)
+            guard let http = response as? HTTPURLResponse, (200 ... 299).contains(http.statusCode), !data.isEmpty else {
+                return nil
+            }
+            return data
+        } catch {
+            return nil
+        }
+    }
+    #endif
 }
 
 private extension String {

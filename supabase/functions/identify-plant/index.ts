@@ -454,13 +454,11 @@ serve(async (req) => {
   try {
     const { image } = await req.json()
     const plantNetApiKey = Deno.env.get('PLANTNET_API_KEY')
-    const plantIdApiKey = Deno.env.get('PLANT_ID_API_KEY')
-    const openRouterApiKey = Deno.env.get('OPENROUTER_API_KEY')
     const geminiDirectApiKey = Deno.env.get('GEMINI_API_KEY')
 
     if (!image) throw new Error('No image provided')
-    if (!plantNetApiKey && !plantIdApiKey && !openRouterApiKey) {
-      throw new ProviderError("Missing provider keys: PLANTNET_API_KEY, PLANT_ID_API_KEY, OPENROUTER_API_KEY", "missing_all_provider_keys", false)
+    if (!plantNetApiKey && !geminiDirectApiKey) {
+      throw new ProviderError("Missing provider keys: PLANTNET_API_KEY, GEMINI_API_KEY", "missing_all_provider_keys", false)
     }
 
     const base64Data = image.includes(',') ? image.split(',')[1] : image
@@ -468,6 +466,10 @@ serve(async (req) => {
     let lastTechnicalError = "No provider attempted"
     let lastTechnicalCode = "no_attempt"
 
+    // Plant.id and the OpenRouter paid vision model (google/gemini-2.0-flash-001, no :free route) were
+    // dropped from the active chain per ADR-0004 — neither has a real free tier, undermining a
+    // free-tier-only cost goal. identifyWithPlantId/identifyWithOpenRouterVision are kept below,
+    // unused, in case accuracy on hard photos turns out to need them back — re-add to `providers` if so.
     const providers: Array<{
       name: ProviderName
       apiKey?: string
@@ -483,25 +485,11 @@ serve(async (req) => {
         logLabel: "Pl@ntNet (principal)",
       },
       {
-        name: "plant.id",
-        apiKey: plantIdApiKey ?? undefined,
-        missingKeyCode: "missing_plantid_key",
-        run: identifyWithPlantId,
-        logLabel: "Plant.id (fallback 1)",
-      },
-      {
-        name: "openrouter-gemini",
-        apiKey: openRouterApiKey ?? undefined,
-        missingKeyCode: "missing_openrouter_key",
-        run: identifyWithOpenRouterVision,
-        logLabel: "OpenRouter/Gemini (fallback 2)",
-      },
-      {
         name: "gemini-direct",
         apiKey: geminiDirectApiKey ?? undefined,
         missingKeyCode: "missing_gemini_direct_key",
         run: identifyWithGeminiDirect,
-        logLabel: "Gemini Direct (fallback 3)",
+        logLabel: "Gemini Direct (fallback)",
       },
     ]
 

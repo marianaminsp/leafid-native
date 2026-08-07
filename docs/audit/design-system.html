@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LeafID — Design System Audit</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+  --primary:#93BC10; --primary-container:#8DC104;
+  --surface:#0B0F08; --surface-container-low:#10150C; --surface-container-high:#1C2116; --surface-container-highest:#22281C;
+  --on-surface:#F2F5E7; --on-surface-variant:#A9ADA0; --on-primary:#121212; --on-primary-container:#253600;
+  --outline-variant:#45493F; --chrome-highlight:#FFFFFF; --caution:#F5A623; --error:#FF453A;
+  --scanner-rogue-1:#A7DA49; --scanner-rogue-2:#8DBE2E; --accentcolor-asset:#649219;
+
+  --page-bg:#08090a; --panel-bg:#111312; --panel-border:#22251f;
+  --ink:#e9ece4; --ink-dim:#9a9d92; --accent:#93BC10;
+  --tag-live:#3a6b1c; --tag-live-fg:#c9f27a;
+  --tag-dead:#5a2323; --tag-dead-fg:#ffb4b0;
+  --tag-warn:#5a4a1a; --tag-warn-fg:#f2d78a;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --rounded: ui-rounded, -apple-system, "SF Pro Rounded", var(--sans);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--page-bg);color:var(--ink);font-family:var(--sans);}
+body{padding-bottom:80px;}
+a{color:var(--accent);}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:4px;font-size:.92em;}
+.wrap{max-width:1320px;margin:0 auto;padding:0 28px;}
+header.hero{padding:56px 0 32px;border-bottom:1px solid var(--panel-border);}
+header.hero h1{font-size:34px;margin:0 0 8px;letter-spacing:-0.02em;}
+header.hero p.lede{font-size:16px;color:var(--ink-dim);max-width:780px;line-height:1.55;margin:0 0 20px;}
+.methodology{margin-top:22px;padding:16px 18px;background:var(--panel-bg);border:1px solid var(--panel-border);border-left:3px solid var(--accent);border-radius:10px;font-size:13.5px;color:var(--ink-dim);line-height:1.6;}
+.methodology b{color:var(--ink);}
+nav.jump{position:sticky;top:0;z-index:50;background:color-mix(in srgb, var(--page-bg) 88%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--panel-border);}
+nav.jump .wrap{display:flex;gap:4px;overflow-x:auto;padding:12px 28px;}
+nav.jump a{white-space:nowrap;font-size:13px;color:var(--ink-dim);text-decoration:none;padding:8px 12px;border-radius:8px;font-weight:600;}
+nav.jump a:hover{color:var(--ink);background:var(--panel-bg);}
+section.feature{padding:52px 0 8px;}
+section.feature h2{font-size:24px;margin:0 0 6px;}
+section.feature > p{color:var(--ink-dim);font-size:14px;margin:0 0 28px;max-width:780px;line-height:1.55;}
+.tag{font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:6px;text-transform:uppercase;white-space:nowrap;}
+.tag-live{background:var(--tag-live);color:var(--tag-live-fg);}
+.tag-dead{background:var(--tag-dead);color:var(--tag-dead-fg);}
+.tag-warn{background:var(--tag-warn);color:var(--tag-warn-fg);}
+
+/* colors */
+.swatch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+.swatch{border-radius:14px;overflow:hidden;border:1px solid var(--panel-border);background:var(--panel-bg);}
+.swatch .fill{height:70px;}
+.swatch .info{padding:10px 12px;}
+.swatch .name{font-size:13px;font-weight:700;}
+.swatch .hex{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--ink-dim);}
+.swatch .use{font-size:11px;color:var(--ink-dim);margin-top:4px;line-height:1.4;}
+
+/* type */
+.type-row{display:flex;align-items:baseline;gap:18px;padding:18px 0;border-bottom:1px solid var(--panel-border);}
+.type-row:last-child{border-bottom:none;}
+.type-row .meta{width:220px;flex-shrink:0;font-size:12px;color:var(--ink-dim);line-height:1.6;}
+.type-row .meta b{color:var(--ink);display:block;font-size:13px;}
+.type-sample{color:var(--on-surface);}
+
+/* spacing / radius bars */
+.scale-list{display:flex;flex-direction:column;gap:10px;}
+.scale-item{display:flex;align-items:center;gap:16px;}
+.scale-item .label{width:90px;font-size:12px;color:var(--ink-dim);font-family:ui-monospace,monospace;flex-shrink:0;}
+.scale-item .bar{height:18px;background:var(--primary);border-radius:4px;}
+.radius-grid{display:flex;gap:20px;flex-wrap:wrap;}
+.radius-item{text-align:center;}
+.radius-box{width:88px;height:88px;background:var(--surface-container-high);border:1px solid var(--outline-variant);margin-bottom:8px;}
+.radius-item span{font-size:11.5px;color:var(--ink-dim);font-family:ui-monospace,monospace;}
+.shadow-grid{display:flex;gap:28px;flex-wrap:wrap;}
+.shadow-item{text-align:center;}
+.shadow-box{width:120px;height:80px;background:var(--surface-container-high);border-radius:16px;margin-bottom:10px;}
+.shadow-item span{font-size:11.5px;color:var(--ink-dim);}
+
+/* components */
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;}
+.comp-card{background:var(--panel-bg);border:1px solid var(--panel-border);border-radius:14px;overflow:hidden;}
+.comp-preview{padding:26px 20px;display:flex;align-items:center;justify-content:center;background:var(--surface);min-height:90px;}
+.comp-body{padding:16px 18px 18px;border-top:1px solid var(--panel-border);}
+.comp-body .title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.comp-body h3{margin:0;font-size:15px;font-family:ui-monospace,monospace;}
+.comp-body .path{font-size:11px;color:var(--ink-dim);font-family:ui-monospace,monospace;margin-bottom:8px;}
+.comp-body .desc{font-size:12.5px;color:var(--ink);line-height:1.5;}
+.comp-body .usage{font-size:11.5px;color:var(--ink-dim);margin-top:8px;}
+
+/* consistency table */
+.issue{display:grid;grid-template-columns:130px 1fr;gap:18px;padding:16px 0;border-bottom:1px solid var(--panel-border);}
+.issue .sev{align-self:start;}
+.issue .body b{color:var(--ink);}
+.issue .body{font-size:13px;color:var(--ink-dim);line-height:1.6;}
+.issue .loc{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--accent);display:block;margin-top:4px;}
+
+footer.summary{margin-top:70px;padding:36px 0;border-top:1px solid var(--panel-border);}
+.stat-row{display:flex;gap:32px;flex-wrap:wrap;}
+.stat{min-width:120px;}
+.stat b{display:block;font-size:26px;color:var(--accent);}
+.stat span{font-size:12px;color:var(--ink-dim);}
+
+/* mini widgets for component previews */
+.mini-btn{background:var(--primary);color:var(--on-primary);font-weight:800;padding:12px 22px;border-radius:32px;font-size:14px;font-family:var(--rounded);}
+.mini-btn-gradient{background:linear-gradient(135deg,#93BC10,#1C2116);color:#fff;font-weight:800;padding:12px 22px;border-radius:32px;font-size:14px;}
+.mini-ghost{background:var(--surface-container-high);color:var(--on-surface);font-weight:700;padding:11px 20px;border-radius:32px;font-size:14px;border:1px solid rgba(255,255,255,.12);}
+.mini-circle{width:44px;height:44px;border-radius:50%;background:rgba(28,33,22,.7);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;}
+.mini-pill{display:inline-flex;padding:8px 14px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(147,188,16,.18);color:#c9f27a;border:1px solid rgba(147,188,16,.35);}
+.mini-card{background:var(--surface-container-low);border:1px solid rgba(69,73,63,.2);border-radius:20px;padding:14px;width:100%;max-width:220px;}
+.mini-toast{background:var(--surface-container-high);border:1px solid rgba(69,73,63,.3);border-radius:16px;padding:12px 16px;display:flex;gap:10px;align-items:center;font-size:12.5px;box-shadow:0 8px 20px rgba(0,0,0,.35);}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>LeafID — Design System Audit</h1>
+    <p class="lede">Every token and reusable component defined in the codebase, rendered from the real values in <code>Theme.swift</code> and <code>UI/System/</code> — plus a concrete list of where the app itself doesn't follow its own system.</p>
+    <div class="methodology">
+      <b>Source of truth:</b> <code>Theme.swift</code> states it's synced from <code>docs/ui-screens/design_system_build/code.html</code> (the original Tailwind spec). Fonts (Plus Jakarta Sans, Manrope) are referenced by PostScript name with a system-font fallback — <b>no font files are actually bundled in the target</b>, so every screen in the shipped app renders in the system font today, not the intended typeface. This page reproduces that same fallback behavior deliberately, so what you see here is what the app actually renders.
+    </div>
+  </div>
+</header>
+
+<nav class="jump">
+  <div class="wrap">
+    <a href="#colors">Colors</a>
+    <a href="#type">Typography</a>
+    <a href="#spacing">Spacing</a>
+    <a href="#radius">Radius &amp; shadow</a>
+    <a href="#components">Components</a>
+    <a href="#issues">Consistency issues</a>
+    <a href="#assets">Assets &amp; icons</a>
+    <a href="#summary">Summary</a>
+  </div>
+</nav>
+
+<!-- ============ COLORS ============ -->
+<section class="feature" id="colors">
+  <div class="wrap">
+    <h2>Color tokens</h2>
+    <p>Core palette from <code>LeafIDTheme</code>, <code>Theme.swift:47–72</code>. Dark-only — no light-mode variant exists anywhere in the codebase (no <code>@Environment(\.colorScheme)</code> branching found).</p>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="fill" style="background:#93BC10;"></div><div class="info"><div class="name">primary</div><div class="hex">#93BC10</div><div class="use">Brand green. CTAs, active states, accents.</div></div></div>
+      <div class="swatch"><div class="fill" style="background:#8DC104;"></div><div class="info"><div class="name">primaryContainer</div><div class="hex">#8DC104</div><div class="use">Tonal partner to primary; button gradients.</div></div></div>
+      <div class="swatch"><div class="fill" style="background:#0B0F08;"></div><div class="info"><div class="name">surface</div><div class="hex">#0B0F08</div><div class="use">App background, near-black.</div></div></div>
+      <div class="swatch"><div class="fill" style="background:#10150C;"></div><div class="info"><div class="name">surfaceContainerLow</div><div class="hex">#10150C</div><div class="use">Sheet backgrounds, empty-state cards.</div></div></div>
+      <div class="swatch"><div class="fill" style="background:#1C2116;"></div><div class="info"><div class="name">surfaceContainerHigh</div><div class="hex">#1C2116</div><div class="use">Cards, chips, tab bar fill.</div></div></div>
+      <div class="swatch"><div class="fill" style="background:#22281C;"></div><div class="info"><div class="name">surfaceContainerHighest</div><div class="hex">#22281C</div><div class="use">Google sign-in button fill.</div></div></div>
+      <div class="swatch"><div class="fill" style="background:#F2F5E7;"></div><div class="info"><div class="name">onSurface</div><div class="hex">#F2F5E7</div><div class="use">Primary text on dark surfaces.</div></div></div>
+      <div class="swatch"><div class="fill" style="background:#A9ADA0;"></div><div class="info"><div class="name">onSurfaceVariant</div><div class="hex">#A9ADA0</div><div class="use">Secondary / muted text.</div></div></div>
+      <div class="swatch"><div class="fill" style="background:#121212;"></div><div class="info"><div class="name">onPrimary</div><div class="hex">#121212</div><div class="use">Text/icons on solid primary fills.</div></div></div>
+      <div class="swatch"><div class="fill" style="background:#253600;"></div><div class="info"><div class="name">onPrimaryContainer</div><div class="hex">#253600</div><div class="use">Text on primaryContainer.</div></div></div>
+      <div class="swatch"><div class="fill" style="background:#45493F;"></div><div class="info"><div class="name">outlineVariant</div><div class="hex">#45493F</div><div class="use">Hairline borders (used at low opacity).</div></div></div>
+      <div class="swatch"><div class="fill" style="background:#F5A623;"></div><div class="info"><div class="name">caution</div><div class="hex">#F5A623</div><div class="use">Low-confidence badge, non-destructive warnings.</div></div></div>
+      <div class="swatch"><div class="fill" style="background:#FF453A;"></div><div class="info"><div class="name">error</div><div class="hex">#FF453A</div><div class="use">Validation/error copy.</div></div></div>
+      <div class="swatch"><div class="fill" style="background:#FFFFFF;"></div><div class="info"><div class="name">chromeHighlight</div><div class="hex">#FFFFFF</div><div class="use">Glass hairlines, reticle strokes.</div></div></div>
+    </div>
+
+    <h3 style="margin-top:36px;font-size:16px;">Legacy aliases <span class="tag tag-warn">smell</span></h3>
+    <p style="margin-top:6px;">Six more names in <code>Theme.swift:110–115</code> point at the same colors above under different names (<code>deepForest→surface</code>, <code>leafGreen→primary</code>, <code>deepGreen→surfaceContainerHigh</code>, <code>leafGreenAlt→primary</code>, <code>slateMuted→onSurfaceVariant</code>, <code>specimenField→surfaceContainerHigh@45%</code>). Harmless today, but two names per color makes future edits error-prone — a future rename of <code>primary</code> has to remember to also catch every <code>leafGreen</code>/<code>leafGreenAlt</code> call site.</p>
+
+    <h3 style="margin-top:36px;font-size:16px;">Colors that exist <em>outside</em> the token system</h3>
+    <div class="swatch-grid" style="margin-top:14px;">
+      <div class="swatch"><div class="fill" style="background:#A7DA49;"></div><div class="info"><div class="name">ScannerVisual.accentPrimary <span class="tag tag-warn">rogue</span></div><div class="hex">#A7DA49</div><div class="use">ScannerView.swift:23. Private enum, used 9× on that screen instead of <code>LeafIDTheme.primary</code>.</div></div></div>
+      <div class="swatch"><div class="fill" style="background:#8DBE2E;"></div><div class="info"><div class="name">ScannerVisual.accentPrimaryContainer <span class="tag tag-warn">rogue</span></div><div class="hex">#8DBE2E</div><div class="use">ScannerView.swift:25.</div></div></div>
+      <div class="swatch"><div class="fill" style="background:#649219;"></div><div class="info"><div class="name">AccentColor (asset catalog) <span class="tag tag-warn">rogue</span></div><div class="hex">≈#649219</div><div class="use">Assets.xcassets/AccentColor.colorset — a third, distinct green from either token above.</div></div></div>
+    </div>
+    <p style="margin-top:14px;">Three different "brand green" values exist in the shipped app today. None of the three match. The Scanner screen renders a visibly different accent than the rest of the app, and the system accent color (used by e.g. UIKit chrome, links in system sheets) matches neither.</p>
+  </div>
+</section>
+
+<!-- ============ TYPOGRAPHY ============ -->
+<section class="feature" id="type">
+  <div class="wrap">
+    <h2>Typography</h2>
+    <p>Two families are referenced by PostScript name in <code>LeafIDFont</code> (<code>Theme.swift:195–232</code>): <b>Plus Jakarta Sans</b> for headlines/titles, <b>Manrope</b> for body/labels. Sizes below are pulled from real call sites across the app, not an abstract scale — there is no central named scale beyond two constants (<code>boutiqueTitleSize=30</code>, <code>boutiqueSubtitleSize=16</code>); every other size is a magic number at the call site.</p>
+    <div class="methodology" style="margin-bottom:10px;">Rendering here in the system-font fallback — identical to what ships today, since neither font is bundled in the Xcode target.</div>
+
+    <div class="type-row"><div class="meta"><b>Display title</b>plusJakarta 34/bold<br>HomeView greeting, immersive card name</div><div class="type-sample" style="font-family:var(--rounded);font-weight:800;font-size:34px;letter-spacing:-.02em;">Good Morning</div></div>
+    <div class="type-row"><div class="meta"><b>Screen title</b>plusJakarta 30/bold<br>Tab headers (Herbarium, Druid, Arboretum)</div><div class="type-sample" style="font-family:var(--rounded);font-weight:800;font-size:30px;">Herbarium</div></div>
+    <div class="type-row"><div class="meta"><b>Card title</b>plusJakarta 22–28/bold<br>Result sheet scientific name</div><div class="type-sample" style="font-family:var(--rounded);font-weight:800;font-size:26px;font-style:italic;">Monstera deliciosa</div></div>
+    <div class="type-row"><div class="meta"><b>Subtitle</b>manrope 16/medium<br>boutiqueSubtitleSize — screen subheads</div><div class="type-sample" style="font-family:var(--sans);font-weight:500;font-size:16px;color:var(--ink-dim);">Ready to explore nature?</div></div>
+    <div class="type-row"><div class="meta"><b>Body</b>manrope 14–15/medium<br>Descriptions, narrative text</div><div class="type-sample" style="font-family:var(--sans);font-weight:500;font-size:15px;color:var(--ink);max-width:420px;">A climbing aroid known for its iconic fenestrated leaves, native to tropical rainforests.</div></div>
+    <div class="type-row"><div class="meta"><b>Label / eyebrow</b>manrope 10–11/bold, tracked<br>"LAST FOUND", "COLOUR SIGNATURE"</div><div class="type-sample" style="font-family:var(--sans);font-weight:800;font-size:10px;letter-spacing:.2em;color:var(--primary);text-transform:uppercase;">Botanical Spirit</div></div>
+    <div class="type-row"><div class="meta"><b>Caption / meta</b>manrope 10–12/medium, monospaced digits<br>GPS coordinates, hex values</div><div class="type-sample" style="font-family:ui-monospace,monospace;font-weight:500;font-size:12px;color:var(--ink-dim);">03°06&#39;S 60°01&#39;W</div></div>
+  </div>
+</section>
+
+<!-- ============ SPACING / RADIUS / SHADOW ============ -->
+<section class="feature" id="spacing">
+  <div class="wrap">
+    <h2>Spacing scale</h2>
+    <p><code>LeafIDTheme.space4…space32</code> — an ad hoc list (4, 6, 8, 10, 12, 14, 16, 20, 22, 24, 28, 32), not a clean geometric scale. <code>screenHorizontalPadding = 24</code> is the canonical screen gutter used everywhere.</p>
+    <div class="scale-list">
+      <div class="scale-item"><span class="label">space4</span><div class="bar" style="width:4px;"></div></div>
+      <div class="scale-item"><span class="label">space6</span><div class="bar" style="width:6px;"></div></div>
+      <div class="scale-item"><span class="label">space8</span><div class="bar" style="width:8px;"></div></div>
+      <div class="scale-item"><span class="label">space10</span><div class="bar" style="width:10px;"></div></div>
+      <div class="scale-item"><span class="label">space12</span><div class="bar" style="width:12px;"></div></div>
+      <div class="scale-item"><span class="label">space14</span><div class="bar" style="width:14px;"></div></div>
+      <div class="scale-item"><span class="label">space16</span><div class="bar" style="width:16px;"></div></div>
+      <div class="scale-item"><span class="label">space20</span><div class="bar" style="width:20px;"></div></div>
+      <div class="scale-item"><span class="label">space22</span><div class="bar" style="width:22px;"></div></div>
+      <div class="scale-item"><span class="label">space24 *gutter*</span><div class="bar" style="width:24px;background:var(--chrome-highlight);"></div></div>
+      <div class="scale-item"><span class="label">space28</span><div class="bar" style="width:28px;"></div></div>
+      <div class="scale-item"><span class="label">space32</span><div class="bar" style="width:32px;"></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="feature" id="radius">
+  <div class="wrap">
+    <h2>Corner radius &amp; shadow</h2>
+    <p>Four base radii, then re-aliased four more times (<code>radiusSpecimenThumb</code>, <code>radiusCompactCard</code>, <code>radiusStatTile</code>, <code>radiusPrimaryButton</code>) — three of those four aliases all just equal <code>CornerRadius.card</code> (32pt) under a different name.</p>
+    <div class="radius-grid">
+      <div class="radius-item"><div class="radius-box" style="border-radius:0px;"></div><span>flushEdge · 0</span></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:16px;"></div><span>radiusSpecimenThumb · 16</span></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:20px;"></div><span>resultsSheetTop · 20</span></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:32px;"></div><span>card · 32</span></div>
+      <div class="radius-item"><div class="radius-box" style="border-radius:48px;"></div><span>immersive · 48</span></div>
+    </div>
+    <h3 style="margin-top:34px;font-size:16px;">Shadows</h3>
+    <div class="shadow-grid" style="margin-top:14px;">
+      <div class="shadow-item"><div class="shadow-box" style="box-shadow:0 10px 24px rgba(0,0,0,.35);"></div><span>Card · r24 y10 · 35% opacity</span></div>
+      <div class="shadow-item"><div class="shadow-box" style="box-shadow:0 8px 16px rgba(0,0,0,.45);"></div><span>Button · r16 y8 · 45% opacity</span></div>
+      <div class="shadow-item"><div class="shadow-box" style="box-shadow:0 0 50px rgba(147,188,16,.3);"></div><span>Scan button glow · r50 · primary 30%</span></div>
+    </div>
+    <p style="margin-top:18px;">Animation is a single shared spring, <code>Animation.leafIDSpring</code> (response 0.45, damping 0.82) — but several components (ToastCenter, scan sweeps, card flips) define their own one-off <code>.spring</code>/<code>.easeInOut</code> durations instead of reusing it, so motion timing isn't fully consistent across the app.</p>
+  </div>
+</section>
+
+<!-- ============ COMPONENTS ============ -->
+<section class="feature" id="components">
+  <div class="wrap">
+    <h2>Component library <span style="font-size:13px;color:var(--ink-dim);font-weight:500;">20 files in UI/System/</span></h2>
+    <p>Usage counts are real reference counts across the codebase, not estimates. Four components are fully built and never used anywhere — including in the app's own internal style-guide screen.</p>
+    <div class="comp-grid">
+
+      <div class="comp-card">
+        <div class="comp-preview"><div class="mini-btn">Save to Herbarium</div></div>
+        <div class="comp-body"><div class="title-row"><h3>LeafPrimaryButton</h3><span class="tag tag-live">10 uses / 5 files</span></div><div class="path">UI/System/LeafPrimaryButton.swift</div><div class="desc">Primary CTA. <code>useSolidPrimaryFill</code> toggles solid <code>primary</code> vs. a leaf→deepGreen gradient fill; optional leading SF Symbol.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div class="mini-ghost">📷 Choose from library</div></div>
+        <div class="comp-body"><div class="title-row"><h3>SecondaryActionButton</h3><span class="tag tag-warn">1 use</span></div><div class="path">UI/System/SecondaryActionButton.swift</div><div class="desc">Outline-style CTA. Only referenced from the dead <code>IdentifyView</code> — effectively unused in the live app too.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview" style="gap:10px;"><div class="mini-circle">✕</div><div class="mini-circle">↑</div></div>
+        <div class="comp-body"><div class="title-row"><h3>GlassChromeCircleButton</h3><span class="tag tag-live">12 uses / 5 files</span></div><div class="path">UI/System/GlassChromeCircleButton.swift</div><div class="desc">Frosted-glass circular icon button — close/share/back controls across Scanner, ScanResults, and immersive card.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div class="mini-circle" style="border-radius:12px;width:32px;height:32px;">✕</div></div>
+        <div class="comp-body"><div class="title-row"><h3>ModalCloseButton</h3><span class="tag tag-live">1 use</span></div><div class="path">UI/System/ModalCloseButton.swift</div><div class="desc">Toolbar close control for sheets (Paywall, Foundry gate).</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div class="mini-pill">Loading…</div></div>
+        <div class="comp-body"><div class="title-row"><h3>StatusBadge</h3><span class="tag tag-dead">0 uses — dead</span></div><div class="path">UI/System/StatusBadge.swift</div><div class="desc">Built for loading/error/active states. Not called anywhere, not even in the internal design gallery.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div class="mini-pill" style="background:rgba(147,188,16,.2);">96% match</div></div>
+        <div class="comp-body"><div class="title-row"><h3>MatchConfidenceBadge</h3><span class="tag tag-live">5 uses / 3 files</span></div><div class="path">UI/System/MatchConfidenceBadge.swift</div><div class="desc">Two visual modes: compact chip (bento cards) vs. glass results-title pill (<code>useResultsTitle</code>).</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div class="mini-card" style="padding:0;"><div style="padding:16px;font-size:11px;color:var(--ink-dim);">GlassContainer</div></div></div>
+        <div class="comp-body"><div class="title-row"><h3>GlassContainer</h3><span class="tag tag-dead">0 uses — dead</span></div><div class="path">UI/System/GlassContainer.swift</div><div class="desc">Generic frosted card wrapper. Never called.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div class="mini-card" style="text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--primary);">128</div><div style="font-size:10px;color:var(--ink-dim);">Value</div></div></div>
+        <div class="comp-body"><div class="title-row"><h3>GlassStatTile</h3><span class="tag tag-dead">0 uses — dead</span></div><div class="path">UI/System/GlassStatTile.swift</div><div class="desc">Title/value stat tile. Never called — the app builds its own inline stat tiles instead (Druid achievements, Home).</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div style="width:14px;height:14px;border-radius:50%;background:var(--primary);border:2px solid #fff;box-shadow:0 0 0 3px rgba(147,188,16,.25);"></div></div>
+        <div class="comp-body"><div class="title-row"><h3>GreenDotMarker</h3><span class="tag tag-live">1 use</span></div><div class="path">UI/System/GreenDotMarker.swift</div><div class="desc">Arboretum map pin.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div class="mini-card" style="display:flex;gap:10px;align-items:center;"><div style="width:40px;height:40px;border-radius:10px;background:var(--surface-container-high);flex-shrink:0;"></div><div><div style="font-size:11px;font-weight:800;">Monstera</div><div style="font-size:9px;color:var(--ink-dim);">deliciosa</div></div></div></div>
+        <div class="comp-body"><div class="title-row"><h3>CompactSpecimenCard</h3><span class="tag tag-live">5 uses / 3 files</span></div><div class="path">UI/System/CompactSpecimenCard.swift</div><div class="desc">4 layout modes: <code>grid</code>, <code>mapPopup</code>, <code>lastFound</code>, <code>mapSpecimen</code> — one struct, several initializers.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div class="mini-card" style="display:flex;gap:10px;align-items:center;max-width:240px;"><div style="width:56px;height:56px;border-radius:14px;background:var(--surface-container-high);flex-shrink:0;"></div><div><div style="font-size:12px;font-weight:800;">Ficus lyrata</div><div style="font-size:10px;color:var(--ink-dim);">Fiddle-leaf fig</div></div></div></div>
+        <div class="comp-body"><div class="title-row"><h3>HerbariumSpecimenRowCard</h3><span class="tag tag-live">3 uses / 3 files</span></div><div class="path">UI/System/HerbariumSpecimenRowCard.swift</div><div class="desc">Herbarium list row; supports matched-geometry transition into the immersive card.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div class="mini-card"><div style="font-size:10px;color:var(--primary);font-weight:800;letter-spacing:.1em;">NEW DISCOVERY</div><div style="font-size:14px;font-weight:800;margin-top:4px;">Bento layout</div></div></div>
+        <div class="comp-body"><div class="title-row"><h3>BentoResultCard</h3><span class="tag tag-live">1 use</span></div><div class="path">UI/System/BentoResultCard.swift</div><div class="desc">Fixed layout, only used by ScanResultsView.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div style="text-align:center;"><div style="font-size:16px;font-weight:800;">The <span style="color:var(--primary);">Scan</span></div></div></div>
+        <div class="comp-body"><div class="title-row"><h3>BoutiqueHeader</h3><span class="tag tag-live">1 use</span></div><div class="path">UI/System/BoutiqueHeader.swift</div><div class="desc">Stacked/inline title with liquidGlass or homeStrip chrome variants. Only used by the dead <code>IdentifyView</code>.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div style="width:56px;height:56px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 24px rgba(147,188,16,.5);">📷</div></div>
+        <div class="comp-body"><div class="title-row"><h3>GalleryScanButton</h3><span class="tag tag-live">2 uses</span></div><div class="path">UI/System/GalleryScanButton.swift</div><div class="desc">The large scan-trigger circle on Home + the Foundry gallery.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div class="mini-pill" style="background:rgba(28,33,22,.7);color:#fff;border-color:rgba(255,255,255,.15);">● Scanning</div></div>
+        <div class="comp-body"><div class="title-row"><h3>GlassScanHeaderPill</h3><span class="tag tag-live">2 uses</span></div><div class="path">UI/System/GlassScanHeaderPill.swift</div><div class="desc">Title / status-dot / icon-only variants for scan-in-progress chrome.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div style="width:110px;height:150px;border:2px solid var(--scanner-rogue-1);border-radius:22px;"></div></div>
+        <div class="comp-body"><div class="title-row"><h3>ScanReticleFrame</h3><span class="tag tag-live">1 use</span></div><div class="path">UI/System/ScanReticleFrame.swift</div><div class="desc">Gallery-pulse vs. scanner-sweep variants; renders in the rogue Scanner accent, not the theme primary.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div style="width:160px;height:6px;border-radius:3px;background:rgba(255,255,255,.15);"><div style="width:65%;height:100%;border-radius:3px;background:var(--scanner-rogue-1);"></div></div></div>
+        <div class="comp-body"><div class="title-row"><h3>ScanningProgressBar / ScanningDensityProgress</h3><span class="tag tag-live">1–2 files</span></div><div class="path">UI/System/ScanningProgressBar.swift, ScanningDensityProgress.swift</div><div class="desc"><code>animating</code> flag / <code>fullCaption</code> vs. <code>scannerOverlay</code> style variants.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div style="font-size:11px;color:var(--ink-dim);text-align:center;">🍃 (SF Symbol fallback)</div></div>
+        <div class="comp-body"><div class="title-row"><h3>ScanningLeafAnimationView</h3><span class="tag tag-dead">0 uses — dead</span></div><div class="path">UI/System/ScanningLeafAnimationView.swift</div><div class="desc">References image asset <code>scanning_leaf_animation</code> that <b>doesn't exist</b> in Assets.xcassets — would silently fall back to an SF Symbol even if it were wired up.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div class="mini-toast">✅ Saved to your Herbarium.</div></div>
+        <div class="comp-body"><div class="title-row"><h3>ToastCenter + .leafIDToastHost()</h3><span class="tag tag-live">Singleton</span></div><div class="path">UI/System/ToastCenter.swift</div><div class="desc">Global success/error toast, 3.6s auto-dismiss. One host call in the tree.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview"><div class="mini-card" style="background:rgba(255,255,255,.05);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.1);text-align:center;font-size:11px;color:var(--ink-dim);">.liquidGlass() modifier</div></div>
+        <div class="comp-body"><div class="title-row"><h3>LiquidGlass</h3><span class="tag tag-live">Base primitive</span></div><div class="path">UI/System/LiquidGlass.swift</div><div class="desc">The frosted-material base modifier that most other glass components build on.</div></div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-preview" style="flex-direction:column;gap:8px;"><div class="mini-card" style="padding:8px;">✉️ name@example.com</div></div>
+        <div class="comp-body"><div class="title-row"><h3>AuthTextField / AuthSecureField <span class="tag tag-warn">not shared</span></h3></div><div class="path">LeafID_nativeApp.swift:1034–1119 <em>(private)</em></div><div class="desc">Fully-built, reusable-looking text fields — but declared <code>private</code> inside the app entry file, invisible to <code>UI/System/</code> and the Foundry gallery. Auth is the only screen with real text inputs and they aren't part of the system.</div></div>
+      </div>
+
+    </div>
+
+    <p style="margin-top:24px;">The app's own internal style guide, <code>UI/Gallery/DesignSystemGalleryView.swift</code> (reachable only via the DEBUG Foundry password gate — see <a href="screens-gallery.html#internal">screens gallery</a>), previews just 9 of these 20 components. It omits <code>SecondaryActionButton</code>, <code>StatusBadge</code>, <code>GlassContainer</code>, <code>GlassStatTile</code>, <code>GreenDotMarker</code>, <code>ToastCenter</code>, <code>BoutiqueHeader</code>, <code>ScanningLeafAnimationView</code>, and the Auth text fields.</p>
+  </div>
+</section>
+
+<!-- ============ ISSUES ============ -->
+<section class="feature" id="issues">
+  <div class="wrap">
+    <h2>Consistency findings</h2>
+    <p>Concrete file:line citations for places the app doesn't use its own design system.</p>
+
+    <div class="issue"><div class="sev"><span class="tag tag-warn">Color drift</span></div><div class="body">Rogue accent colors on the Scanner screen instead of <code>LeafIDTheme.primary</code>.<span class="loc">Views/Identify/ScannerView.swift:21–25</span></div></div>
+    <div class="issue"><div class="sev"><span class="tag tag-warn">Color drift</span></div><div class="body">System <code>AccentColor</code> asset is a third, different green from either theme or Scanner values.<span class="loc">Assets.xcassets/AccentColor.colorset/Contents.json</span></div></div>
+    <div class="issue"><div class="sev"><span class="tag tag-warn">Hardcoded color</span></div><div class="body">Raw <code>Color(red:...)</code> / <code>UIColor(red:...)</code> bypassing named tokens.<span class="loc">Views/MainTabView.swift:118 · Views/Herbarium/BotanicalCardDetailView.swift:238 · Services/BotanyService.swift:144,146</span></div></div>
+    <div class="issue"><div class="sev"><span class="tag tag-warn">Hardcoded color</span></div><div class="body">Raw <code>Color(hex:)</code> calls outside <code>Theme.swift</code> rather than referencing a named token.<span class="loc">Views/Identify/ScannerView.swift:23,25 · ViewModels/ProfileViewModel.swift:122 · Views/Herbarium/BotanicalCardImmersiveView.swift:717 · Views/Herbarium/BotanicalCardDetailView.swift:552</span></div></div>
+    <div class="issue"><div class="sev"><span class="tag tag-warn">Type drift</span></div><div class="body">~35 sites use raw <code>.font(.system(size:...))</code> instead of <code>LeafIDFont</code> helpers — no font-fallback consistency, no single place to swap the typeface.<span class="loc">LeafID_nativeApp.swift:773,1057,1082,1099 · MainTabView.swift:140 · ScanResultsView.swift:65,246,305,657 · HomeView.swift:29,60 · ArboretumView.swift:192,206,223,243 · ProfileView.swift:175,357,374,379,414 · BotanicalCardDetailView.swift:112,141,157,566,658</span></div></div>
+    <div class="issue"><div class="sev"><span class="tag tag-warn">Radius drift</span></div><div class="body">Hardcoded corner radii bypassing <code>CornerRadius</code>/<code>LeafIDTheme</code>.<span class="loc">ScannerView.swift:145 (3) · ProfileView.swift:410 (14) · DruidProfileView.swift:279 (20) · BotanicalCardDetailView.swift:508,512 (8)</span></div></div>
+    <div class="issue"><div class="sev"><span class="tag tag-warn">Structure</span></div><div class="body"><code>LoginView</code> and its private text-field atoms live in the app entry file instead of <code>Views/</code>, and aren't exposed as shared system components despite being the only real text-input pattern in the app.<span class="loc">LeafID_nativeApp.swift:739–1119</span></div></div>
+    <div class="issue"><div class="sev"><span class="tag tag-dead">Dead components</span></div><div class="body"><code>StatusBadge</code>, <code>GlassContainer</code>, <code>GlassStatTile</code>, <code>ScanningLeafAnimationView</code> are fully built but referenced nowhere — decide whether to wire them up or delete them before they rot further.</div></div>
+  </div>
+</section>
+
+<!-- ============ ASSETS ============ -->
+<section class="feature" id="assets">
+  <div class="wrap">
+    <h2>Assets &amp; icons</h2>
+    <p><code>Assets.xcassets</code> contains exactly two entries: <code>AccentColor.colorset</code> (one color, no image sets, no illustration library) and <code>AppIcon.appiconset</code> — whose <code>Contents.json</code> declares a single universal 1024×1024 slot with <b>no image file assigned</b>. There is no icon system: every glyph in the app is a bare <code>Image(systemName:)</code> call (55 call sites, 22 distinct SF Symbols), sized and weighted ad hoc per call site rather than through a shared token — the same visual size (e.g. <code>18pt / .semibold</code>) is repeated verbatim across <code>LeafPrimaryButton</code>, <code>SecondaryActionButton</code>, and <code>GlassChromeCircleButton</code> instead of being defined once.</p>
+  </div>
+</section>
+
+<footer class="summary" id="summary">
+  <div class="wrap">
+    <h2>Summary</h2>
+    <div class="stat-row">
+      <div class="stat"><b>14</b><span>Named color tokens</span></div>
+      <div class="stat"><b>3</b><span>Competing "brand green" values</span></div>
+      <div class="stat"><b>20</b><span>UI/System components</span></div>
+      <div class="stat"><b>4</b><span>Components with zero usage</span></div>
+      <div class="stat"><b>~35</b><span>Hardcoded font-size call sites</span></div>
+      <div class="stat"><b>0</b><span>Bundled font files</span></div>
+    </div>
+    <p style="color:var(--ink-dim);font-size:13px;max-width:760px;line-height:1.6;margin-top:20px;">
+      See <a href="screens-gallery.html">screens-gallery.html</a> for where these tokens and components are actually used, and <a href="qa-launch-checklist.html">qa-launch-checklist.html</a> for how these findings roll into the launch checklist.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

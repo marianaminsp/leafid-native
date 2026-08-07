@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LeafID — Screens Gallery</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+  --primary:#93BC10;
+  --primary-container:#8DC104;
+  --surface:#0B0F08;
+  --surface-container-low:#10150C;
+  --surface-container-high:#1C2116;
+  --surface-container-highest:#22281C;
+  --on-surface:#F2F5E7;
+  --on-surface-variant:#A9ADA0;
+  --on-primary:#121212;
+  --on-primary-container:#253600;
+  --outline-variant:#45493F;
+  --chrome-highlight:#FFFFFF;
+  --caution:#F5A623;
+  --error:#FF453A;
+  --scanner-rogue:#A7DA49;
+
+  --page-bg:#08090a;
+  --panel-bg:#111312;
+  --panel-border:#22251f;
+  --ink:#e9ece4;
+  --ink-dim:#9a9d92;
+  --accent:#93BC10;
+  --tag-live:#3a6b1c;
+  --tag-live-fg:#c9f27a;
+  --tag-dead:#5a2323;
+  --tag-dead-fg:#ffb4b0;
+  --tag-drift:#3a3560;
+  --tag-drift-fg:#c8c1ff;
+  --serif: Georgia, 'Times New Roman', serif;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --rounded: ui-rounded, -apple-system, "SF Pro Rounded", var(--sans);
+}
+:root[data-theme="light"]{
+  --page-bg:#f4f3ee;
+  --panel-bg:#ffffff;
+  --panel-border:#e1ddd0;
+  --ink:#1c1e18;
+  --ink-dim:#5c5f54;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--page-bg);color:var(--ink);font-family:var(--sans);}
+body{padding-bottom:80px;}
+a{color:var(--accent);}
+.wrap{max-width:1320px;margin:0 auto;padding:0 28px;}
+
+/* ---------- header ---------- */
+header.hero{padding:56px 0 32px;border-bottom:1px solid var(--panel-border);}
+header.hero h1{font-size:34px;margin:0 0 8px;letter-spacing:-0.02em;}
+header.hero p.lede{font-size:16px;color:var(--ink-dim);max-width:760px;line-height:1.55;margin:0 0 20px;}
+.status-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.status-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:var(--panel-bg);border:1px solid var(--panel-border);font-size:13px;}
+.status-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+.status-chip.warn .dot{background:var(--caution);}
+.methodology{margin-top:22px;padding:16px 18px;background:var(--panel-bg);border:1px solid var(--panel-border);border-left:3px solid var(--accent);border-radius:10px;font-size:13.5px;color:var(--ink-dim);line-height:1.6;}
+.methodology b{color:var(--ink);}
+
+/* ---------- nav ---------- */
+nav.jump{position:sticky;top:0;z-index:50;background:color-mix(in srgb, var(--page-bg) 88%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--panel-border);}
+nav.jump .wrap{display:flex;gap:4px;overflow-x:auto;padding:12px 28px;scrollbar-width:thin;}
+nav.jump a{white-space:nowrap;font-size:13px;color:var(--ink-dim);text-decoration:none;padding:8px 12px;border-radius:8px;font-weight:600;}
+nav.jump a:hover{color:var(--ink);background:var(--panel-bg);}
+
+/* ---------- legend ---------- */
+.legend{display:flex;gap:14px;flex-wrap:wrap;padding:20px 0 0;}
+.tag{font-size:11px;font-weight:700;letter-spacing:.04em;padding:4px 10px;border-radius:6px;text-transform:uppercase;}
+.tag-live{background:var(--tag-live);color:var(--tag-live-fg);}
+.tag-dead{background:var(--tag-dead);color:var(--tag-dead-fg);}
+.tag-drift{background:var(--tag-drift);color:var(--tag-drift-fg);}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-dim);}
+
+/* ---------- sections ---------- */
+section.feature{padding:52px 0 8px;}
+section.feature h2{font-size:24px;margin:0 0 6px;display:flex;align-items:center;gap:12px;}
+section.feature h2 .count{font-size:13px;font-weight:500;color:var(--ink-dim);background:var(--panel-bg);border:1px solid var(--panel-border);padding:3px 10px;border-radius:999px;}
+section.feature > p{color:var(--ink-dim);font-size:14px;margin:0 0 28px;max-width:760px;line-height:1.55;}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:28px;}
+
+/* ---------- card ---------- */
+.card{background:var(--panel-bg);border:1px solid var(--panel-border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;}
+.card-top{padding:22px;display:flex;justify-content:center;background:
+  radial-gradient(circle at 30% 0%, rgba(147,188,16,0.08), transparent 60%), var(--panel-bg);}
+
+/* ---------- phone frame ---------- */
+.phone{width:230px;aspect-ratio:375/812;border-radius:34px;background:#000;padding:8px;box-shadow:0 20px 50px -20px rgba(0,0,0,.6), inset 0 0 0 1px #2a2a2a;position:relative;}
+.screen{position:relative;width:100%;height:100%;border-radius:27px;overflow:hidden;background:var(--surface);color:var(--on-surface);font-family:var(--sans);}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:84px;height:20px;background:#000;border-radius:0 0 14px 14px;z-index:40;}
+.home-indicator{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:100px;height:4px;border-radius:3px;background:rgba(255,255,255,.55);z-index:40;}
+.screen .inner{position:absolute;inset:0;padding-top:30px;font-size:9px;}
+.sb{position:absolute;top:8px;left:16px;right:16px;display:flex;justify-content:space-between;font-size:8px;font-weight:700;color:var(--on-surface);opacity:.85;z-index:41;}
+
+/* card meta */
+.card-body{padding:18px 20px 22px;border-top:1px solid var(--panel-border);flex:1;display:flex;flex-direction:column;gap:10px;}
+.card-body .title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.card-body h3{margin:0;font-size:16px;}
+.card-body .path{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--ink-dim);word-break:break-all;}
+.card-body .purpose{font-size:13px;line-height:1.5;color:var(--ink);}
+.card-body .entry{font-size:12px;color:var(--ink-dim);}
+.card-body .notes{margin:4px 0 0;padding-left:16px;font-size:12px;color:var(--ink-dim);line-height:1.6;}
+.card-body .notes li{margin-bottom:2px;}
+.card-body .notes b{color:var(--ink);}
+
+/* ---------- reusable mini components inside phone mocks ---------- */
+.px24{padding-left:24px;padding-right:24px;}
+.stack{display:flex;flex-direction:column;}
+.row{display:flex;align-items:center;}
+.grow{flex:1;}
+.center{align-items:center;justify-content:center;}
+.txt-title{font-family:var(--rounded);font-weight:800;color:var(--on-surface);letter-spacing:-.02em;}
+.txt-sub{font-family:var(--rounded);color:var(--on-surface-variant);font-weight:500;}
+.txt-accent{color:var(--primary);}
+.pill{border-radius:999px;display:inline-flex;align-items:center;gap:4px;}
+.card-shape{border-radius:16px;}
+.big-card{border-radius:16px;background:var(--surface-container-low);border:1px solid rgba(69,73,63,.15);}
+.glass{background:rgba(28,33,22,.55);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(6px);}
+.btn-primary{background:var(--primary);color:var(--on-primary);font-weight:800;text-align:center;border-radius:16px;}
+.btn-ghost{background:var(--surface-container-high);color:var(--on-surface);font-weight:700;text-align:center;border-radius:16px;border:1px solid rgba(69,73,63,.2);}
+.circle-btn{border-radius:50%;background:rgba(28,33,22,.6);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:var(--on-surface);}
+.tabbar{position:absolute;left:8px;right:8px;bottom:8px;border-radius:20px;background:rgba(28,33,22,.85);border:1px solid rgba(255,255,255,.1);display:flex;z-index:39;}
+.tabbar .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0 6px;font-size:6px;font-weight:700;color:var(--on-surface-variant);}
+.tabbar .tab.active{color:var(--primary);}
+.dot-marker{width:10px;height:10px;border-radius:50%;background:var(--primary);border:2px solid #fff;box-shadow:0 0 0 3px rgba(147,188,16,.25);}
+
+footer.summary{margin-top:70px;padding:36px 0;border-top:1px solid var(--panel-border);}
+footer.summary h2{font-size:18px;margin:0 0 14px;}
+.stat-row{display:flex;gap:32px;flex-wrap:wrap;}
+.stat{min-width:120px;}
+.stat b{display:block;font-size:26px;color:var(--accent);}
+.stat span{font-size:12px;color:var(--ink-dim);}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>LeafID — Screens Gallery</h1>
+    <p class="lede">Every screen in the LeafID-native codebase — live and dead — reconstructed from the real SwiftUI source: actual copy, actual layout structure, actual <code>Theme.swift</code> tokens. Not a redesign; a baseline of what exists today, before any UI iteration.</p>
+    <div class="status-row">
+      <span class="status-chip"><span class="dot"></span> xcodebuild: BUILD SUCCEEDED (iPhone 14, iOS 16.4)</span>
+      <span class="status-chip warn"><span class="dot"></span> iOS Simulator control tool crashed — mockups, not live screenshots</span>
+      <span class="status-chip"><span class="dot"></span> 12 live screens · 4 dead-code screens · 20 states captured</span>
+    </div>
+    <div class="methodology">
+      <b>Methodology:</b> the iOS Simulator screenshot tool crash-looped irrecoverably (survived a device reboot and a full app restart) — see conversation for detail. Per your decision, these mockups are hand-built directly from each screen's SwiftUI source file, using the exact hex values, spacing scale, and corner radii defined in <span class="path" style="display:inline">Theme.swift</span>, and the real copy strings from each view. Layout is structurally faithful (stack order, hierarchy, relative sizing) but not pixel-perfect — text wrapping, exact shadow rendering, and live data (map tiles, captured photos, AI-generated descriptions) will differ from a running device. Where a screen's real behavior depends on data (e.g. an empty vs. populated list), both states are shown side by side.
+    </div>
+  </div>
+</header>
+
+<nav class="jump">
+  <div class="wrap">
+    <a href="#auth">Auth</a>
+    <a href="#home">Home</a>
+    <a href="#scan">Scan flow</a>
+    <a href="#arboretum">Arboretum</a>
+    <a href="#herbarium">Herbarium</a>
+    <a href="#druid">Druid</a>
+    <a href="#internal">Internal tools</a>
+    <a href="#dead">Dead code</a>
+    <a href="#summary">Summary</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="legend">
+    <div class="legend-item"><span class="tag tag-live">Live</span> reachable in the shipped nav graph</div>
+    <div class="legend-item"><span class="tag tag-dead">Dead code</span> not wired into navigation anywhere</div>
+    <div class="legend-item"><span class="tag tag-drift">Drifted</span> diverges from its original docs/ui-screens spec</div>
+  </div>
+</div>
+
+<!-- ================= AUTH ================= -->
+<section class="feature" id="auth">
+  <div class="wrap">
+    <h2>Auth <span class="count">4 states</span></h2>
+    <p>Hand-rolled against the Supabase Auth REST API directly (no SDK). Lives in <span class="path" style="display:inline">LeafID_nativeApp.swift</span> rather than <span class="path" style="display:inline">Views/</span> — including its own private text-field components, which duplicate what should be shared <span class="path" style="display:inline">UI/System/</span> pieces.</p>
+    <div class="grid">
+
+      <!-- Login - sign in -->
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="inner px24 stack" style="gap:14px;align-items:center;text-align:center;padding-top:70px;">
+            <div style="width:44px;height:44px;border-radius:50%;background:rgba(147,188,16,.2);display:flex;align-items:center;justify-content:center;font-size:18px;">🌿</div>
+            <div class="txt-title" style="font-size:20px;">Welcome Back</div>
+            <div class="txt-sub" style="font-size:9px;">Sign in to continue your journey</div>
+            <div class="stack" style="width:100%;gap:8px;text-align:left;margin-top:10px;">
+              <span style="font-size:7px;font-weight:700;color:var(--on-surface-variant);letter-spacing:.05em;">EMAIL ADDRESS</span>
+              <div class="row big-card" style="padding:9px 10px;gap:6px;font-size:8px;color:var(--on-surface-variant);">✉️ name@example.com</div>
+              <div class="row" style="justify-content:space-between;"><span style="font-size:7px;font-weight:700;color:var(--on-surface-variant);letter-spacing:.05em;">PASSWORD</span><span style="font-size:8px;color:var(--primary);font-weight:700;">Forgot?</span></div>
+              <div class="row big-card" style="padding:9px 10px;gap:6px;font-size:8px;color:var(--on-surface-variant);">🔒 Enter your password</div>
+            </div>
+            <div class="btn-primary" style="width:100%;padding:11px 0;font-size:9px;margin-top:6px;">Login →</div>
+            <div class="btn-ghost" style="width:100%;padding:10px 0;font-size:9px;">Continue with Google</div>
+            <div style="font-size:8px;color:var(--on-surface-variant);margin-top:4px;">Don't have an account? <span class="txt-accent" style="font-weight:700;">Sign Up</span></div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>LoginView</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">LeafID_nativeApp.swift:739</div>
+          <div class="purpose">Root screen when unauthenticated. Email/password sign-in + Google OAuth (PKCE) + toggle to sign-up mode.</div>
+          <div class="entry">Entry: app root, shown when <span class="path" style="display:inline">AuthViewModel</span> has no session.</div>
+        </div>
+      </div>
+
+      <!-- Login - sign up -->
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="inner px24 stack" style="gap:14px;align-items:center;text-align:center;padding-top:70px;">
+            <div style="width:44px;height:44px;border-radius:50%;background:rgba(147,188,16,.2);display:flex;align-items:center;justify-content:center;font-size:18px;">🌿</div>
+            <div class="txt-title" style="font-size:20px;">Join LeafID</div>
+            <div class="txt-sub" style="font-size:9px;">Create an account to save your journey</div>
+            <div class="stack" style="width:100%;gap:8px;text-align:left;margin-top:10px;">
+              <span style="font-size:7px;font-weight:700;color:var(--on-surface-variant);letter-spacing:.05em;">EMAIL ADDRESS</span>
+              <div class="row big-card" style="padding:9px 10px;gap:6px;font-size:8px;color:var(--on-surface-variant);">✉️ name@example.com</div>
+              <span style="font-size:7px;font-weight:700;color:var(--on-surface-variant);letter-spacing:.05em;">PASSWORD</span>
+              <div class="row big-card" style="padding:9px 10px;gap:6px;font-size:8px;color:var(--on-surface-variant);">🔒 Enter your password</div>
+            </div>
+            <div class="btn-primary" style="width:100%;padding:11px 0;font-size:9px;margin-top:6px;">Create account</div>
+            <div class="btn-ghost" style="width:100%;padding:10px 0;font-size:9px;">Continue with Google</div>
+            <div style="font-size:8px;color:var(--on-surface-variant);margin-top:4px;">Already have an account? <span class="txt-accent" style="font-weight:700;">Sign in</span></div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>LoginView (sign-up mode)</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">LeafID_nativeApp.swift:739 · isSignUpMode = true</div>
+          <div class="purpose">Same view, toggled state. Minimum password length is 6 here vs. 8 on the reset screen — an inconsistency worth normalizing.</div>
+          <div class="entry">Entry: "Sign Up" toggle on LoginView.</div>
+        </div>
+      </div>
+
+      <!-- Password recovery -->
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="inner px24 stack" style="gap:14px;padding-top:60px;">
+            <div class="txt-title" style="font-size:19px;">Create new password</div>
+            <div class="txt-sub" style="font-size:9px;">Set a new password to finish your account recovery.</div>
+            <span style="font-size:7px;font-weight:700;color:var(--on-surface-variant);letter-spacing:.05em;margin-top:6px;">NEW PASSWORD</span>
+            <div class="row big-card" style="padding:9px 10px;gap:6px;font-size:8px;color:var(--on-surface-variant);">🔒 Minimum 8 characters</div>
+            <span style="font-size:7px;font-weight:700;color:var(--on-surface-variant);letter-spacing:.05em;">CONFIRM PASSWORD</span>
+            <div class="row big-card" style="padding:9px 10px;gap:6px;font-size:8px;color:var(--on-surface-variant);">🔒 Repeat your password</div>
+            <div class="btn-primary" style="width:100%;padding:11px 0;font-size:9px;margin-top:8px;">Update Password</div>
+            <div style="font-size:8px;color:var(--on-surface-variant);text-align:center;">Back to login</div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>PasswordRecoveryView</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">LeafID_nativeApp.swift:903</div>
+          <div class="purpose">Root view when app is opened via the password-recovery deep link. Sets a new password against Supabase.</div>
+          <div class="entry">Entry: deep link from recovery email → app root.</div>
+        </div>
+      </div>
+
+      <!-- Recovery request sheet -->
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="inner px24 stack" style="gap:12px;padding-top:60px;">
+            <div class="txt-title" style="font-size:17px;">Recover password</div>
+            <div class="txt-sub" style="font-size:9px;">Enter your account email and we will send a recovery link.</div>
+            <div class="txt-sub" style="font-size:8px;opacity:.8;">Tip: check Safari if the link doesn't open the app.</div>
+            <span style="font-size:7px;font-weight:700;color:var(--on-surface-variant);letter-spacing:.05em;margin-top:4px;">EMAIL</span>
+            <div class="row big-card" style="padding:9px 10px;gap:6px;font-size:8px;color:var(--on-surface-variant);">✉️ name@example.com</div>
+            <div class="btn-primary" style="width:100%;padding:11px 0;font-size:9px;margin-top:6px;">Send recovery link</div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>PasswordRecoveryRequestSheet</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">LeafID_nativeApp.swift:976</div>
+          <div class="purpose">Sheet presented from "Forgot?" on LoginView. Sends the Supabase recovery email.</div>
+          <ul class="notes"><li>Copy key <b>"recovery_tip_safari"</b> renders as a literal localization key in one build path — confirm the Localizable.strings entry resolves correctly on device.</li></ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOME ================= -->
+<section class="feature" id="home">
+  <div class="wrap">
+    <h2>Home <span class="count">2 states</span></h2>
+    <p>Tab 1. Greeting, the primary scan capsule button, upload-from-gallery, and a "Last Found" card. Layout note: the upload button uses a manual <span class="path" style="display:inline">.offset(y: 12)</span> nudge that doesn't affect layout — a fragile pattern if this screen is touched again.</p>
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="inner px24 stack" style="padding-top:40px;height:calc(100% - 40px);">
+            <div class="txt-title" style="font-size:19px;">Good Morning</div>
+            <div class="txt-sub" style="font-size:9px;">Ready to explore nature?</div>
+            <div class="grow"></div>
+            <div class="row center" style="margin-bottom:10px;">
+              <div style="width:74px;height:74px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 0 30px rgba(147,188,16,.5);">📷</div>
+            </div>
+            <div class="row center big-card" style="padding:9px 0;gap:6px;font-size:8px;font-weight:700;margin-bottom:14px;">⬆️ Upload from Gallery</div>
+            <div class="grow"></div>
+            <div class="row big-card" style="padding:12px;gap:10px;">
+              <div style="width:36px;height:36px;border-radius:8px;background:var(--surface-container-high);display:flex;align-items:center;justify-content:center;font-size:14px;color:rgba(147,188,16,.4);">🌿</div>
+              <div class="stack" style="gap:2px;">
+                <span style="font-size:6.5px;font-weight:800;letter-spacing:.1em;color:var(--primary);">LAST FOUND</span>
+                <span style="font-size:8.5px;font-weight:700;color:var(--on-surface-variant);">Save a specimen to your Herbarium</span>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab active">🏠<span>Home</span></div><div class="tab">🗺️<span>Arboretum</span></div><div class="tab">🌿<span>Herbarium</span></div><div class="tab">👤<span>Druid</span></div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>HomeView — empty Last Found</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">Views/Home/HomeView.swift:88</div>
+          <div class="purpose">Default state for a new user with no saved specimens yet.</div>
+          <div class="entry">Entry: tab 1, default on launch.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="inner px24 stack" style="padding-top:40px;height:calc(100% - 40px);">
+            <div class="txt-title" style="font-size:19px;">Good Afternoon</div>
+            <div class="txt-sub" style="font-size:9px;">Ready to explore nature?</div>
+            <div class="grow"></div>
+            <div class="row center" style="margin-bottom:10px;">
+              <div style="width:74px;height:74px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 0 30px rgba(147,188,16,.5);">📷</div>
+            </div>
+            <div class="row center big-card" style="padding:9px 0;gap:6px;font-size:8px;font-weight:700;margin-bottom:14px;">⬆️ Upload from Gallery</div>
+            <div class="grow"></div>
+            <div class="row card-shape" style="background:linear-gradient(135deg,#2a3d1c,#1c2116);padding:10px;gap:10px;">
+              <div style="width:44px;height:44px;border-radius:10px;background:#3a4a2a;display:flex;align-items:center;justify-content:center;font-size:16px;">🍃</div>
+              <div class="stack" style="gap:2px;">
+                <span style="font-size:6.5px;font-weight:800;letter-spacing:.1em;color:var(--primary);">LAST FOUND</span>
+                <span style="font-size:9px;font-weight:800;color:var(--on-surface);">Monstera Deliciosa</span>
+                <span style="font-size:7px;color:var(--on-surface-variant);">Swiss Cheese Plant</span>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab active">🏠<span>Home</span></div><div class="tab">🗺️<span>Arboretum</span></div><div class="tab">🌿<span>Herbarium</span></div><div class="tab">👤<span>Druid</span></div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>HomeView — populated Last Found</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">Views/Home/HomeView.swift:114</div>
+          <div class="purpose">Shows <span class="path" style="display:inline">CompactSpecimenCard</span> for the most recently saved scan; tapping opens the immersive card.</div>
+          <div class="entry">Entry: same tab, after ≥1 saved specimen.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCAN FLOW ================= -->
+<section class="feature" id="scan">
+  <div class="wrap">
+    <h2>Scan flow <span class="count">4 states</span></h2>
+    <p>Camera → identify → results, presented as a stack of <span class="path" style="display:inline">fullScreenCover</span>s from Home. The dim/cutout viewfinder chrome is shared between the live camera and the post-capture "analyzing" screen.</p>
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen" style="background:#1a1d16;">
+          <div class="notch"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="inner" style="padding:0;height:100%;position:relative;">
+            <div style="position:absolute;inset:0;background:repeating-linear-gradient(45deg,#161914,#161914 6px,#1c2016 6px,#1c2016 12px);"></div>
+            <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center, transparent 38%, rgba(0,0,0,.75) 62%);"></div>
+            <div style="position:absolute;top:34%;left:50%;transform:translate(-50%,-50%);width:62%;height:44%;border-radius:22px;box-shadow:0 0 0 2000px rgba(0,0,0,.6);"></div>
+            <div class="circle-btn" style="position:absolute;top:34px;left:16px;width:28px;height:28px;font-size:11px;">✕</div>
+            <div class="circle-btn" style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);width:52px;height:52px;border:2px solid #fff;background:transparent;"></div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>ScannerView — live camera</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">Views/Identify/ScannerView.swift · ScannerLiveView</div>
+          <div class="purpose">Full-bleed AVFoundation camera with an even-odd dim mask cutout and a laser sweep animation.</div>
+          <ul class="notes"><li><b>Design-token drift:</b> a private <span class="path" style="display:inline">ScannerVisual</span> enum hardcodes accent green <code>#A7DA49</code> — different from <span class="path" style="display:inline">LeafIDTheme.primary</span> (<code>#93BC10</code>). Visible as a slightly different green laser/status-pill tint on this screen only.</li></ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen" style="background:#1a1d16;">
+          <div class="notch"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="inner" style="padding:0;height:100%;position:relative;">
+            <div style="position:absolute;inset:0;background:linear-gradient(160deg,#2a3320,#141712);"></div>
+            <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center, transparent 38%, rgba(0,0,0,.75) 62%);"></div>
+            <div style="position:absolute;top:34%;left:50%;transform:translate(-50%,-50%);width:62%;height:44%;border-radius:22px;box-shadow:0 0 0 2000px rgba(0,0,0,.6);border:1px solid rgba(167,218,73,.3);"></div>
+            <div class="circle-btn" style="position:absolute;top:34px;left:16px;width:28px;height:28px;font-size:11px;">✕</div>
+            <div class="pill glass" style="position:absolute;top:34px;left:50%;transform:translateX(-50%);padding:6px 12px;font-size:7px;font-weight:700;letter-spacing:.05em;color:var(--scanner-rogue);">● ANALYZING LEAF…</div>
+            <div style="position:absolute;bottom:18px;left:24px;right:24px;height:6px;border-radius:3px;background:rgba(255,255,255,.15);"><div style="width:70%;height:100%;border-radius:3px;background:var(--scanner-rogue);"></div></div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>ScannerView — analyzing</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">Views/Identify/ScannerView.swift · ScannerAnalyzeView</div>
+          <div class="purpose">Still captured frame + "ANALYZING LEAF…" status pill while <span class="path" style="display:inline">BotanyService.identifyPlantWithAI</span> runs.</div>
+          <div class="entry">On failure, an inline "Couldn't reach the botanist. Try again." banner with retry appears in place of this progress bar.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="inner" style="padding:0;height:100%;position:relative;">
+            <div style="position:absolute;inset:0;background:linear-gradient(160deg,#3a4a28,#1a1d16);"></div>
+            <div class="circle-btn" style="position:absolute;top:30px;left:16px;width:26px;height:26px;font-size:10px;">‹</div>
+            <div class="circle-btn" style="position:absolute;top:30px;right:16px;width:26px;height:26px;font-size:10px;">↑</div>
+            <div class="pill" style="position:absolute;top:30px;left:50%;transform:translateX(-50%);background:rgba(147,188,16,.15);border:1px solid rgba(147,188,16,.3);padding:4px 8px;font-size:6px;font-weight:700;color:var(--primary);">High confidence · 96% match</div>
+            <div style="position:absolute;left:0;right:0;bottom:0;height:64%;border-radius:20px 20px 0 0;background:var(--surface-container-low);border-top:1px solid rgba(255,255,255,.08);padding:12px 16px;">
+              <div style="width:32px;height:3px;border-radius:2px;background:rgba(255,255,255,.25);margin:0 auto 10px;"></div>
+              <div class="pill" style="background:var(--primary);padding:3px 7px;font-size:5.5px;font-weight:800;letter-spacing:.1em;color:var(--on-primary);margin-bottom:6px;">NEW DISCOVERY</div>
+              <div class="txt-title" style="font-size:15px;font-style:italic;">Monstera deliciosa</div>
+              <div class="txt-sub" style="font-size:9px;font-style:italic;margin-bottom:8px;">Swiss Cheese Plant</div>
+              <div class="row" style="gap:5px;margin-bottom:8px;">
+                <div class="pill glass" style="padding:4px 7px;font-size:6px;">☀️ Bright indirect</div>
+                <div class="pill glass" style="padding:4px 7px;font-size:6px;">💧 Weekly</div>
+              </div>
+              <div style="font-size:7.5px;color:var(--on-surface-variant);line-height:1.5;margin-bottom:10px;">A climbing aroid known for its iconic fenestrated leaves, native to tropical rainforests…</div>
+              <div class="btn-primary" style="padding:9px 0;font-size:8px;margin-bottom:6px;">🍃 Save to Herbarium</div>
+              <div class="btn-ghost" style="padding:8px 0;font-size:8px;">📷 Scan another specimen</div>
+            </div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>ScanResultsView — high confidence</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">Views/Identify/ScanResultsView.swift</div>
+          <div class="purpose">Result sheet over the captured photo. Tapping the title opens an unsaved preview in <span class="path" style="display:inline">BotanicalCardImmersiveView</span>.</div>
+          <div class="entry">Entry: after <span class="path" style="display:inline">ScannerView</span> analyze completes successfully.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="inner" style="padding:0;height:100%;position:relative;">
+            <div style="position:absolute;inset:0;background:linear-gradient(160deg,#2a2a20,#1a1d16);"></div>
+            <div class="circle-btn" style="position:absolute;top:30px;left:16px;width:26px;height:26px;font-size:10px;">‹</div>
+            <div class="circle-btn" style="position:absolute;top:30px;right:16px;width:26px;height:26px;font-size:10px;">↑</div>
+            <div style="position:absolute;left:0;right:0;bottom:0;height:64%;border-radius:20px 20px 0 0;background:var(--surface-container-low);border-top:1px solid rgba(255,255,255,.08);padding:12px 16px;">
+              <div style="width:32px;height:3px;border-radius:2px;background:rgba(255,255,255,.25);margin:0 auto 10px;"></div>
+              <div class="pill" style="background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.3);padding:3px 8px;font-size:5.5px;font-weight:800;color:var(--caution);margin-bottom:6px;">⚠ LOW CONFIDENCE</div>
+              <div class="txt-title" style="font-size:15px;font-style:italic;">Exploring Specimen...</div>
+              <div class="txt-sub" style="font-size:9px;font-style:italic;margin-bottom:10px;">Analyzing...</div>
+              <div style="font-size:7.5px;color:var(--on-surface-variant);line-height:1.5;margin-bottom:10px;">We couldn't confidently match this specimen. Here's our best guess based on visible traits.</div>
+              <div style="font-size:6.5px;color:var(--primary);margin-bottom:8px;">Live identification needs Supabase with the identify-plant function configured.</div>
+              <div class="btn-primary" style="padding:9px 0;font-size:8px;margin-bottom:6px;opacity:.5;">🍃 Save to Herbarium</div>
+              <div class="btn-ghost" style="padding:8px 0;font-size:8px;">📷 Scan another specimen</div>
+            </div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>ScanResultsView — fallback / low confidence</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">Views/Identify/ScanResultsView.swift · result.usedFallback</div>
+          <div class="purpose">Shown when identification fails or Supabase isn't configured; a demo/offline fallback result is used instead.</div>
+          <div class="entry">Save is disabled without valid JPEG bytes — surfaced via a small caption beneath the button.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= ARBORETUM ================= -->
+<section class="feature" id="arboretum">
+  <div class="wrap">
+    <h2>Arboretum <span class="count">2 states</span></h2>
+    <p>Tab 2. MapKit view plotting saved scans as pins. Selecting a pin shows a popup card that can hand off to Herbarium's immersive card via a tab-switch bridge.</p>
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="inner" style="padding:0;height:100%;position:relative;">
+            <div style="position:absolute;inset:0;background:
+              linear-gradient(#1c2116,#1c2116) , repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 26px), repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 26px);"></div>
+            <div class="dot-marker" style="position:absolute;top:38%;left:44%;"></div>
+            <div class="dot-marker" style="position:absolute;top:52%;left:60%;"></div>
+            <div class="dot-marker" style="position:absolute;top:64%;left:30%;"></div>
+            <div class="stack px24" style="position:absolute;top:30px;left:0;right:0;gap:2px;">
+              <div class="txt-title" style="font-size:16px;">Arboretum</div>
+              <div class="txt-sub" style="font-size:7.5px;">Where your botanical discoveries took root.</div>
+            </div>
+            <div class="stack" style="position:absolute;right:12px;bottom:90px;gap:6px;">
+              <div class="circle-btn" style="width:24px;height:24px;font-size:10px;">+</div>
+              <div class="circle-btn" style="width:24px;height:24px;font-size:10px;">−</div>
+              <div class="circle-btn" style="width:24px;height:24px;font-size:9px;">🍃</div>
+              <div class="circle-btn" style="width:24px;height:24px;font-size:9px;">📍</div>
+            </div>
+          </div>
+          <div class="tabbar"><div class="tab">🏠<span>Home</span></div><div class="tab active">🗺️<span>Arboretum</span></div><div class="tab">🌿<span>Herbarium</span></div><div class="tab">👤<span>Druid</span></div></div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>ArboretumView — map with pins</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">Views/Arboretum/ArboretumView.swift</div>
+          <div class="purpose">Default state with geotagged specimens plotted; zoom/recenter/locate controls float bottom-right.</div>
+          <div class="entry">Entry: tab 2.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="inner" style="padding:0;height:100%;position:relative;">
+            <div style="position:absolute;inset:0;background:
+              linear-gradient(#1c2116,#1c2116) , repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 26px), repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 26px);"></div>
+            <div class="dot-marker" style="position:absolute;top:38%;left:44%;"></div>
+            <div style="position:absolute;inset:0;background:rgba(0,0,0,.5);"></div>
+            <div class="row big-card" style="position:absolute;left:16px;right:16px;bottom:26px;padding:10px;gap:8px;">
+              <div style="width:40px;height:40px;border-radius:10px;background:var(--surface-container-high);"></div>
+              <div class="stack grow" style="gap:2px;">
+                <span style="font-size:8px;font-weight:800;color:var(--on-surface);">Monstera deliciosa</span>
+                <span style="font-size:6.5px;color:var(--on-surface-variant);">Swiss Cheese Plant</span>
+              </div>
+              <div style="font-size:6px;font-weight:700;color:var(--primary);">Open →</div>
+            </div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>ArboretumView — pin selected</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">Views/Arboretum/ArboretumView.swift · CompactSpecimenCard(mapPopup)</div>
+          <div class="purpose">"Open in Herbarium" switches to tab 3 and auto-presents the immersive card for that scan.</div>
+          <div class="entry">A separate "No geotagged specimens yet" banner state exists when <span class="path" style="display:inline">pins.isEmpty</span> — not pictured.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= HERBARIUM ================= -->
+<section class="feature" id="herbarium">
+  <div class="wrap">
+    <h2>Herbarium <span class="count">4 states</span></h2>
+    <p>Tab 3. A scrollable collection list with a collapsing header, plus the immersive flip-card detail (front = photo/ID, back = narrative content).</p>
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="inner px24" style="padding-top:36px;">
+            <div class="txt-title" style="font-size:19px;margin-bottom:2px;">Herbarium</div>
+            <div class="txt-sub" style="font-size:8.5px;margin-bottom:12px;">Your collection of botanical wonders</div>
+            <div class="stack" style="gap:8px;">
+              <div class="row big-card" style="padding:8px;gap:8px;"><div style="width:44px;height:44px;border-radius:10px;background:var(--surface-container-high);"></div><div class="stack" style="gap:2px;"><span style="font-size:8px;font-weight:800;">Monstera deliciosa</span><span style="font-size:6.5px;color:var(--on-surface-variant);">Swiss Cheese Plant</span></div></div>
+              <div class="row big-card" style="padding:8px;gap:8px;"><div style="width:44px;height:44px;border-radius:10px;background:var(--surface-container-high);"></div><div class="stack" style="gap:2px;"><span style="font-size:8px;font-weight:800;">Ficus lyrata</span><span style="font-size:6.5px;color:var(--on-surface-variant);">Fiddle-leaf fig</span></div></div>
+              <div class="row big-card" style="padding:8px;gap:8px;"><div style="width:44px;height:44px;border-radius:10px;background:var(--surface-container-high);"></div><div class="stack" style="gap:2px;"><span style="font-size:8px;font-weight:800;">Sansevieria trifasciata</span><span style="font-size:6.5px;color:var(--on-surface-variant);">Snake plant</span></div></div>
+            </div>
+          </div>
+          <div class="tabbar"><div class="tab">🏠<span>Home</span></div><div class="tab">🗺️<span>Arboretum</span></div><div class="tab active">🌿<span>Herbarium</span></div><div class="tab">👤<span>Druid</span></div></div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>HerbariumView — populated</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">Views/Herbarium/HerbariumView.swift</div>
+          <div class="purpose">Header title shrinks from 34pt→22pt on scroll. Tapping a row opens the immersive card via matched-geometry transition.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="inner px24 stack center" style="padding-top:36px;height:calc(100% - 36px);gap:10px;text-align:center;">
+            <div style="font-size:32px;opacity:.6;">🌿</div>
+            <div class="txt-title" style="font-size:14px;">No specimens yet</div>
+            <div class="txt-sub" style="font-size:8px;line-height:1.5;">When you identify a plant, tap Save on the results screen — it will appear here.</div>
+            <div class="txt-accent" style="font-size:7.5px;font-weight:700;">Open Scan to identify a plant, then save it from the results.</div>
+          </div>
+          <div class="tabbar"><div class="tab">🏠<span>Home</span></div><div class="tab">🗺️<span>Arboretum</span></div><div class="tab active">🌿<span>Herbarium</span></div><div class="tab">👤<span>Druid</span></div></div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>HerbariumView — empty state</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">Views/Herbarium/HerbariumView.swift:163</div>
+          <div class="purpose">Shown for a brand-new account before any scan is saved.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="inner" style="padding:0;height:100%;position:relative;">
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg, transparent 40%, rgba(11,15,8,.95) 100%), linear-gradient(160deg,#3a4a28,#1a1d16);"></div>
+            <div class="circle-btn" style="position:absolute;top:16px;right:16px;width:26px;height:26px;font-size:10px;">✕</div>
+            <div class="stack px24" style="position:absolute;left:0;right:0;bottom:70px;gap:6px;">
+              <div class="txt-title" style="font-size:22px;">Monstera Deliciosa</div>
+              <div class="txt-sub" style="font-size:9px;font-style:italic;">Monstera deliciosa</div>
+              <div class="row" style="gap:4px;font-size:7px;color:var(--on-surface);"><span>📍</span><span>Rio de Janeiro, Brazil</span></div>
+            </div>
+            <div class="row" style="position:absolute;bottom:14px;left:0;right:0;justify-content:center;gap:12px;">
+              <div class="circle-btn" style="width:28px;height:28px;font-size:11px;">↑</div>
+              <div class="circle-btn" style="width:28px;height:28px;font-size:11px;">↻</div>
+            </div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>BotanicalCardImmersiveView — front</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">Views/Herbarium/BotanicalCardImmersiveView.swift</div>
+          <div class="purpose">Full-bleed specimen photo with name, scientific name, and resolved capture location (EXIF → reverse geocode → fallback chain).</div>
+          <div class="entry">Entry: tapping a Herbarium row, Home's Last Found card, or an Arboretum pin's "Open".</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="inner px24" style="padding-top:22px;">
+            <div class="row" style="gap:8px;margin-bottom:12px;">
+              <div style="width:36px;height:36px;border-radius:50%;background:var(--surface-container-high);border:1px solid rgba(69,73,63,.3);"></div>
+              <div class="stack" style="gap:1px;"><span style="font-size:9px;font-weight:800;">Monstera deliciosa</span><span style="font-size:6.5px;font-weight:800;letter-spacing:.06em;color:var(--primary);">MONSTERA DELICIOSA</span></div>
+            </div>
+            <span style="font-size:6.5px;font-weight:800;letter-spacing:.1em;color:var(--on-surface-variant);">COLOUR SIGNATURE</span>
+            <div class="row" style="gap:8px;margin:6px 0 10px;">
+              <div style="width:20px;height:20px;border-radius:50%;background:#2C4C1A;"></div>
+              <div style="width:20px;height:20px;border-radius:50%;background:#7AAE2E;"></div>
+              <div style="width:20px;height:20px;border-radius:50%;background:#6B4F2E;"></div>
+            </div>
+            <span style="font-size:6.5px;font-weight:800;letter-spacing:.1em;color:var(--on-surface-variant);">BOTANICAL SPIRIT</span>
+            <div class="big-card" style="padding:8px;margin:5px 0 10px;font-size:7.5px;font-style:italic;line-height:1.5;">"A resilient specimen whose form follows light, patience, and adaptation."</div>
+            <span style="font-size:6.5px;font-weight:800;letter-spacing:.1em;color:var(--on-surface-variant);">ETHNOBOTANY</span>
+            <div class="big-card" style="padding:8px;margin:5px 0;font-size:7.5px;line-height:1.5;">Traditionally cultivated across communities for ornamental and practical horticultural use.</div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>BotanicalCardImmersiveView — back</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">Views/Herbarium/BotanicalCardImmersiveView.swift · CardBackView</div>
+          <div class="purpose">3D-flip reveal: color palette, Botanical Spirit, Ethnobotany, Cultural Legacy — narrative copy from Gemini/OpenRouter enrichment.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= DRUID ================= -->
+<section class="feature" id="druid">
+  <div class="wrap">
+    <h2>Druid (Profile) <span class="count">3 states</span></h2>
+    <p>Tab 4. Identity, rank progress, scan quota, achievements, and the paywall it feeds into. "Buy me a coffee" and "Unlock more" both open the same Paywall — there's no separate donation flow.</p>
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="notch"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="inner px24" style="padding-top:36px;overflow:hidden;">
+            <div class="txt-title" style="font-size:19px;margin-bottom:10px;">Druid</div>
+            <div class="row" style="gap:8px;margin-bottom:10px;">
+              <div style="width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 30% 20%, rgba(147,188,16,.5), var(--surface-container-low));"></div>
+              <div class="stack" style="gap:1px;"><span style="font-size:10px;font-weight:800;">Mariana</span><span style="font-size:6.5px;color:var(--on-surface-variant);">Botanical Explorer</span></div>
+            </div>
+            <div class="big-card" style="padding:8px;margin-bottom:8px;">
+              <span style="font-size:6px;font-weight:800;letter-spacing:.08em;color:var(--on-surface-variant);">CURRENT PATH</span>
+              <div class="row" style="gap:4px;margin-top:3px;"><span style="font-size:9px;">🌿</span><span style="font-size:9px;font-weight:800;">Forest Sprout</span></div>
+            </div>
+            <div class="big-card" style="padding:8px;margin-bottom:8px;">
+              <div class="row" style="justify-content:space-between;margin-bottom:5px;"><span style="font-size:8px;font-weight:800;">⚡ Scan energy</span><span style="font-size:7px;font-weight:800;color:var(--on-surface-variant);">2/3</span></div>
+              <div style="height:4px;border-radius:2px;background:rgba(255,255,255,.12);"><div style="width:66%;height:100%;border-radius:2px;background:var(--primary);"></div></div>
+              <div class="btn-primary" style="padding:6px 0;font-size:7px;margin-top:6px;">Unlock more</div>
+            </div>
+            <span style="font-size:8.5px;font-weight:800;">Achievements</span>
+            <div class="row" style="gap:6px;margin-top:6px;">
+              <div class="big-card" style="flex:1;padding:7px;"><span style="font-size:9px;">✓</span><div style="font-size:6.5px;font-weight:800;margin-top:2px;">First Bloom</div></div>
+              <div class="big-card" style="flex:1;padding:7px;opacity:.6;"><span style="font-size:9px;">🔒</span><div style="font-size:6.5px;font-weight:800;margin-top:2px;">Explorer</div></div>
+            </div>
+          </div>
+          <div class="tabbar"><div class="tab">🏠<span>Home</span></div><div class="tab">🗺️<span>Arboretum</span></div><div class="tab">🌿<span>Herbarium</span></div><div class="tab active">👤<span>Druid</span></div></div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>DruidProfileView</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">Views/Druid/DruidProfileView.swift</div>
+          <div class="purpose">Identity, rank, quota, achievements grid, support/coffee card, sign-out. In DEBUG builds, a hidden gear icon opens a password-gated Foundry gallery.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="inner px24 stack center" style="height:100%;text-align:left;">
+            <div class="stack big-card" style="padding:20px;gap:10px;">
+              <div class="txt-title" style="font-size:14px;">Welcome back</div>
+              <div class="txt-sub" style="font-size:8.5px;line-height:1.5;">Sign in with Google to unlock your Druid passport and sync your progress.</div>
+              <div class="btn-primary" style="padding:9px 0;font-size:8px;margin-top:4px;">🌐 Continue with Google</div>
+            </div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>DruidProfileView — logged out overlay</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">Views/Druid/DruidProfileView.swift:418</div>
+          <div class="purpose">Modal-style overlay when the Druid tab is opened without a session. Only offers Google, no email fallback here.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="inner px24" style="padding-top:26px;">
+            <div class="row" style="justify-content:flex-end;margin-bottom:8px;"><div class="circle-btn" style="width:22px;height:22px;font-size:9px;">✕</div></div>
+            <div class="big-card" style="padding:14px;margin-bottom:10px;">
+              <div class="txt-title" style="font-size:14px;margin-bottom:4px;">Paywall headline</div>
+              <div class="txt-sub" style="font-size:8px;">Paywall subtitle</div>
+            </div>
+            <div class="big-card" style="padding:14px;margin-bottom:10px;">
+              <div class="row" style="gap:6px;margin-bottom:6px;"><span style="font-size:10px;color:var(--primary);">📷</span><span style="font-size:7.5px;font-weight:700;">Paywall benefit unlimited scans</span></div>
+              <div class="row" style="gap:6px;margin-bottom:6px;"><span style="font-size:10px;color:var(--primary);">🩺</span><span style="font-size:7.5px;font-weight:700;">Paywall benefit plant health</span></div>
+              <div class="row" style="gap:6px;"><span style="font-size:10px;color:var(--primary);">📄</span><span style="font-size:7.5px;font-weight:700;">Paywall benefit pdf</span></div>
+            </div>
+            <div class="btn-primary" style="padding:10px 0;font-size:8.5px;margin-bottom:6px;">Paywall upgrade</div>
+            <div class="txt-sub" style="font-size:6.5px;">Paywall disclaimer</div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>PaywallView</h3><span class="tag tag-live">Live</span></div>
+          <div class="path">Views/Druid/PaywallView.swift</div>
+          <div class="purpose">Premium upsell shown at the free-scan quota gate, from "Unlock more", and from "Buy me a coffee".</div>
+          <ul class="notes"><li><b>Every string here is a raw localization key</b> ("Paywall headline", "Paywall benefit unlimited scans", etc.) rendering literally rather than real marketing copy — this screen has never been through content pass.</li><li><b>onUpgradeTap defaults to a no-op</b> and none of the 4 call sites supply a real handler — there is no StoreKit/IAP wiring behind this button at all today.</li></ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= INTERNAL TOOLS ================= -->
+<section class="feature" id="internal">
+  <div class="wrap">
+    <h2>Internal tools <span class="count">1 screen</span></h2>
+    <p>Not part of any user-facing flow — a developer-only surface, reachable only in DEBUG builds.</p>
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="inner px24 stack" style="padding-top:60px;gap:12px;">
+            <div class="txt-title" style="font-size:16px;">Design System Foundry</div>
+            <div class="big-card" style="padding:10px;font-size:8px;color:var(--on-surface-variant);">🔒 Password</div>
+            <div class="btn-ghost" style="padding:9px 0;font-size:8px;">Unlock Foundry</div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>Foundry password gate</h3><span class="tag tag-live">Live</span> <span class="tag tag-dead" style="margin-left:-4px;">DEBUG-only</span></div>
+          <div class="path">Views/Druid/DruidProfileView.swift:356</div>
+          <div class="purpose">Gates <span class="path" style="display:inline">DesignSystemGalleryView</span> — the app's own internal component/token showcase (see <a href="design-system.html">design-system.html</a> for its full contents, folded into this audit's design system page).</div>
+          <ul class="notes"><li>Password is a hardcoded literal <code>"Test"</code> compared in plain Swift — trivial to find via static analysis of the binary, though the whole surface is DEBUG-only and shouldn't ship in a Release build at all. Worth a build-config check before submission.</li></ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= DEAD CODE ================= -->
+<section class="feature" id="dead">
+  <div class="wrap">
+    <h2>Dead code <span class="count">4 screens</span></h2>
+    <p>Fully built SwiftUI screens with no caller anywhere in the app — confirmed via reference search, not inferred. Each duplicates a live screen and appears to be an earlier iteration left behind.</p>
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="inner px24 stack" style="padding-top:40px;gap:10px;">
+            <div class="txt-title" style="font-size:22px;">The <span class="txt-accent">Scan</span></div>
+            <div class="txt-sub" style="font-size:8.5px;margin-bottom:6px;">Capture a specimen — the Botanist consults the archive.</div>
+            <div class="big-card" style="aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;">
+              <span style="font-size:22px;">📸</span>
+              <span style="font-size:7px;color:var(--on-surface-variant);text-align:center;padding:0 14px;">Use the camera or your photo library to identify a plant.</span>
+            </div>
+            <div class="btn-primary" style="padding:9px 0;font-size:8px;">Open camera</div>
+            <div class="btn-ghost" style="padding:8px 0;font-size:8px;">⬆ Choose from library</div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>IdentifyView</h3><span class="tag tag-dead">Dead code</span></div>
+          <div class="path">Views/Identify/IdentifyView.swift</div>
+          <div class="purpose">A full duplicate of Home's entire scan pipeline (camera/library/paywall/Scanner/Results) with static card UI instead of Home's capsule button.</div>
+          <ul class="notes"><li>Superseded by <b>HomeView</b>'s scan flow. No reference to <code>IdentifyView(</code> anywhere in the codebase.</li></ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="inner px24" style="padding-top:32px;">
+            <div class="row" style="justify-content:space-between;margin-bottom:10px;"><span class="txt-title" style="font-size:17px;">Druid</span><div class="circle-btn" style="width:22px;height:22px;font-size:9px;">⚙️</div></div>
+            <div class="big-card" style="padding:14px;margin-bottom:8px;">
+              <div class="row" style="gap:10px;margin-bottom:10px;"><div style="width:40px;height:40px;border-radius:50%;background:radial-gradient(circle,rgba(147,188,16,.4),var(--surface-container-low));"></div><div class="stack" style="gap:1px;"><span style="font-size:9px;font-weight:800;">Mariana</span><span style="font-size:6.5px;color:var(--on-surface-variant);">Explorer</span></div></div>
+              <div class="row" style="justify-content:space-around;text-align:center;">
+                <div class="stack" style="gap:1px;"><span style="font-size:10px;font-weight:800;color:var(--primary);">12</span><span style="font-size:6px;color:var(--on-surface-variant);">Plants</span></div>
+                <div class="stack" style="gap:1px;"><span style="font-size:10px;font-weight:800;color:var(--primary);">9</span><span style="font-size:6px;color:var(--on-surface-variant);">Species</span></div>
+                <div class="stack" style="gap:1px;"><span style="font-size:10px;font-weight:800;color:var(--primary);">15</span><span style="font-size:6px;color:var(--on-surface-variant);">Scans</span></div>
+              </div>
+            </div>
+            <span style="font-size:8px;font-weight:800;">Field Intelligence</span>
+            <div class="row" style="gap:5px;margin-top:5px;"><div class="big-card" style="flex:1;padding:7px;"><span style="font-size:5.5px;color:var(--on-surface-variant);">FAMILIES</span><div style="font-size:9px;font-weight:800;">4</div></div><div class="big-card" style="flex:1;padding:7px;"><span style="font-size:5.5px;color:var(--on-surface-variant);">STREAK</span><div style="font-size:9px;font-weight:800;">3 days</div></div></div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>ProfileView</h3><span class="tag tag-dead">Dead code</span></div>
+          <div class="path">Views/Druid/ProfileView.swift</div>
+          <div class="purpose">A differently-styled profile: avatar + stat row, "Field Intelligence" bento grid, achievements, recent-discoveries feed.</div>
+          <ul class="notes"><li>Superseded by <b>DruidProfileView</b>. Its settings sheet copy literally says "Account and notifications will connect to Supabase when sign-in is enabled in this build" — an explicit placeholder that was never wired up.</li></ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="inner" style="padding:0;height:100%;position:relative;">
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg, transparent 40%, rgba(11,15,8,.95) 100%), linear-gradient(160deg,#3a4a28,#1a1d16);"></div>
+            <div class="row" style="position:absolute;top:16px;left:16px;right:16px;justify-content:space-between;">
+              <div class="circle-btn" style="width:26px;height:26px;font-size:10px;">✕</div>
+              <div class="row" style="gap:6px;">
+                <div class="circle-btn" style="width:26px;height:26px;font-size:9px;opacity:.55;">↑</div>
+                <div class="circle-btn" style="width:26px;height:26px;font-size:10px;">↻</div>
+              </div>
+            </div>
+            <div class="pill" style="position:absolute;top:16px;left:50%;transform:translateX(-50%);background:var(--primary);padding:4px 9px;font-size:5.5px;font-weight:800;letter-spacing:.1em;color:var(--on-primary);">BOTANICAL DETAIL</div>
+            <div class="stack px24" style="position:absolute;left:0;right:0;bottom:14px;gap:5px;">
+              <div class="pill" style="background:var(--primary);align-self:flex-start;padding:3px 8px;font-size:6px;font-weight:800;color:var(--on-primary);">New discovery</div>
+              <div class="txt-title" style="font-size:19px;">Monstera Deliciosa</div>
+              <div class="txt-sub" style="font-size:8px;font-style:italic;">Monstera deliciosa</div>
+            </div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>BotanicalCardDetailView — front</h3><span class="tag tag-dead">Dead code</span></div>
+          <div class="path">Views/Herbarium/BotanicalCardDetailView.swift</div>
+          <div class="purpose">Another flip-card front face, pixel-matched to the original <span class="path" style="display:inline">docs/ui-screens/botanicalcard-front/code.html</span> spec.</div>
+          <ul class="notes"><li>Superseded by <b>BotanicalCardImmersiveView</b>. Share button is <code>.disabled(true)</code> with label "Share — coming soon".</li></ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><div class="phone"><div class="screen">
+          <div class="inner px24" style="padding-top:20px;">
+            <div class="row" style="gap:8px;margin-bottom:10px;"><div style="width:36px;height:36px;border-radius:50%;border:2px solid var(--primary);"></div><div class="stack" style="gap:1px;"><span style="font-size:9px;font-weight:800;">Monstera deliciosa</span><span style="font-size:6.5px;font-weight:800;color:var(--primary);">MONSTERA DELICIOSA</span></div></div>
+            <span style="font-size:6px;font-weight:800;letter-spacing:.1em;color:var(--on-surface-variant);">MAIN PROPERTIES</span>
+            <div class="stack" style="gap:5px;margin:5px 0 10px;">
+              <div class="row big-card" style="padding:7px;justify-content:space-between;"><span style="font-size:7px;color:var(--on-surface-variant);">🍃 Type</span><span style="font-size:7px;font-weight:700;">Climbing aroid</span></div>
+              <div class="row big-card" style="padding:7px;justify-content:space-between;"><span style="font-size:7px;color:var(--on-surface-variant);">☀️ Light</span><span style="font-size:7px;font-weight:700;">Bright indirect</span></div>
+            </div>
+            <div class="stack" style="background:rgba(147,188,16,.12);border:1px solid rgba(147,188,16,.22);border-radius:16px;padding:10px;gap:4px;">
+              <span style="font-size:6px;font-weight:800;letter-spacing:.1em;color:var(--primary);">BOTANICAL SPIRIT</span>
+              <div style="height:10px;border-radius:4px;background:rgba(255,255,255,.12);width:80%;"></div>
+              <div style="height:10px;border-radius:4px;background:rgba(255,255,255,.12);width:55%;"></div>
+            </div>
+          </div>
+        </div></div></div>
+        <div class="card-body">
+          <div class="title-row"><h3>BotanicalCardDetailView — back</h3><span class="tag tag-dead">Dead code</span></div>
+          <div class="path">Views/Herbarium/BotanicalCardDetailView.swift · BotanicalCardBackFace</div>
+          <div class="purpose">Redacted-placeholder loading rows shown here simulate a <code>fakeEnrichmentDelay()</code> — a hardcoded <code>Task.sleep(450ms)</code>, not a real enrichment call.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer class="summary" id="summary">
+  <div class="wrap">
+    <h2>Summary</h2>
+    <div class="stat-row">
+      <div class="stat"><b>12</b><span>Live screens</span></div>
+      <div class="stat"><b>4</b><span>Dead-code screens</span></div>
+      <div class="stat"><b>20</b><span>States captured</span></div>
+      <div class="stat"><b>1</b><span>Rogue color token found (Scanner)</span></div>
+      <div class="stat"><b>0</b><span>StoreKit calls behind Paywall</span></div>
+    </div>
+    <p style="color:var(--ink-dim);font-size:13px;max-width:760px;line-height:1.6;margin-top:20px;">
+      See <a href="design-system.html">design-system.html</a> for the full token/component audit, and <a href="qa-launch-checklist.html">qa-launch-checklist.html</a> for the test plan and launch-readiness gaps referenced throughout this gallery.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

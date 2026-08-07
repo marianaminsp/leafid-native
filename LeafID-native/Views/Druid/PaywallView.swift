@@ -11,6 +11,8 @@ import UIKit
 #endif
 
 struct PaywallView: View {
+    /// IAP isn't wired yet (see `Paywall disclaimer` copy) — false until a real purchase flow lands.
+    var isUpgradeWired: Bool = false
     var onUpgradeTap: () -> Void = {}
 
     @Environment(\.dismiss) private var dismiss
@@ -107,7 +109,16 @@ struct PaywallView: View {
             #if canImport(UIKit)
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             #endif
-            onUpgradeTap()
+            if isUpgradeWired {
+                onUpgradeTap()
+            } else {
+                Task { @MainActor in
+                    ToastCenter.shared.show(
+                        String(localized: "Paywall disclaimer"),
+                        kind: .success
+                    )
+                }
+            }
         } label: {
             Text(String(localized: "Paywall upgrade"))
                 .font(LeafIDFont.plusJakarta(size: 18, weight: .bold))

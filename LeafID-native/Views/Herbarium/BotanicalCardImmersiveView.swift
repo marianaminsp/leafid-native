@@ -147,7 +147,7 @@ struct BotanicalCardImmersiveView: View {
 
     var body: some View {
         GeometryReader { geo in
-            let horizontalCardInset: CGFloat = 0
+            let horizontalCardInset = LeafIDTheme.screenHorizontalPadding
             let cardWidth = geo.size.width - (2 * horizontalCardInset)
             let topPad = geo.safeAreaInsets.top + 4
             let bottomGap: CGFloat = 0
@@ -174,7 +174,7 @@ struct BotanicalCardImmersiveView: View {
                         paletteHexes: mergedPaletteHexes,
                         spiritText: mergedSpirit,
                         ethnobotanyText: mergedEthnobotany,
-                        culturalLegacyText: mergedCulturalLegacy
+                        culturalLegacyText: culturalLegacyDisplay.isEmpty ? mergedCulturalLegacy : culturalLegacyDisplay
                     )
                     .frame(width: cardWidth, height: bodyContentHeight)
                     .frame(width: cardWidth, height: cardHeight, alignment: .top)
@@ -500,7 +500,7 @@ private struct CardFrontView: View {
             ZStack(alignment: .bottom) {
                 #if canImport(UIKit)
                 Group {
-                    specimenUIKit(scan: scan)
+                    ImmersiveSpecimenFill(scan: scan)
                 }
                 .aspectRatio(contentMode: .fill)
                 .frame(width: g.size.width, height: g.size.height)
@@ -718,17 +718,23 @@ private struct CardBackView: View {
     }
 }
 
+/// Shared hero-image fill for both the front-card hero and the back-card avatar. Prefers the
+/// auto-processed card image (`Scan.cardImageURL`) and falls back to the raw capture; if no card
+/// image exists yet, lazily kicks off generation so older/pending scans self-heal over time
+/// (`BotanyService.ensureCardImageIfNeeded`, see docs on the automatic photo-intervention pipeline).
 private struct ImmersiveSpecimenFill: View {
     let scan: Scan
+    @EnvironmentObject private var herbarium: HerbariumViewModel
+    @EnvironmentObject private var auth: AuthViewModel
 
     var body: some View {
         Group {
             #if canImport(UIKit)
-            if let ui = scan.uiImageForLocalCaptureDisplay() {
+            if let ui = scan.uiImageForLocalDisplay() {
                 Image(uiImage: ui)
                     .resizable()
                     .scaledToFill()
-            } else if let remote = scan.resolvedRemoteImageURL {
+            } else if let remote = scan.resolvedRemoteDisplayURL {
                 AsyncImage(url: remote) { phase in
                     switch phase {
                     case .empty:
@@ -754,49 +760,17 @@ private struct ImmersiveSpecimenFill: View {
             #endif
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        #if canImport(UIKit) && canImport(CoreImage) && canImport(Vision)
+        .task(id: scan.id) {
+            await BotanyService.ensureCardImageIfNeeded(for: scan, herbarium: herbarium, auth: auth)
+        }
+        #endif
     }
 
     private var placeholder: some View {
         LeafIDTheme.surfaceContainerLow
     }
 }
-
-#if canImport(UIKit)
-@ViewBuilder
-private func specimenUIKit(scan: Scan) -> some View {
-    if let ui = scan.uiImageForLocalCaptureDisplay() {
-        Image(uiImage: ui)
-            .resizable()
-            .scaledToFill()
-    } else if let remote = scan.resolvedRemoteImageURL {
-        AsyncImage(url: remote) { phase in
-            switch phase {
-            case .empty:
-                ZStack {
-                    LeafIDTheme.surfaceContainerHigh
-                    ProgressView().tint(LeafIDTheme.primary)
-                }
-            case let .success(image):
-                image
-                    .resizable()
-                    .scaledToFill()
-            case .failure:
-                ImmersiveSpecimenMissingPlaceholder()
-            @unknown default:
-                ImmersiveSpecimenMissingPlaceholder()
-            }
-        }
-    } else {
-        ImmersiveSpecimenMissingPlaceholder()
-    }
-}
-
-private struct ImmersiveSpecimenMissingPlaceholder: View {
-    var body: some View {
-        LeafIDTheme.surfaceContainerLow
-    }
-}
-#endif
 
 #if canImport(UIKit)
 private struct BotanicalImmersiveActivityView: UIViewControllerRepresentable {

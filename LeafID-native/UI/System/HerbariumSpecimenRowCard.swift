@@ -8,6 +8,8 @@ struct HerbariumSpecimenRowCard: View {
     let scan: Scan
     var namespace: Namespace.ID? = nil
     var matchedGeometryId: UUID? = nil
+    @EnvironmentObject private var herbarium: HerbariumViewModel
+    @EnvironmentObject private var auth: AuthViewModel
 
     var body: some View {
         HStack(alignment: .center, spacing: LeafIDTheme.space16) {
@@ -65,26 +67,33 @@ struct HerbariumSpecimenRowCard: View {
     private var rowThumbnailFill: some View {
         let side = LeafIDTheme.herbariumRowThumbnail
         #if canImport(UIKit)
-        if let remote = scan.resolvedRemoteImageURL {
-            AsyncImage(url: remote) { phase in
-                switch phase {
-                case .empty:
-                    ProgressView().tint(LeafIDTheme.primary)
-                case let .success(image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: side, height: side)
-                        .clipped()
-                case .failure:
-                    rowThumbnailLocalFallback(side: side)
-                @unknown default:
-                    EmptyView()
+        Group {
+            if let remote = scan.resolvedRemoteDisplayURL {
+                AsyncImage(url: remote) { phase in
+                    switch phase {
+                    case .empty:
+                        ProgressView().tint(LeafIDTheme.primary)
+                    case let .success(image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: side, height: side)
+                            .clipped()
+                    case .failure:
+                        rowThumbnailLocalFallback(side: side)
+                    @unknown default:
+                        EmptyView()
+                    }
                 }
+            } else {
+                rowThumbnailLocalFallback(side: side)
             }
-        } else {
-            rowThumbnailLocalFallback(side: side)
         }
+        #if canImport(CoreImage) && canImport(Vision)
+        .task(id: scan.id) {
+            await BotanyService.ensureCardImageIfNeeded(for: scan, herbarium: herbarium, auth: auth)
+        }
+        #endif
         #else
         rowLeafGlyph
         #endif
@@ -93,7 +102,7 @@ struct HerbariumSpecimenRowCard: View {
     #if canImport(UIKit)
     @ViewBuilder
     private func rowThumbnailLocalFallback(side: CGFloat) -> some View {
-        if let ui = scan.uiImageForLocalCaptureDisplay() {
+        if let ui = scan.uiImageForLocalDisplay() {
             Image(uiImage: ui)
                 .resizable()
                 .scaledToFill()
@@ -131,5 +140,7 @@ struct HerbariumSpecimenRowCard_Previews: PreviewProvider {
         )
         .padding()
         .background(LeafIDTheme.surface)
+        .environmentObject(HerbariumViewModel())
+        .environmentObject(AuthViewModel())
     }
 }

@@ -96,7 +96,7 @@ final class AuthViewModel: ObservableObject {
     /// JWT for PostgREST / Storage when the user is signed in (RLS expects `Authorization: Bearer <user access token>`).
     var supabaseAccessToken: String? {
         guard isAuthenticated else { return nil }
-        let t = defaults.string(forKey: sessionAccessTokenKey)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let t = KeychainTokenStore.string(forKey: sessionAccessTokenKey)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return t.isEmpty ? nil : t
     }
 
@@ -223,8 +223,8 @@ final class AuthViewModel: ObservableObject {
             lastError = String(localized: "Enter both email and password.")
             return
         }
-        guard password.count >= 6 else {
-            lastError = String(localized: "Password must be at least 6 characters.")
+        guard password.count >= 8 else {
+            lastError = String(localized: "Password must be at least 8 characters.")
             return
         }
 
@@ -288,7 +288,7 @@ final class AuthViewModel: ObservableObject {
             lastError = String(localized: "Password must be at least 8 characters.")
             return
         }
-        guard let accessToken = defaults.string(forKey: sessionAccessTokenKey), !accessToken.isEmpty else {
+        guard let accessToken = KeychainTokenStore.string(forKey: sessionAccessTokenKey), !accessToken.isEmpty else {
             lastError = String(localized: "Recovery session expired. Request another reset email.")
             return
         }
@@ -320,7 +320,7 @@ final class AuthViewModel: ObservableObject {
 
     private func restoreSession() async {
         defer { isLoadingSession = false }
-        guard let accessToken = defaults.string(forKey: sessionAccessTokenKey), !accessToken.isEmpty else {
+        guard let accessToken = KeychainTokenStore.string(forKey: sessionAccessTokenKey), !accessToken.isEmpty else {
             clearSession()
             return
         }
@@ -391,8 +391,8 @@ final class AuthViewModel: ObservableObject {
     }
 
     private func clearSession() {
-        defaults.removeObject(forKey: sessionAccessTokenKey)
-        defaults.removeObject(forKey: sessionRefreshTokenKey)
+        KeychainTokenStore.removeObject(forKey: sessionAccessTokenKey)
+        KeychainTokenStore.removeObject(forKey: sessionRefreshTokenKey)
         defaults.removeObject(forKey: sessionExpiryEpochKey)
         defaults.set(false, forKey: druidLoggedInKey)
         defaults.removeObject(forKey: druidRealNameKey)
@@ -408,11 +408,11 @@ final class AuthViewModel: ObservableObject {
     }
 
     private func persistSessionTokens(accessToken: String, refreshToken: String?, expiresAtEpoch: TimeInterval?) {
-        defaults.set(accessToken, forKey: sessionAccessTokenKey)
+        KeychainTokenStore.set(accessToken, forKey: sessionAccessTokenKey)
         if let refreshToken, !refreshToken.isEmpty {
-            defaults.set(refreshToken, forKey: sessionRefreshTokenKey)
+            KeychainTokenStore.set(refreshToken, forKey: sessionRefreshTokenKey)
         } else {
-            defaults.removeObject(forKey: sessionRefreshTokenKey)
+            KeychainTokenStore.removeObject(forKey: sessionRefreshTokenKey)
         }
         if let expiresAtEpoch {
             defaults.set(expiresAtEpoch, forKey: sessionExpiryEpochKey)

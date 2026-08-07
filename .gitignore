@@ -66,3 +66,15 @@ supabase/.env.local
 supabase/.env.*.local
 supabase/.env.keys
 .DS_Store
+
+# AI tooling (local skill packages, personal permission/hook config)
+.agents/
+agent/
+.claude/skills/
+.claude/settings.local.json
+.codex/
+skills-lock.json
+
+# Working reference material, not shipped app content
+New references/
+stitch_botanical_explorer/

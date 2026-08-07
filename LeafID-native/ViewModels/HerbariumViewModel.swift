@@ -148,6 +148,11 @@ final class HerbariumViewModel: ObservableObject {
         }
         scans.insert(scan, at: 0)
         persistScans()
+        #if DEBUG
+        let scheme = URL(string: scan.photoURL)?.scheme ?? "?"
+        let uid = scan.userId?.uuidString ?? "nil"
+        print("[LeafID][herbarium][appendPreserved] id=\(scan.id.uuidString) user_id=\(uid) sci=\(scan.scientificName) photoScheme=\(scheme) total=\(scans.count)")
+        #endif
     }
 
     /// Updates a persisted scan in place (e.g. reverse-geocoded capture location after save).

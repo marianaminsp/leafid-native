@@ -20,7 +20,13 @@ enum CapturePickLocationEngine {
             return (c, city)
         }
         guard useDeviceFallback else { return (nil, nil) }
-        return await OneShotLocationRequest().requestCoordinateAndLocality()
+        // Best-effort GPS tag during capture — shouldn't leave the user staring at "Analyzing…"
+        // waiting on a permission dialog. A scan without a coordinate still saves fine; it just
+        // won't show a pin on Arboretum.
+        return await OneShotLocationRequest().requestCoordinateAndLocality(
+            fixWaitSeconds: 3,
+            authorizationWaitSeconds: 4
+        )
     }
 }
 
@@ -44,29 +50,47 @@ final class OneShotLocationRequest: NSObject, CLLocationManagerDelegate {
     private let manager = CLLocationManager()
     private var continuation: CheckedContinuation<(CLLocationCoordinate2D?, String?), Never>?
     private var timeoutTask: Task<Void, Never>?
+    private var fixWaitSeconds: TimeInterval = 8
 
-    func requestCoordinateAndLocality(maxWaitSeconds: TimeInterval = 3) async -> (CLLocationCoordinate2D?, String?) {
+    /// `fixWaitSeconds`: how long to wait for an actual GPS fix once we have permission — CoreLocation's
+    /// first fix after a cold start commonly takes longer than the old flat 3s budget allowed.
+    /// `authorizationWaitSeconds`: how long to wait for the user to respond to the system permission
+    /// dialog itself — must be generous, since reading + tapping "Allow Once" reliably takes longer than
+    /// the old code gave it, which meant we gave up before the user could even answer.
+    func requestCoordinateAndLocality(
+        fixWaitSeconds: TimeInterval = 8,
+        authorizationWaitSeconds: TimeInterval = 60
+    ) async -> (CLLocationCoordinate2D?, String?) {
         await withCheckedContinuation { cont in
             continuation = cont
+            self.fixWaitSeconds = fixWaitSeconds
             manager.delegate = self
             manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
 
             switch manager.authorizationStatus {
             case .authorizedAlways, .authorizedWhenInUse:
                 manager.requestLocation()
+                startTimeout(fixWaitSeconds)
             case .notDetermined:
                 manager.requestWhenInUseAuthorization()
+                // Waiting on the user, not on GPS — the fix-acquisition timeout starts separately
+                // once locationManagerDidChangeAuthorization sees an actual answer.
+                startTimeout(authorizationWaitSeconds)
             case .denied, .restricted:
                 finish((nil, nil))
             @unknown default:
                 finish((nil, nil))
             }
+        }
+    }
 
-            timeoutTask = Task { [weak self] in
-                let ns = UInt64(maxWaitSeconds * 1_000_000_000)
-                try? await Task.sleep(nanoseconds: ns)
-                await MainActor.run { self?.finish((nil, nil)) }
-            }
+    private func startTimeout(_ seconds: TimeInterval) {
+        timeoutTask?.cancel()
+        timeoutTask = Task { [weak self] in
+            let ns = UInt64(seconds * 1_000_000_000)
+            try? await Task.sleep(nanoseconds: ns)
+            guard !Task.isCancelled else { return }
+            await MainActor.run { self?.finish((nil, nil)) }
         }
     }
 
@@ -85,6 +109,7 @@ final class OneShotLocationRequest: NSObject, CLLocationManagerDelegate {
             switch manager.authorizationStatus {
             case .authorizedAlways, .authorizedWhenInUse:
                 manager.requestLocation()
+                startTimeout(fixWaitSeconds)
             case .denied, .restricted:
                 finish((nil, nil))
             default:

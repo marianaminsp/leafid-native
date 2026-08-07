@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LeafID — QA &amp; Launch Checklist</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+  --page-bg:#08090a; --panel-bg:#111312; --panel-border:#22251f;
+  --ink:#e9ece4; --ink-dim:#9a9d92; --accent:#93BC10;
+  --tag-blocker:#5a2323; --tag-blocker-fg:#ffb4b0;
+  --tag-high:#5a4318; --tag-high-fg:#f5c877;
+  --tag-medium:#3a3560; --tag-medium-fg:#c8c1ff;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--page-bg);color:var(--ink);font-family:var(--sans);}
+body{padding-bottom:80px;}
+a{color:var(--accent);}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:4px;font-size:.92em;}
+.wrap{max-width:1100px;margin:0 auto;padding:0 28px;}
+header.hero{padding:56px 0 32px;border-bottom:1px solid var(--panel-border);}
+header.hero h1{font-size:34px;margin:0 0 8px;letter-spacing:-0.02em;}
+header.hero p.lede{font-size:16px;color:var(--ink-dim);max-width:780px;line-height:1.55;margin:0 0 20px;}
+.methodology{margin-top:22px;padding:16px 18px;background:var(--panel-bg);border:1px solid var(--panel-border);border-left:3px solid var(--accent);border-radius:10px;font-size:13.5px;color:var(--ink-dim);line-height:1.6;}
+.methodology b{color:var(--ink);}
+nav.jump{position:sticky;top:0;z-index:50;background:color-mix(in srgb, var(--page-bg) 88%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--panel-border);}
+nav.jump .wrap{display:flex;gap:4px;overflow-x:auto;padding:12px 28px;align-items:center;justify-content:space-between;}
+nav.jump .links{display:flex;gap:4px;}
+nav.jump a{white-space:nowrap;font-size:13px;color:var(--ink-dim);text-decoration:none;padding:8px 12px;border-radius:8px;font-weight:600;}
+nav.jump a:hover{color:var(--ink);background:var(--panel-bg);}
+#progress{font-size:12px;color:var(--ink-dim);font-family:ui-monospace,monospace;white-space:nowrap;padding-left:12px;}
+#progress b{color:var(--accent);}
+
+section.feature{padding:48px 0 8px;}
+section.feature h2{font-size:24px;margin:0 0 6px;}
+section.feature > p{color:var(--ink-dim);font-size:14px;margin:0 0 24px;max-width:780px;line-height:1.55;}
+h3.group{font-size:15px;margin:34px 0 4px;color:var(--ink);display:flex;align-items:center;gap:10px;}
+h3.group .n{font-size:11px;font-weight:600;color:var(--ink-dim);background:var(--panel-bg);border:1px solid var(--panel-border);padding:2px 8px;border-radius:999px;}
+p.group-note{margin:0 0 12px;font-size:12.5px;color:var(--ink-dim);}
+
+.checklist{list-style:none;margin:0;padding:0;border:1px solid var(--panel-border);border-radius:12px;overflow:hidden;background:var(--panel-bg);}
+.checklist li{border-bottom:1px solid var(--panel-border);}
+.checklist li:last-child{border-bottom:none;}
+label.check{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;cursor:pointer;font-size:13.5px;line-height:1.5;}
+label.check:hover{background:rgba(255,255,255,.02);}
+label.check input{margin-top:3px;width:16px;height:16px;accent-color:var(--accent);flex-shrink:0;cursor:pointer;}
+label.check span.txt{color:var(--ink);}
+label.check input:checked ~ span.txt{color:var(--ink-dim);text-decoration:line-through;text-decoration-color:rgba(154,157,146,.5);}
+
+/* gap cards */
+.tag{font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:3px 10px;border-radius:6px;text-transform:uppercase;white-space:nowrap;}
+.tag-blocker{background:var(--tag-blocker);color:var(--tag-blocker-fg);}
+.tag-high{background:var(--tag-high);color:var(--tag-high-fg);}
+.tag-medium{background:var(--tag-medium);color:var(--tag-medium-fg);}
+.tag-resolved{background:#1e3a1e;color:#8fd68f;}
+.tag-deferred{background:#2a2f45;color:#a9b4e8;}
+.gap{border:1px solid var(--panel-border);background:var(--panel-bg);border-radius:12px;padding:16px 18px;margin-bottom:12px;}
+.gap .head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.gap .head h4{margin:0;font-size:14.5px;}
+.gap p{margin:0 0 8px;font-size:13px;color:var(--ink);line-height:1.55;}
+.gap .consequence{font-size:12.5px;color:var(--ink-dim);line-height:1.5;padding:8px 12px;background:rgba(255,255,255,.03);border-radius:8px;border-left:2px solid var(--accent);}
+.gap .consequence b{color:var(--ink);}
+.gap .loc{font-family:ui-monospace,monospace;font-size:11px;color:var(--ink-dim);margin-top:6px;}
+
+footer.summary{margin-top:70px;padding:36px 0;border-top:1px solid var(--panel-border);}
+.stat-row{display:flex;gap:32px;flex-wrap:wrap;}
+.stat{min-width:120px;}
+.stat b{display:block;font-size:26px;color:var(--accent);}
+.stat span{font-size:12px;color:var(--ink-dim);}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>LeafID — QA &amp; Launch Checklist</h1>
+    <p class="lede">Two parts: a real, screen-by-screen QA test plan scoped to what actually exists in this app today (not generic boilerplate), and a prioritized list of what's missing before this can go to the App Store — each gap with a plain-language consequence, not just a label.</p>
+    <div class="methodology">
+      <b>How to use this:</b> checkboxes persist locally in this browser (saved via <code>localStorage</code>, keyed to this file) — check things off as you test and reload any time without losing progress. This is a starting checklist, not a finished one: as you test, you'll find edge cases worth adding.
+      <br><br>
+      <b>Updated 2026-08-06:</b> re-reviewed against current code. Several blockers below are now resolved (marked <span class="tag tag-resolved">Resolved</span>) — App Icon, privacy manifest, Keychain token storage, and a real test target all landed. Arboretum (map) has been deferred from MVP per <a href="../DECISIONS/ADR-0002-arboretum-mvp-deferral.md"><code>ADR-0002</code></a> — its QA section is collapsed below, full case list preserved under "Post-MVP."
+    </div>
+  </div>
+</header>
+
+<nav class="jump">
+  <div class="wrap">
+    <div class="links">
+      <a href="#qa">QA test plan</a>
+      <a href="#gaps">Launch-readiness gaps</a>
+      <a href="#post-mvp">Post-MVP</a>
+      <a href="#summary">Summary</a>
+    </div>
+    <div id="progress">0 / 0 checked</div>
+  </div>
+</nav>
+
+<!-- ================= PART A: QA ================= -->
+<section class="feature" id="qa">
+  <div class="wrap">
+    <h2>Part A — QA test plan</h2>
+    <p>Organized by what you can actually break in this app right now, following the same screen inventory as <a href="screens-gallery.html">screens-gallery.html</a>.</p>
+
+    <h3 class="group">Auth <span class="n">18</span></h3>
+    <ul class="checklist">
+      <li><label class="check"><input type="checkbox" data-id="auth-1"><span class="txt">Sign in with valid email/password succeeds and lands on Home</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-2"><span class="txt">Sign in with wrong password shows the Supabase error message, not a raw/technical one</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-3"><span class="txt">Sign up with a new email creates an account and shows the "check your email" notice</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-4"><span class="txt">Sign up with an already-registered email fails gracefully</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-5"><span class="txt">Password field eye-toggle shows/hides text correctly on both Login and Recovery</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-6"><span class="txt">"Continue with Google" opens the OAuth flow and returns via deep link to a signed-in state</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-7"><span class="txt">Google OAuth cancel/deny path returns to Login without a stuck loading state</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-8"><span class="txt">"Forgot?" opens the recovery request sheet pre-filled with the typed email</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-9"><span class="txt">Recovery email send succeeds and dismisses the sheet</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-10"><span class="txt">Tapping the recovery link on device opens the app into PasswordRecoveryView, not Safari</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-11"><span class="txt">New password + confirm mismatch is caught before hitting the network</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-12"><span class="txt">Password under the minimum length is rejected with a clear message (note: signup allows 6 chars, reset requires 8 — confirm this is intentional)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-13"><span class="txt">"Back to login" from recovery correctly exits recovery mode</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-14"><span class="txt">Sign out from Druid tab returns to LoginView and clears session state</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-15"><span class="txt">Killing and relaunching the app after sign-in restores the session without re-prompting login</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-16"><span class="txt">Session expiry mid-use is handled (re-auth prompt, not a silent failure on next request)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-17"><span class="txt">Toggling Sign in ⇄ Sign up preserves the typed email but clears errors/notices</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="auth-18"><span class="txt">Missing Supabase config (fresh clone without Secrets.local.xcconfig) shows the intended configuration error, not a crash</span></label></li>
+    </ul>
+
+    <h3 class="group">Scan flow <span class="n">16</span></h3>
+    <ul class="checklist">
+      <li><label class="check"><input type="checkbox" data-id="scan-1"><span class="txt">Camera permission prompt appears on first scan attempt; denying it shows the in-app error overlay, not a silent black screen</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="scan-2"><span class="txt">Camera permission previously denied → re-opening Scanner shows the error overlay immediately (no prompt spam)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="scan-3"><span class="txt">Shutter capture produces a usable JPEG and transitions to the analyze screen</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="scan-4"><span class="txt">Rapid double-tap on the shutter doesn't double-submit (isShutterBusy guard)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="scan-5"><span class="txt">Upload-from-Gallery path (no camera / Simulator) reaches the same analyze screen as live capture</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="scan-6"><span class="txt">Analyze screen calls the real <code>identify-plant</code> Supabase function when configured</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="scan-7"><span class="txt">Analyze screen falls back gracefully (with visible "fallback"/low-confidence messaging) when Supabase isn't configured or the call fails</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="scan-8"><span class="txt">"Retry identification" on the error banner actually re-runs against the same photo</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="scan-9"><span class="txt">High-confidence result (&gt;=85%) shows the match badge; below threshold it's hidden, not showing "0%"</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="scan-10"><span class="txt">Tapping the result title opens the immersive preview card with the same (unsaved) photo</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="scan-11"><span class="txt">"Save to Herbarium" persists the scan, shows the success toast, and closes back to Home</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="scan-12"><span class="txt">Save failure (disk/storage issue) shows the "Couldn't save" alert instead of silently dropping the scan</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="scan-13"><span class="txt">"Scan another specimen" correctly reopens camera or library based on availability</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="scan-14"><span class="txt">Location (lat/lon/locality) is attached to a scan taken with location permission granted, and gracefully omitted when denied</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="scan-15"><span class="txt">Share sheet from Scan Results includes both the photo and a readable text summary</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="scan-16"><span class="txt">4th scan attempt on the free tier (3-scan quota) opens the Paywall instead of the camera</span></label></li>
+    </ul>
+
+    <h3 class="group">Identification &amp; Cultural Content <span class="n">9</span></h3>
+    <p class="group-note">This is the actual product — a culture app, not a gardening app: name + species is table stakes, the Botanical Spirit / Ethnobotany / Cultural Legacy content is the differentiator. Narrative generation moved server-side this session (<code>narrate-plant</code> edge function), then got a shared species cache (<code>plant_narrative_cache</code>, see <a href="../DECISIONS/ADR-0004-narrative-cache-and-free-tier-providers.md"><code>ADR-0004</code></a>) — these cases verify both correctness and that the fixes actually hold.</p>
+    <ul class="checklist">
+      <li><label class="check"><input type="checkbox" data-id="id-content-1"><span class="txt">Across a range of real plants (common houseplant, a tree, a flower, a weed), Botanical Spirit / Ethnobotany / Cultural Legacy each render specific, plant-appropriate content — not the generic "family + origin" template fallback every time</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="id-content-2"><span class="txt">Network trace during a scan (Proxyman/Charles or Xcode's network debugger) shows zero direct requests to <code>generativelanguage.googleapis.com</code>, <code>openrouter.ai</code>, or <code>api.groq.com</code> from the device — only to your Supabase project. If any shows up directly, the key-exposure fix regressed</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="id-content-3"><span class="txt"><code>narrate-plant</code> returning empty/failing (simulate by breaking the endpoint URL temporarily) still shows a coherent card via the local fallback text — never a blank Botanical Spirit/Ethnobotany/Cultural Legacy section</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="id-content-4"><span class="txt">Opening an old/legacy saved scan that predates narrative content triggers the "one more fact" enrichment (<code>fetchLegacyFact</code> → <code>mode: "legacy_fact"</code>) and fills in Cultural Legacy rather than leaving it templated forever</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="id-content-5"><span class="txt">Confidence and species accuracy spot-check: photograph 5-10 known plants and confirm the identification is actually correct, not just present — this checklist has no case for identification <em>accuracy</em> elsewhere</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="id-content-6"><span class="txt">Supabase dashboard: confirm which secrets are actually set (<code>PLANTNET_API_KEY</code>, <code>GEMINI_API_KEY</code>, <code>GROQ_API_KEY</code>, <code>SUPABASE_SERVICE_ROLE_KEY</code>) and check Gemini's quota/billing status specifically, since it was found exhausted during this session's testing</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="id-content-7"><span class="txt">Cache hit: scan the same species twice (or two accounts scan the same common plant) — second identification's narrative call should be near-instant with no provider latency, confirmed via the (temporary) <code>_debug</code> field showing <code>["cache: hit"]</code> or by response timing once debug output is removed</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="id-content-8"><span class="txt">Cache miss still degrades correctly: a never-before-seen species falls through to Groq, then Gemini if Groq fails, then the local template — never a blank section, same as before caching existed</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="id-content-9"><span class="txt"><code>plant_narrative_cache</code> RLS: confirm the anon/client key can <code>SELECT</code> but cannot <code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code> — only the edge function's service-role key should be able to write to a table every user reads from</span></label></li>
+    </ul>
+
+    <h3 class="group">Home <span class="n">6</span></h3>
+    <ul class="checklist">
+      <li><label class="check"><input type="checkbox" data-id="home-1"><span class="txt">Greeting text matches time of day (Morning/Afternoon/Evening) correctly at boundary hours (5, 12, 17, 22)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="home-2"><span class="txt">Empty Last Found card shows for a new account; populates after first save</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="home-3"><span class="txt">Tapping populated Last Found opens the correct specimen's immersive card</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="home-4"><span class="txt">"Camera unavailable" alert appears correctly on Simulator / camera-less devices</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="home-5"><span class="txt">Layout holds on the smallest supported device (iPhone SE) — the manual <code>.offset(y:12)</code> nudge on the upload button doesn't clip or overlap on short screens</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="home-6"><span class="txt">VoiceOver reads the greeting, Last Found card, and both buttons in a sensible order</span></label></li>
+    </ul>
+
+    <h3 class="group">Arboretum <span class="n">2</span> <span class="tag tag-deferred">Deferred to Post-MVP</span></h3>
+    <p class="group-note">Map is shelved for MVP launch — tab stays visible, routed to <code>ArboretumComingSoonView</code>. See <a href="../DECISIONS/ADR-0002-arboretum-mvp-deferral.md"><code>ADR-0002</code></a>. Full map QA list moved to <a href="#post-mvp">Post-MVP</a>.</p>
+    <ul class="checklist">
+      <li><label class="check"><input type="checkbox" data-id="arb-coming-soon-1"><span class="txt">Arboretum tab shows the "coming soon" placeholder, not a blank/broken screen, and reads as intentional (no MapKit flash, no crash)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="arb-coming-soon-2"><span class="txt">GPS coordinates are still being captured and saved on every scan (camera + gallery paths) even though the map UI is hidden — spot-check a few saved scans' <code>latitude</code>/<code>longitude</code>/<code>locality</code> in Supabase to confirm historical pins won't be missing when Arboretum ships</span></label></li>
+    </ul>
+
+    <h3 class="group">Herbarium <span class="n">9</span></h3>
+    <ul class="checklist">
+      <li><label class="check"><input type="checkbox" data-id="herb-1"><span class="txt">List renders all saved scans with correct thumbnail, name, and species</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="herb-2"><span class="txt">Header title shrinks smoothly (34pt→22pt) on scroll without jitter</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="herb-3"><span class="txt">Empty state shows correctly for a zero-scan account</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="herb-4"><span class="txt">Tapping a row opens the immersive card with a matched-geometry transition (not an abrupt cut)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="herb-5"><span class="txt">Immersive card front resolves location correctly through the EXIF → geocode → fallback chain</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="herb-6"><span class="txt">Flip gesture/button reveals the back face with palette, Botanical Spirit, Ethnobotany, Cultural Legacy content</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="herb-7"><span class="txt">Drag-to-dismiss on the immersive card only triggers on a clear downward drag, not on vertical scroll of the back-face content</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="herb-8"><span class="txt">Share from the immersive card includes the specimen photo and name/species text</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="herb-9"><span class="txt">Pull-to-refresh re-syncs the list from Supabase</span></label></li>
+    </ul>
+
+    <h3 class="group">Druid / Paywall <span class="n">10</span></h3>
+    <ul class="checklist">
+      <li><label class="check"><input type="checkbox" data-id="druid-1"><span class="txt">Logged-out overlay shows over Druid tab and Google sign-in from it works</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="druid-2"><span class="txt">Rank/next-rank hint updates correctly at the 6/16/50-scan thresholds</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="druid-3"><span class="txt">Scan-energy quota bar and counter match actual remaining free scans</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="druid-4"><span class="txt">Premium account shows "Unlimited" instead of the quota bar</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="druid-5"><span class="txt">Achievement tiles unlock/lock correctly against real saved scans (not the placeholder catalog)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="druid-6"><span class="txt">"Unlock more" and "Buy me a coffee" both open Paywall — confirm this dual-purpose is actually intended, not a placeholder wiring mistake</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="druid-7"><span class="txt">Paywall "upgrade" button — confirm expected behavior once real copy/IAP lands (currently a no-op, see launch gap below)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="druid-8"><span class="txt">Sign out from Druid returns cleanly to LoginView</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="druid-9"><span class="txt">DEBUG-only Foundry gear icon and password gate do NOT appear in a Release build</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="druid-10"><span class="txt">Notification-driven refresh (auth change, herbarium collection change) updates Druid stats without a manual reload</span></label></li>
+    </ul>
+
+    <h3 class="group">Cross-cutting <span class="n">27</span></h3>
+    <p class="group-note">Not tied to one screen — the kind of thing that only breaks when features interact.</p>
+    <ul class="checklist">
+      <li><label class="check"><input type="checkbox" data-id="cross-1"><span class="txt">Accessibility: VoiceOver pass on every live screen (currently only 15 of 36 view files have any accessibility labels at all)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-2"><span class="txt">Accessibility: Dynamic Type at largest setting doesn't clip or overlap text anywhere (fonts are mostly fixed-size, not relative text styles — expect issues)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-3"><span class="txt">Accessibility: color contrast of onSurfaceVariant text against surface backgrounds meets WCAG AA</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-4"><span class="txt">Accessibility: Reduce Motion setting actually disables the scanner laser, pulsing dot, and map recenter animations</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-5"><span class="txt">Localization: full app walkthrough in Spanish (es.lproj) — no untranslated strings, no truncated buttons from longer Spanish text</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-6"><span class="txt">Localization: the literal-looking key "recovery_tip_safari" actually resolves to real copy on device</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-7"><span class="txt">Localization: Paywall's placeholder-looking keys ("Paywall headline" etc.) — confirm these are real content, not literally-rendering keys</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-8"><span class="txt">Device matrix: iPhone SE (smallest supported, iOS 16.4 floor)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-9"><span class="txt">Device matrix: iPhone 14/15/16 standard + Pro Max (largest)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-10"><span class="txt">Device matrix: iPad — Info.plist declares all-orientation support but no iPad-specific layout was observed in any view; verify it isn't just a stretched iPhone layout</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-11"><span class="txt">Orientation: landscape on iPhone (declared supported) doesn't break the tab bar, scanner cutout, or immersive card layout</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-12"><span class="txt">Performance: cold start time from tap to interactive Home</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-13"><span class="txt">Performance: scan → identify → results latency feels acceptable on a real network (not just local/fast wifi)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-15"><span class="txt">Performance: Herbarium list with 100+ saved scans scrolls smoothly (LazyVStack should handle this, but verify)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-16"><span class="txt">Performance: memory doesn't balloon after repeated scan → save → scan cycles (image handling)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-17"><span class="txt">Network: full offline test — every screen's behavior with no connectivity (clear error states, no infinite spinners)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-18"><span class="txt">Network: flaky/slow connection doesn't leave the analyze screen stuck past a reasonable timeout</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-19"><span class="txt">Interruptions: incoming call / notification during active camera capture doesn't crash or corrupt the session</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-20"><span class="txt">Interruptions: backgrounding mid-scan and returning resumes cleanly</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-21"><span class="txt">State restoration: force-quit and relaunch lands on a sane screen (not a stuck sheet/cover)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-22"><span class="txt">Data integrity: uninstall/reinstall doesn't leave orphaned local capture files without their Supabase-synced scan records, or vice versa</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-23"><span class="txt">Security: confirm auth tokens are not recoverable from a local device/simulator backup (see launch gap — currently in UserDefaults)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-24"><span class="txt">Privacy: camera/photo/location permission prompts show the real, specific usage strings (already verified as non-placeholder — confirm they still read naturally in Spanish too)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-25"><span class="txt">Regression: full smoke test of Auth → Scan → Save → Herbarium → Arboretum → Druid after any bug fix, not just the touched screen</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-26"><span class="txt">Regression: re-run this whole checklist once against a Release-configuration build, not just Debug</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-27"><span class="txt">Crash-free session: a full manual walkthrough with no crash reporting SDK installed means YOU are the only signal right now — log anything that even flickers wrong</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="cross-28"><span class="txt">App Store review simulation: fresh install, no dev account, walk through exactly what a reviewer would — including denying every permission prompt</span></label></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= PART B: LAUNCH GAPS ================= -->
+<section class="feature" id="gaps">
+  <div class="wrap">
+    <h2>Part B — Launch-readiness gaps</h2>
+    <p>What's actually missing before this can ship, ranked by how badly it hurts if left as-is.</p>
+
+    <h3 class="group" style="margin-top:20px;">Blockers</h3>
+    <p class="group-note">App Store Connect will likely reject the build, or a core promised feature silently doesn't work.</p>
+
+    <div class="gap">
+      <div class="head"><h4>No App Icon image</h4><span class="tag tag-resolved">Resolved</span></div>
+      <p><code>AppIcon.appiconset/Contents.json</code> now points at a real 1024×1024 PNG.</p>
+      <div class="consequence"><b>Consequence (was):</b> App Store Connect validation rejects binaries without an icon at upload. <b>Note:</b> the file is named <code>AppIcon-placeholder-1024.png</code> — this unblocks build validation, but swap in the real branded icon before actual submission (redesign deliverable, not a QA item).</div>
+      <div class="loc">Assets.xcassets/AppIcon.appiconset/Contents.json</div>
+    </div>
+
+    <div class="gap">
+      <div class="head"><h4>No PrivacyInfo.xcprivacy manifest</h4><span class="tag tag-resolved">Resolved</span></div>
+      <p><code>PrivacyInfo.xcprivacy</code> now exists, declares <code>NSPrivacyTracking=false</code> and UserDefaults as a required-reason API (reason <code>CA92.1</code>).</p>
+      <div class="consequence"><b>Note:</b> <code>NSPrivacyCollectedDataTypes</code> is currently empty, but the app collects email, location, and photos via Supabase — that's the separate App Store Connect "Privacy Nutrition Label," not this manifest, but worth a deliberate pass before submission rather than leaving it as a default empty array.</div>
+    </div>
+
+    <div class="gap">
+      <div class="head"><h4>Zero automated tests wired into the project</h4><span class="tag tag-resolved">Resolved</span></div>
+      <p>A real unit-test target now exists, wired into the scheme's <code>TestAction</code>, with 8 real tests (Keychain round-trip, GPS formatting, free-tier gate logic, color hex round-trip) replacing the old boilerplate. The unedited UI-test boilerplate was removed.</p>
+      <div class="consequence"><b>Remaining gap:</b> tests only run when someone remembers <code>Cmd+U</code> — see "No CI/CD pipeline" below, now the more load-bearing item.</div>
+    </div>
+
+    <div class="gap">
+      <div class="head"><h4>Paywall has no real purchase mechanism</h4><span class="tag tag-blocker">Blocker (if monetizing at launch)</span></div>
+      <p><code>PaywallView.onUpgradeTap</code> defaults to a no-op closure, and none of its 4 call sites supply a real one. There is no StoreKit/IAP code anywhere in the app.</p>
+      <div class="consequence"><b>Consequence:</b> if premium/monetization is meant to be live at launch, the upgrade button currently does nothing when tapped — a real user hits a dead end at the exact moment they're trying to pay you. If premium is post-launch, this is fine to defer, but the paywall shouldn't be shown to users yet in that case.</div>
+      <div class="loc">Views/Druid/PaywallView.swift:14,106-110</div>
+    </div>
+
+    <div class="gap">
+      <div class="head"><h4>Auth tokens stored in UserDefaults, not Keychain</h4><span class="tag tag-resolved">Mostly resolved</span></div>
+      <p>Session access token and refresh token now go through <code>KeychainTokenStore</code> (<code>kSecAttrAccessibleAfterFirstUnlock</code>) instead of UserDefaults.</p>
+      <div class="consequence"><b>Remaining gap:</b> the OAuth PKCE verifier is still stored in UserDefaults (<code>LeafID_nativeApp.swift:107,157,548</code>). Lower severity — it's short-lived and deleted right after the token exchange completes — but worth finishing the migration for consistency.</div>
+      <div class="loc">LeafID_nativeApp.swift, Services/KeychainTokenStore.swift</div>
+    </div>
+
+    <h3 class="group">High</h3>
+    <p class="group-note">Not an automatic rejection, but a real risk of rejection, a real security issue, or a real gap in your ability to operate the app post-launch.</p>
+
+    <div class="gap">
+      <div class="head"><h4>Privacy policy exists but isn't linked or hosted</h4><span class="tag tag-high">High</span></div>
+      <p><code>docs/PRIVACY_POLICY.md</code> is a real, written (English + Spanish) policy — but nothing in the app UI links to it, and there's no confirmed public hosted URL.</p>
+      <div class="consequence"><b>Consequence:</b> App Store Connect requires a live, publicly reachable privacy policy URL in the listing. The policy itself being well-written doesn't help if it's not reachable — this needs a hosting decision (GitHub Pages is already used for the password-reset redirect, so that pattern is available) and an in-app link, typically from Druid/Settings.</div>
+    </div>
+
+    <div class="gap">
+      <div class="head"><h4>Google Sign-In without Apple Sign-In</h4><span class="tag tag-high">High</span></div>
+      <p>Google OAuth is the only third-party sign-in option in the native app.</p>
+      <div class="consequence"><b>Consequence:</b> App Review Guideline 4.8 requires offering Sign in with Apple when any other third-party login is offered. This is a common, specific rejection reason — worth resolving before first submission rather than discovering it via a rejection.</div>
+    </div>
+
+    <div class="gap">
+      <div class="head"><h4>Third-party LLM API keys embedded in the shipped binary</h4><span class="tag tag-resolved">Resolved</span></div>
+      <p>Turned out to be bigger than just the identify fallback: the cultural/historical narrative (Botanical Spirit, Ethnobotany, Cultural Legacy — the actual "culture app" content, not gardening tips) was being generated by a <b>second</b>, separate call straight from the iPhone client to Gemini/OpenRouter, using the same embedded keys, on every single successful scan.</p>
+      <div class="consequence"><b>Fix:</b> new <code>supabase/functions/narrate-plant</code> edge function now generates that narrative server-side. <code>GEMINI_API_KEY</code>/<code>OPENROUTER_API_KEY</code> are fully removed from <code>Info.plist</code>, the pbxproj build settings, and <code>Secrets.xcconfig</code> — they're Supabase secrets now, never shipped in the app binary. Provider order and caching evolved further after this — see the next gap and <a href="../DECISIONS/ADR-0004-narrative-cache-and-free-tier-providers.md"><code>ADR-0004</code></a>.</div>
+    </div>
+
+    <div class="gap">
+      <div class="head"><h4>Identification &amp; narrative fallback chains, cost/resilience</h4><span class="tag tag-resolved">Resolved</span></div>
+      <p>Live-testing <code>narrate-plant</code> right after deploy found it silently returning empty content: <code>OPENROUTER_API_KEY</code> was dead (401), and <code>"openrouter/free"</code> was never a real OpenRouter model ID. Separately, <code>identify-plant</code> still had Plant.id and a paid OpenRouter model in its fallback chain (both since removed).</p>
+      <div class="consequence"><b>Current state:</b> <code>identify-plant</code> is Pl@ntNet → Gemini-direct (both free tier, Plant.id/paid-OpenRouter dropped). <code>narrate-plant</code> is Groq (new, reuses an already-configured but previously-unused <code>GROQ_API_KEY</code> secret) → Gemini-direct, with OpenRouter shelved (not deleted — kept in the file with a fixed real <code>:free</code> model ID, ready to re-enable once its key is rotated). Both chains verified live returning real content. <b>Bigger fix:</b> <code>narrate-plant</code> is now backed by <code>public.plant_narrative_cache</code>, a shared species-keyed cache — once any user's scan generates narrative content for a species, every later scan of that species by any user reads the cached row for free, no model call at all. This is the main lever for "free tier only" holding as usage grows, not just fallback depth. <b>Residual risk:</b> <code>identify-plant</code> still only has 2 providers, and Gemini's free-tier quota was found exhausted during testing (per-Google-Cloud-project, shared with narrate-plant) — a real single-fallback risk until it resets daily, tracked in <code>ADR-0004</code> rather than silently accepted.</div>
+      <div class="loc">supabase/functions/identify-plant/index.ts, supabase/functions/narrate-plant/index.ts, supabase/migrations/20260807_0007_plant_narrative_cache.sql</div>
+    </div>
+
+    <div class="gap">
+      <div class="head"><h4>No crash reporting or analytics</h4><span class="tag tag-high">High</span></div>
+      <p>No Crashlytics, Sentry, or equivalent SDK anywhere in the codebase.</p>
+      <div class="consequence"><b>Consequence:</b> once this ships, a crash on a user's device is invisible to you unless they happen to email you about it. For a first release especially, you're flying blind on stability exactly when you most need visibility.</div>
+    </div>
+
+    <h3 class="group">Medium</h3>
+    <p class="group-note">Won't block submission, but each is a deliberate call you should make consciously rather than by default.</p>
+
+    <div class="gap">
+      <div class="head"><h4>Four dead-code screens shipping in the binary</h4><span class="tag tag-resolved">Resolved</span></div>
+      <p><code>IdentifyView</code>, <code>ProfileView</code>, <code>BotanicalCardDetailView</code> deleted (verified: no dangling references left in any <code>.swift</code> file). The Foundry gallery is intentionally kept, confirmed properly <code>#if DEBUG</code>-gated end to end.</p>
+      <div class="consequence"><b>Note:</b> <code>ArboretumView.swift</code> is now similarly unreachable by a real user (see the deferred-Arboretum item below), but it's explicitly commented as intentionally shelved rather than dead — same pattern this gap originally asked for.</div>
+    </div>
+
+    <div class="gap">
+      <div class="head"><h4>Arboretum (map) deferred from MVP</h4><span class="tag tag-deferred">Deliberate — Post-MVP</span></div>
+      <p>The Arboretum tab now routes to <code>ArboretumComingSoonView</code> instead of the real map, to cut pre-launch QA/perf scope ahead of the planned redesign. See <a href="../DECISIONS/ADR-0002-arboretum-mvp-deferral.md"><code>ADR-0002</code></a>.</p>
+      <div class="consequence"><b>Consequence:</b> App Store listing copy was updated to drop map claims (<code>docs/APP_STORE_LISTING.md</code>) — must be re-added when the map ships. GPS capture on every scan is unaffected and continues regardless, so historical pins backfill automatically once Arboretum is re-enabled — confirm this stays true (see the GPS-tracking QA case in the Arboretum section above) any time the capture pipeline is touched.</div>
+    </div>
+
+    <div class="gap">
+      <div class="head"><h4>Dark mode only, no light variant</h4><span class="tag tag-medium">Medium</span></div>
+      <p>Every screen forces <code>.preferredColorScheme(.dark)</code>; no light-mode token set exists in <code>Theme.swift</code>.</p>
+      <div class="consequence"><b>Consequence:</b> fine if this is an intentional brand decision (many botanical/nature apps lean dark) — but confirm it's a decision, not an oversight, since some users specifically prefer light mode for outdoor/bright-sunlight use, which is exactly when this app gets used.</div>
+    </div>
+
+    <div class="gap">
+      <div class="head"><h4>Weak Dynamic Type / accessibility coverage</h4><span class="tag tag-medium">Medium</span></div>
+      <p>Only 15 of 36 view files have any <code>accessibilityLabel</code>/<code>accessibilityHint</code> at all; most type is fixed-size rather than a relative text style.</p>
+      <div class="consequence"><b>Consequence:</b> not an automatic rejection, but it's a real quality bar you set for yourself ("Airbnb standard") and a real usability gap for VoiceOver users and anyone using larger system text sizes — currently the app would be difficult or impossible for a blind user to operate.</div>
+    </div>
+
+    <div class="gap">
+      <div class="head"><h4>No CI/CD pipeline</h4><span class="tag tag-medium">Medium</span></div>
+      <p>No Fastlane config, no GitHub Actions, no build/test automation of any kind.</p>
+      <div class="consequence"><b>Consequence:</b> every build and (eventually) every test run is manual. This compounds the "no automated tests" blocker above — even once tests exist, nothing runs them automatically on every change.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= PART C: POST-MVP ================= -->
+<section class="feature" id="post-mvp">
+  <div class="wrap">
+    <h2>Part C — Post-MVP (deferred with the Arboretum map)</h2>
+    <p>Preserved here rather than deleted, per <a href="../DECISIONS/ADR-0002-arboretum-mvp-deferral.md"><code>ADR-0002</code></a> — re-activate this whole section (and move it back into Part A) when <code>MainTabView.swift</code> is switched from <code>ArboretumComingSoonView</code> back to the real <code>ArboretumView</code>.</p>
+
+    <h3 class="group">Arboretum (full map) <span class="n">10</span></h3>
+    <ul class="checklist">
+      <li><label class="check"><input type="checkbox" data-id="arb-1"><span class="txt">Map centers/fits to show all pins on first load with saved scans present</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="arb-2"><span class="txt">"No geotagged specimens yet" banner shows only when scans exist but none have coordinates</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="arb-3"><span class="txt">Tapping a pin shows the correct specimen in the popup card</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="arb-4"><span class="txt">"Open in Herbarium" from the popup switches tabs AND opens the right immersive card (cross-tab bridge)</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="arb-5"><span class="txt">Zoom in/out and recenter-on-specimens controls behave at min/max zoom bounds</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="arb-6"><span class="txt">"Center on current location" with location permission denied shows the alert with a working "Open Settings" shortcut</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="arb-7"><span class="txt">Pull-to-refresh re-syncs from Supabase and updates pins without duplicating them</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="arb-8"><span class="txt">Deleting/losing a selected scan while its popup is open dismisses the popup instead of showing stale data</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="arb-9"><span class="txt">Performance: Arboretum map with 50+ pins doesn't stutter on pan/zoom</span></label></li>
+      <li><label class="check"><input type="checkbox" data-id="arb-10"><span class="txt">Historical backfill: scans saved <em>while</em> Arboretum was hidden (with GPS captured in the background) render as pins correctly once the map ships — not just scans saved after re-launch</span></label></li>
+    </ul>
+  </div>
+</section>
+
+<footer class="summary" id="summary">
+  <div class="wrap">
+    <h2>Summary</h2>
+    <div class="stat-row">
+      <div class="stat"><b>97</b><span>Active QA test cases (MVP scope)</span></div>
+      <div class="stat"><b>10</b><span>Post-MVP QA cases (deferred)</span></div>
+      <div class="stat"><b>1</b><span>Launch blockers remaining (was 5)</span></div>
+      <div class="stat"><b>3</b><span>High-priority gaps remaining (was 5)</span></div>
+      <div class="stat"><b>3</b><span>Medium gaps still open</span></div>
+    </div>
+    <p style="color:var(--ink-dim);font-size:13px;max-width:760px;line-height:1.6;margin-top:20px;">
+      Cross-referenced with <a href="screens-gallery.html">screens-gallery.html</a> (what exists) and <a href="design-system.html">design-system.html</a> (token/component drift). Since this checklist was written: App Icon, privacy manifest, Keychain token migration, a real test target, dead-code screen cleanup, and the embedded-LLM-key exposure all landed — leaving <b>Paywall/StoreKit</b> as the one remaining blocker (only if monetizing at launch). Arboretum (map) was deferred from MVP per <a href="../DECISIONS/ADR-0002-arboretum-mvp-deferral.md"><code>ADR-0002</code></a> — GPS is still captured on every scan so historical pins backfill automatically when it ships. Narrative generation moved server-side per <a href="../DECISIONS/ADR-0003-narrative-generation-server-side.md"><code>ADR-0003</code></a>; the free-tier providers it surfaced (dead OpenRouter key, exhausted Gemini quota) plus a shared species-level cache to make "free tier only" hold at scale are resolved per <a href="../DECISIONS/ADR-0004-narrative-cache-and-free-tier-providers.md"><code>ADR-0004</code></a> — <code>plant_narrative_cache</code>'s migration is written but not yet applied to the live database (blocked on a CLI permissions issue; needs to be run via the Supabase Dashboard SQL Editor or a working <code>supabase db push</code>). The structural item worth discussing next is CI/CD, since it's what makes the new test target actually catch regressions instead of just existing.
+    </p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var boxes = document.querySelectorAll('.checklist input[type=checkbox]:not(:disabled)');
+  var STORAGE_KEY = 'leafid-qa-checklist-v1';
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { state = {}; }
+
+  function updateProgress(){
+    var total = boxes.length, checked = 0;
+    boxes.forEach(function(b){ if (b.checked) checked++; });
+    document.getElementById('progress').innerHTML = checked + ' / ' + total + ' checked';
+  }
+
+  boxes.forEach(function(box){
+    var id = box.getAttribute('data-id');
+    if (state[id]) box.checked = true;
+    box.addEventListener('change', function(){
+      state[id] = box.checked;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      updateProgress();
+    });
+  });
+  updateProgress();
+})();
+</script>
+
+</body>
+</html>

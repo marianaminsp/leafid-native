@@ -19,13 +19,8 @@ struct MainTabView: View {
             case .home:
                 HomeView()
             case .arboretum:
-                ArboretumView(
-                    onRequestHerbariumDetail: { scan in
-                        restoreTabAfterHerbariumImmersive = .arboretum
-                        pendingHerbariumScan = scan
-                        selectedTab = .herbarium
-                    }
-                )
+                // MVP: map is shelved pre-launch, see ArboretumView.swift header for why.
+                ArboretumComingSoonView()
             case .herbarium:
                 HerbariumView(
                     pendingPresentScan: $pendingHerbariumScan,

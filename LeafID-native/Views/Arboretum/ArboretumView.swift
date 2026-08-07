@@ -4,6 +4,12 @@
 //
 //  The Arboretum — map of where discoveries took root (PDR §3.C).
 //
+//  INTENTIONALLY SHELVED PRE-LAUNCH: not dead code — MainTabView currently routes the Arboretum
+//  tab to ArboretumComingSoonView.swift instead of this, to cut map QA/perf scope and avoid
+//  polishing UI ahead of the planned redesign. This view is fully functional; swap it back in
+//  MainTabView.swift once the map ships. GPS capture on every scan continues regardless, so
+//  historical pins will be available immediately when this is re-enabled.
+//
 
 import MapKit
 import SwiftUI
@@ -64,21 +70,7 @@ struct ArboretumView: View {
                     .padding(.top, outerGeo.safeAreaInsets.top + LeafIDTheme.space8)
                     .padding(.bottom, LeafIDTheme.space12)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background {
-                        ZStack(alignment: .bottom) {
-                            Rectangle()
-                                .fill(.ultraThinMaterial)
-                            LinearGradient(
-                                colors: [
-                                    LeafIDTheme.surface.opacity(0.2),
-                                    LeafIDTheme.surface.opacity(0.0),
-                                ],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                            .blendMode(.plusLighter)
-                        }
-                    }
+                    .background(LeafIDTheme.deepForest.ignoresSafeArea(edges: .top))
 
                     LinearGradient(
                         stops: [

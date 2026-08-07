@@ -174,13 +174,18 @@ struct HomeView: View {
                             }
                         }
                         .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
+                        // Visual nudge only — keeps Scan button anchored in its current spot
+                        // because .offset does not affect SwiftUI layout (sibling Spacers unchanged).
+                        .offset(y: 12)
                     }
 
                     Spacer(minLength: 0)
 
                     homeLastFoundSection
                         .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
-                        .padding(.bottom, 8)
+                        // 8pt above the bottom layout safe area when Home is under MainTabView’s
+                        // bottom safeAreaInset (top of tab bar reserve). Tab bar position unchanged.
+                        .padding(.bottom, LeafIDTheme.space8)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
@@ -291,8 +296,26 @@ struct HomeView: View {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView()
-            .environmentObject(HerbariumViewModel())
-            .environmentObject(AuthViewModel())
+        Group {
+            // Standalone Home (no tab bar) — useful for content layout review.
+            HomeView()
+                .previewDevice("iPhone 15")
+                .previewDisplayName("Home — iPhone 15 (no tab bar)")
+
+            // Wrapped in MainTabView — verifies Last Found spacing above tab reserve and horizontal alignment with tab gutter across sizes.
+            MainTabView()
+                .previewDevice("iPhone SE (3rd generation)")
+                .previewDisplayName("With Tab Bar — iPhone SE")
+
+            MainTabView()
+                .previewDevice("iPhone 15")
+                .previewDisplayName("With Tab Bar — iPhone 15")
+
+            MainTabView()
+                .previewDevice("iPhone 15 Pro Max")
+                .previewDisplayName("With Tab Bar — iPhone 15 Pro Max")
+        }
+        .environmentObject(HerbariumViewModel())
+        .environmentObject(AuthViewModel())
     }
 }
