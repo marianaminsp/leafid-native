@@ -11,11 +11,13 @@
 import SwiftUI
 
 struct HerbariumNeoBrutalistView: View {
-    var onViewFolio: () -> Void = {}
+    var onSelectTab: (NeoBrutalistTab) -> Void = { _ in }
+
+    @State private var missingFeature: String?
 
     var body: some View {
         VStack(spacing: 0) {
-            NeoBrutalistAppHeader()
+            NeoBrutalistAppHeader(onAvatarTap: { onSelectTab(.druid) })
 
             ScrollView {
                 VStack(spacing: NeoBrutalistSpacing.lg) {
@@ -28,9 +30,10 @@ struct HerbariumNeoBrutalistView: View {
                 .padding(.bottom, NeoBrutalistSpacing.lg)
             }
 
-            NeoBrutalistTabBar(activeTab: .collection)
+            NeoBrutalistTabBar(activeTab: .collection, onSelect: onSelectTab)
         }
         .background(NeoBrutalistColor.surface.ignoresSafeArea())
+        .missingScreenAlert($missingFeature)
     }
 
     // MARK: - Headline
@@ -81,13 +84,16 @@ struct HerbariumNeoBrutalistView: View {
             leafCard(latin: "ACER RUBRUM", name: "Red Maple", symbol: "leaf.fill", backdrop: NeoBrutalistColor.secondaryContainer, width: 128, height: 176)
                 .rotationEffect(.degrees(-12))
                 .offset(x: -70, y: -10)
+                .onTapGesture { missingFeature = "Botanical Card (Red Maple)" }
 
             leafCard(latin: "QUERCUS ALBA", name: "White Oak", symbol: "leaf.fill", backdrop: NeoBrutalistColor.tertiaryContainer, width: 128, height: 176)
                 .rotationEffect(.degrees(12))
                 .offset(x: 70, y: 20)
+                .onTapGesture { missingFeature = "Botanical Card (White Oak)" }
 
             featuredCard
                 .offset(y: 60)
+                .onTapGesture { missingFeature = "Botanical Card (Swiss Cheese)" }
         }
         .frame(height: 340)
         .padding(.top, NeoBrutalistSpacing.md)
@@ -187,7 +193,7 @@ struct HerbariumNeoBrutalistView: View {
     // MARK: - CTA
 
     private var viewFolioButton: some View {
-        Button(action: onViewFolio) {
+        Button(action: { missingFeature = "View My Folio" }) {
             HStack(spacing: NeoBrutalistSpacing.sm) {
                 Image(systemName: "bookmark.fill")
                 Text("View My Folio")

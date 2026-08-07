@@ -10,6 +10,10 @@
 import SwiftUI
 
 struct DruidNeoBrutalistView: View {
+    var onSelectTab: (NeoBrutalistTab) -> Void = { _ in }
+
+    @State private var missingFeature: String?
+
     var body: some View {
         VStack(spacing: 0) {
             header
@@ -23,9 +27,10 @@ struct DruidNeoBrutalistView: View {
                 }
             }
 
-            NeoBrutalistTabBar(activeTab: .druid)
+            NeoBrutalistTabBar(activeTab: .druid, onSelect: onSelectTab)
         }
         .background(NeoBrutalistColor.surface.ignoresSafeArea())
+        .missingScreenAlert($missingFeature)
     }
 
     // MARK: - Header
@@ -41,14 +46,17 @@ struct DruidNeoBrutalistView: View {
 
             Spacer()
 
-            ZStack {
-                Circle().fill(NeoBrutalistColor.primary)
-                Image(systemName: "person.fill")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(NeoBrutalistColor.onPrimary)
+            Button(action: { missingFeature = "Account Settings" }) {
+                ZStack {
+                    Circle().fill(NeoBrutalistColor.primary)
+                    Image(systemName: "person.fill")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(NeoBrutalistColor.onPrimary)
+                }
+                .frame(width: 36, height: 36)
+                .overlay(Circle().strokeBorder(NeoBrutalistColor.ink, lineWidth: NeoBrutalistStroke.default))
             }
-            .frame(width: 36, height: 36)
-            .overlay(Circle().strokeBorder(NeoBrutalistColor.ink, lineWidth: NeoBrutalistStroke.default))
+            .buttonStyle(.plain)
         }
         .padding(.horizontal, NeoBrutalistSpacing.md)
         .padding(.vertical, NeoBrutalistSpacing.sm)
@@ -161,24 +169,27 @@ struct DruidNeoBrutalistView: View {
                     .font(NeoBrutalistFont.headlineMd())
                     .foregroundStyle(NeoBrutalistColor.onSurface)
                 Spacer()
-                Text("VIEW ALL")
-                    .font(.custom("SpaceMono-Bold", size: 11))
-                    .foregroundStyle(NeoBrutalistColor.onSurface)
-                    .padding(.horizontal, NeoBrutalistSpacing.sm)
-                    .padding(.vertical, NeoBrutalistSpacing.xs)
-                    .overlay(Rectangle().strokeBorder(NeoBrutalistColor.ink, lineWidth: NeoBrutalistStroke.default))
+                Button(action: { missingFeature = "All Relics & Badges" }) {
+                    Text("VIEW ALL")
+                        .font(.custom("SpaceMono-Bold", size: 11))
+                        .foregroundStyle(NeoBrutalistColor.onSurface)
+                        .padding(.horizontal, NeoBrutalistSpacing.sm)
+                        .padding(.vertical, NeoBrutalistSpacing.xs)
+                        .overlay(Rectangle().strokeBorder(NeoBrutalistColor.ink, lineWidth: NeoBrutalistStroke.default))
+                }
+                .buttonStyle(.plain)
             }
 
             LazyVGrid(columns: [GridItem(.flexible(), spacing: NeoBrutalistSpacing.md), GridItem(.flexible())], spacing: NeoBrutalistSpacing.md) {
-                badge(image: "NightshadeBadge", title: "NIGHTSHADE NAV", subtitle: "FOUND 10 TOXIC FLORA", shadowColor: NeoBrutalistColor.primary, locked: false)
-                badge(image: "ConcreteJungleBadge", title: "CONCRETE JUNGLE", subtitle: "LOGGED 50 CITY WEEDS", shadowColor: NeoBrutalistColor.secondary, locked: false)
+                badge(image: "NightshadeBadge", title: "NIGHTSHADE NAV", subtitle: "FOUND 10 TOXIC FLORA", shadowColor: NeoBrutalistColor.primary)
+                badge(image: "ConcreteJungleBadge", title: "CONCRETE JUNGLE", subtitle: "LOGGED 50 CITY WEEDS", shadowColor: NeoBrutalistColor.secondary)
                 lockedBadge(title: "MYCOLOGIST", subtitle: "ID 20 FUNGI (14/20)")
                 lockedBadge(title: "SUN WALKER", subtitle: "LOG 5 DESERT PLANTS")
             }
         }
     }
 
-    private func badge(image: String, title: String, subtitle: String, shadowColor: Color, locked: Bool) -> some View {
+    private func badge(image: String, title: String, subtitle: String, shadowColor: Color) -> some View {
         VStack(spacing: NeoBrutalistSpacing.sm) {
             Image(image)
                 .resizable()
@@ -199,6 +210,8 @@ struct DruidNeoBrutalistView: View {
         .frame(maxWidth: .infinity)
         .background(NeoBrutalistColor.surfaceContainerHighest)
         .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.default, shadowOffset: 6, shadowColor: shadowColor)
+        .contentShape(Rectangle())
+        .onTapGesture { missingFeature = "Badge Detail (\(title))" }
     }
 
     private func lockedBadge(title: String, subtitle: String) -> some View {
@@ -220,6 +233,8 @@ struct DruidNeoBrutalistView: View {
         .frame(maxWidth: .infinity)
         .background(NeoBrutalistColor.surface)
         .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.default, shadowOffset: 4, shadowColor: NeoBrutalistColor.outlineVariant)
+        .contentShape(Rectangle())
+        .onTapGesture { missingFeature = "Locked Badge Detail (\(title))" }
     }
 }
 

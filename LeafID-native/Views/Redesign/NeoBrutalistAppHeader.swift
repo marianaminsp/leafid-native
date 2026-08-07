@@ -10,6 +10,8 @@ import SwiftUI
 
 struct NeoBrutalistAppHeader: View {
     var levelLabel: String = "Lvl 12"
+    /// Taps through to the Druid tab — the profile screen these mockups don't repeat per-screen.
+    var onAvatarTap: () -> Void = {}
 
     var body: some View {
         HStack(spacing: NeoBrutalistSpacing.sm) {
@@ -27,13 +29,16 @@ struct NeoBrutalistAppHeader: View {
                 .kerning(1.2)
                 .foregroundStyle(NeoBrutalistColor.secondary)
 
-            ZStack {
-                Circle().fill(NeoBrutalistColor.primary)
-                Image(systemName: "person.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(NeoBrutalistColor.onPrimary)
+            Button(action: onAvatarTap) {
+                ZStack {
+                    Circle().fill(NeoBrutalistColor.primary)
+                    Image(systemName: "person.fill")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(NeoBrutalistColor.onPrimary)
+                }
+                .frame(width: 32, height: 32)
             }
-            .frame(width: 32, height: 32)
+            .buttonStyle(.plain)
         }
         .padding(.horizontal, NeoBrutalistSpacing.md)
         .padding(.vertical, NeoBrutalistSpacing.sm)

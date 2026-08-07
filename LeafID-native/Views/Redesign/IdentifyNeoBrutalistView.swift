@@ -11,10 +11,13 @@ import SwiftUI
 
 struct IdentifyNeoBrutalistView: View {
     var onOpenScanner: () -> Void = {}
+    var onSelectTab: (NeoBrutalistTab) -> Void = { _ in }
+
+    @State private var missingFeature: String?
 
     var body: some View {
         VStack(spacing: 0) {
-            NeoBrutalistAppHeader()
+            NeoBrutalistAppHeader(onAvatarTap: { onSelectTab(.druid) })
 
             ScrollView {
                 VStack(alignment: .leading, spacing: NeoBrutalistSpacing.lg) {
@@ -27,9 +30,10 @@ struct IdentifyNeoBrutalistView: View {
                 .padding(.bottom, NeoBrutalistSpacing.lg)
             }
 
-            NeoBrutalistTabBar(activeTab: .identify)
+            NeoBrutalistTabBar(activeTab: .identify, onSelect: onSelectTab)
         }
         .background(NeoBrutalistColor.surface.ignoresSafeArea())
+        .missingScreenAlert($missingFeature)
     }
 
     // MARK: - Headline
@@ -94,6 +98,8 @@ struct IdentifyNeoBrutalistView: View {
             .padding(NeoBrutalistSpacing.md)
         }
         .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 8)
+        .contentShape(Rectangle())
+        .onTapGesture { missingFeature = "Scan Result" }
     }
 
     private var aiActiveBadge: some View {

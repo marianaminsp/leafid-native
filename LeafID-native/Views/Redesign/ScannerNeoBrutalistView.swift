@@ -11,9 +11,12 @@
 import SwiftUI
 
 struct ScannerNeoBrutalistView: View {
-    var onShutter: () -> Void = {}
-    var onPickFromLibrary: () -> Void = {}
-    var onFlipCamera: () -> Void = {}
+    var onClose: () -> Void = {}
+    var onSelectTab: (NeoBrutalistTab) -> Void = { _ in }
+
+    @State private var missingFeature: String?
+    @State private var flashOn = false
+    @State private var isFrontCamera = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -51,32 +54,44 @@ struct ScannerNeoBrutalistView: View {
             .clipped()
             .frame(maxHeight: .infinity)
 
-            NeoBrutalistTabBar(activeTab: .identify)
+            NeoBrutalistTabBar(activeTab: .identify, onSelect: { tab in
+                onClose()
+                onSelectTab(tab)
+            })
         }
         .background(NeoBrutalistColor.surface.ignoresSafeArea())
+        .missingScreenAlert($missingFeature)
     }
 
     // MARK: - Header
 
     private var header: some View {
         HStack(spacing: NeoBrutalistSpacing.sm) {
-            Image(systemName: "leaf.fill")
-                .font(.system(size: 16, weight: .bold))
-                .foregroundStyle(NeoBrutalistColor.onSurface)
+            Button(action: onClose) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(NeoBrutalistColor.onSurface)
+            }
+            .buttonStyle(.plain)
+            .padding(.trailing, NeoBrutalistSpacing.xs)
+
             Text("IDENTIFY")
                 .font(NeoBrutalistFont.headlineMd())
                 .foregroundStyle(NeoBrutalistColor.onSurface)
 
             Spacer()
 
-            ZStack {
-                Circle().fill(NeoBrutalistColor.primary)
-                Image(systemName: "person.fill")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(NeoBrutalistColor.onPrimary)
+            Button(action: { onSelectTab(.druid); onClose() }) {
+                ZStack {
+                    Circle().fill(NeoBrutalistColor.primary)
+                    Image(systemName: "person.fill")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(NeoBrutalistColor.onPrimary)
+                }
+                .frame(width: 36, height: 36)
+                .overlay(Circle().strokeBorder(NeoBrutalistColor.ink, lineWidth: NeoBrutalistStroke.default))
             }
-            .frame(width: 36, height: 36)
-            .overlay(Circle().strokeBorder(NeoBrutalistColor.ink, lineWidth: NeoBrutalistStroke.default))
+            .buttonStyle(.plain)
         }
         .padding(.horizontal, NeoBrutalistSpacing.md)
         .padding(.vertical, NeoBrutalistSpacing.sm)
@@ -102,12 +117,12 @@ struct ScannerNeoBrutalistView: View {
     }
 
     private var flashButton: some View {
-        Button(action: {}) {
-            Image(systemName: "bolt.fill")
+        Button(action: { flashOn.toggle() }) {
+            Image(systemName: flashOn ? "bolt.fill" : "bolt.slash.fill")
                 .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(NeoBrutalistColor.onSurface)
+                .foregroundStyle(flashOn ? NeoBrutalistColor.onPrimary : NeoBrutalistColor.onSurface)
                 .frame(width: 36, height: 36)
-                .background(NeoBrutalistColor.surface.opacity(0.9))
+                .background(flashOn ? NeoBrutalistColor.primary : NeoBrutalistColor.surface.opacity(0.9))
                 .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.default, shadowOffset: 4)
         }
         .buttonStyle(NeoBrutalistPressableStyle(shadowOffset: 4))
@@ -133,9 +148,11 @@ struct ScannerNeoBrutalistView: View {
 
     private var controlRow: some View {
         HStack(spacing: NeoBrutalistSpacing.lg) {
-            circleControl(systemImage: "photo.on.rectangle", size: 48, action: onPickFromLibrary)
+            circleControl(systemImage: "photo.on.rectangle", size: 48) {
+                missingFeature = "Photo Library Picker"
+            }
 
-            Button(action: onShutter) {
+            Button(action: { missingFeature = "Scan Result" }) {
                 ZStack {
                     Circle()
                         .fill(NeoBrutalistColor.primaryContainer)
@@ -149,7 +166,9 @@ struct ScannerNeoBrutalistView: View {
             }
             .buttonStyle(.plain)
 
-            circleControl(systemImage: "arrow.triangle.2.circlepath.camera", size: 48, action: onFlipCamera)
+            circleControl(systemImage: isFrontCamera ? "camera.rotate.fill" : "arrow.triangle.2.circlepath.camera", size: 48) {
+                isFrontCamera.toggle()
+            }
         }
     }
 

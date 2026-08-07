@@ -10,11 +10,14 @@
 import SwiftUI
 
 struct ArboretumNeoBrutalistView: View {
-    var onExploreNow: () -> Void = {}
+    var onSelectTab: (NeoBrutalistTab) -> Void = { _ in }
+
+    @State private var missingFeature: String?
+    @State private var selectedZone = "ALL ZONES"
 
     var body: some View {
         VStack(spacing: 0) {
-            NeoBrutalistAppHeader()
+            NeoBrutalistAppHeader(onAvatarTap: { onSelectTab(.druid) })
 
             ScrollView {
                 VStack(alignment: .leading, spacing: NeoBrutalistSpacing.lg) {
@@ -28,9 +31,10 @@ struct ArboretumNeoBrutalistView: View {
                 .padding(.bottom, NeoBrutalistSpacing.lg)
             }
 
-            NeoBrutalistTabBar(activeTab: .map)
+            NeoBrutalistTabBar(activeTab: .map, onSelect: onSelectTab)
         }
         .background(NeoBrutalistColor.surface.ignoresSafeArea())
+        .missingScreenAlert($missingFeature)
     }
 
     // MARK: - Header card
@@ -75,15 +79,18 @@ struct ArboretumNeoBrutalistView: View {
 
             mapPin(size: 32, color: NeoBrutalistColor.primaryContainer)
                 .offset(x: 60, y: -220)
+                .onTapGesture { missingFeature = "Specimen Detail Card" }
             mapPin(size: 40, color: NeoBrutalistColor.tertiaryContainer)
                 .offset(x: 200, y: -120)
+                .onTapGesture { missingFeature = "Specimen Detail Card" }
             mapPin(size: 26, color: NeoBrutalistColor.secondaryContainer)
                 .offset(x: 140, y: -50)
+                .onTapGesture { missingFeature = "Specimen Detail Card" }
 
             HStack(spacing: NeoBrutalistSpacing.sm) {
-                zoneChip("ALL ZONES", filled: true)
-                zoneChip("RARE FINDS", filled: false)
-                zoneChip("RECENT", filled: false)
+                zoneChip("ALL ZONES")
+                zoneChip("RARE FINDS")
+                zoneChip("RECENT")
             }
             .padding(NeoBrutalistSpacing.sm)
         }
@@ -98,15 +105,19 @@ struct ArboretumNeoBrutalistView: View {
             .shadow(color: NeoBrutalistColor.ink, radius: 0, x: 2, y: 2)
     }
 
-    private func zoneChip(_ title: String, filled: Bool) -> some View {
-        Text(title)
-            .font(.custom("SpaceMono-Bold", size: 11))
-            .kerning(1)
-            .foregroundStyle(filled ? NeoBrutalistColor.onPrimary : NeoBrutalistColor.onSurface)
-            .padding(.horizontal, NeoBrutalistSpacing.sm)
-            .padding(.vertical, NeoBrutalistSpacing.xs)
-            .background(filled ? NeoBrutalistColor.primary : NeoBrutalistColor.surface)
-            .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 4)
+    private func zoneChip(_ title: String) -> some View {
+        let filled = selectedZone == title
+        return Button(action: { selectedZone = title }) {
+            Text(title)
+                .font(.custom("SpaceMono-Bold", size: 11))
+                .kerning(1)
+                .foregroundStyle(filled ? NeoBrutalistColor.onPrimary : NeoBrutalistColor.onSurface)
+                .padding(.horizontal, NeoBrutalistSpacing.sm)
+                .padding(.vertical, NeoBrutalistSpacing.xs)
+                .background(filled ? NeoBrutalistColor.primary : NeoBrutalistColor.surface)
+                .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 4)
+        }
+        .buttonStyle(NeoBrutalistPressableStyle(shadowOffset: 4))
     }
 
     // MARK: - Recent logs
@@ -168,12 +179,14 @@ struct ArboretumNeoBrutalistView: View {
         .padding(NeoBrutalistSpacing.sm)
         .background(NeoBrutalistColor.surfaceContainer)
         .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 4)
+        .contentShape(Rectangle())
+        .onTapGesture { missingFeature = "Botanical Card (\(name))" }
     }
 
     // MARK: - CTA
 
     private var exploreNowButton: some View {
-        Button(action: onExploreNow) {
+        Button(action: { missingFeature = "Explore Now" }) {
             HStack(spacing: NeoBrutalistSpacing.sm) {
                 Text("Explore Now")
                 Image(systemName: "arrow.right")

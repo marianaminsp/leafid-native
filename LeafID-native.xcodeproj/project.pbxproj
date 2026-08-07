@@ -25,6 +25,7 @@
 		F4304265B17443C1BD16BA53 /* ArboretumNeoBrutalistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42C284ABF7CC487D96B07494 /* ArboretumNeoBrutalistView.swift */; };
 		6F5EC4314DA246A9B0ADF437 /* HerbariumNeoBrutalistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6937D10021CE4380BBEC04BC /* HerbariumNeoBrutalistView.swift */; };
 		BB76CFF967464718840B6FEE /* DruidNeoBrutalistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E1FBDC435C41D5B97C97C3 /* DruidNeoBrutalistView.swift */; };
+		CA3F33F756CB4239AAAE9CDF /* NeoBrutalistAppRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C80566DD6C0404F9A670B77 /* NeoBrutalistAppRoot.swift */; };
 		A221302A25F07F610660AF06 /* BotanicalCardImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EFF63FB5F8EC9823649D1F /* BotanicalCardImageProcessor.swift */; };
 		E1A100000000000000000001 /* LeafID_nativeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000001 /* LeafID_nativeApp.swift */; };
 		E1A100000000000000000002 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000002 /* Theme.swift */; };
@@ -107,6 +108,7 @@
 		42C284ABF7CC487D96B07494 /* ArboretumNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ArboretumNeoBrutalistView.swift; sourceTree = "<group>"; };
 		6937D10021CE4380BBEC04BC /* HerbariumNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HerbariumNeoBrutalistView.swift; sourceTree = "<group>"; };
 		48E1FBDC435C41D5B97C97C3 /* DruidNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DruidNeoBrutalistView.swift; sourceTree = "<group>"; };
+		7C80566DD6C0404F9A670B77 /* NeoBrutalistAppRoot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NeoBrutalistAppRoot.swift; sourceTree = "<group>"; };
 		A0EFF63FB5F8EC9823649D1F /* BotanicalCardImageProcessor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BotanicalCardImageProcessor.swift; sourceTree = "<group>"; };
 		5E614D3E6FDABD490B7A73C1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		70799B872F8C07650054228B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -288,6 +290,7 @@
 				42C284ABF7CC487D96B07494 /* ArboretumNeoBrutalistView.swift */,
 				6937D10021CE4380BBEC04BC /* HerbariumNeoBrutalistView.swift */,
 				48E1FBDC435C41D5B97C97C3 /* DruidNeoBrutalistView.swift */,
+				7C80566DD6C0404F9A670B77 /* NeoBrutalistAppRoot.swift */,
 			);
 			path = Redesign;
 			sourceTree = "<group>";
@@ -624,6 +627,7 @@
 				F4304265B17443C1BD16BA53 /* ArboretumNeoBrutalistView.swift in Sources */,
 				6F5EC4314DA246A9B0ADF437 /* HerbariumNeoBrutalistView.swift in Sources */,
 				BB76CFF967464718840B6FEE /* DruidNeoBrutalistView.swift in Sources */,
+				CA3F33F756CB4239AAAE9CDF /* NeoBrutalistAppRoot.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

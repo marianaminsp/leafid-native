@@ -169,3 +169,34 @@ struct NeoBrutalistPressableStyle: ButtonStyle {
             .animation(.spring(response: 0.28, dampingFraction: 0.86), value: configuration.isPressed)
     }
 }
+
+// MARK: - Missing-screen signposting
+
+/// Every button in the redesign is tappable — for the ones whose destination isn't among the 6
+/// stitch_botanical_explorer mockups yet, this surfaces that clearly instead of doing nothing, so
+/// gaps are easy to find while clicking through rather than silently swallowed.
+private struct MissingScreenAlertModifier: ViewModifier {
+    @Binding var featureName: String?
+
+    func body(content: Content) -> some View {
+        content.alert(
+            featureName ?? "",
+            isPresented: Binding(
+                get: { featureName != nil },
+                set: { if !$0 { featureName = nil } }
+            )
+        ) {
+            Button(String(localized: "OK"), role: .cancel) {}
+        } message: {
+            Text("This screen isn't in the neo-brutalist redesign mockups yet.")
+        }
+    }
+}
+
+extension View {
+    /// Bind a screen-local `@State private var missingFeature: String?`; setting it to a feature
+    /// name (e.g. a button's label) shows the alert, `nil` dismisses it.
+    func missingScreenAlert(_ featureName: Binding<String?>) -> some View {
+        modifier(MissingScreenAlertModifier(featureName: featureName))
+    }
+}
