@@ -1,0 +1,6 @@
+{
+  "images" : [
+    { "filename" : "nightshade-badge.jpg", "idiom" : "universal" }
+  ],
+  "info" : { "author" : "xcode", "version" : 1 }
+}
