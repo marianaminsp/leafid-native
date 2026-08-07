@@ -15,6 +15,7 @@ const corsHeaders = {
 
 type NarrativeResult = {
   origin?: string
+  traditional_name?: string
   botanical_spirit?: string
   ethnobotany?: string
   cultural_legacy?: string
@@ -27,6 +28,7 @@ type CachedRow = {
   common_name: string | null
   family: string | null
   origin_country: string | null
+  traditional_name: string | null
   botanical_spirit: string | null
   ethnobotany: string | null
   cultural_legacy: string | null
@@ -88,6 +90,7 @@ const buildPrompt = (
       "Return ONLY valid JSON (no markdown, no explanations, no code fences).",
       "Required keys:",
       "- origin",
+      "- traditional_name",
       "- botanical_spirit",
       "- ethnobotany",
       "- cultural_legacy",
@@ -96,6 +99,7 @@ const buildPrompt = (
       "- Write about a mysterious plant found in nature (generic, poetic, grounded).",
       "- Never use the words \"under review\" or \"unknown\".",
       "- origin: short location string (country or region)",
+      "- traditional_name: empty string \"\" — there is no specific identified species here, never invent a name",
       "- botanical_spirit / ethnobotany / cultural_legacy: each <= 220 chars",
       "- colors: array with exactly 3 hex values in #RRGGBB format",
     ].join("\n")
@@ -104,14 +108,28 @@ const buildPrompt = (
     "Return ONLY valid JSON (no markdown, no explanations, no code fences).",
     "Required keys:",
     "- origin",
+    "- traditional_name",
     "- botanical_spirit",
     "- ethnobotany",
     "- cultural_legacy",
     "- colors",
-    "Rules:",
+    "Rules — every field below must be specific to this exact species, not generic plant copy:",
     "- origin: short location string (country or region)",
+    "- traditional_name: the plant's traditional, indigenous, or vernacular name from its culture or",
+    "  region of origin — distinct from both the scientific Latin name and the common English name.",
+    "  If no such name is well-documented for this species, return an empty string \"\" — never invent one.",
+    "- botanical_spirit: a short, evocative characterization of THIS species' character or growth habit",
+    "  (poetic phrasing is fine, but it must be grounded in this species' real traits, not a generic",
+    "  platitude that could apply to any plant)",
+    "- ethnobotany: one verifiable, documented human use of this species — traditional medicine, food,",
+    "  textile, ceremonial, or agricultural use. Avoid invented or unverifiable claims; do not hedge",
+    "  with phrases like \"is said to\" or \"some believe\"",
+    "- cultural_legacy: one verifiable fact about History, Mythology, or Art associated with this",
+    "  specific species — prefer a documented historical use, a named myth, or an artistic depiction.",
+    "  Avoid invented folklore and hedging language",
     "- botanical_spirit / ethnobotany / cultural_legacy: each <= 220 chars",
-    "- colors: array with exactly 3 hex values in #RRGGBB format",
+    "- colors: array with exactly 3 hex values in #RRGGBB format representing this plant's actual",
+    "  natural coloring (leaf/flower/bark), not an arbitrary palette",
     `Species: ${scientificName}`,
     `Common name: ${commonName}`,
     `Family: ${family}`,
@@ -304,6 +322,7 @@ serve(async (req) => {
           ? { cultural_legacy: cached.legacy_fact ?? undefined }
           : {
             origin: cached.origin_country ?? undefined,
+            traditional_name: cached.traditional_name ?? undefined,
             botanical_spirit: cached.botanical_spirit ?? undefined,
             ethnobotany: cached.ethnobotany ?? undefined,
             cultural_legacy: cached.cultural_legacy ?? undefined,
@@ -345,6 +364,7 @@ serve(async (req) => {
         if (result.cultural_legacy) row.legacy_fact = result.cultural_legacy
       } else {
         if (result.origin) row.origin_country = result.origin
+        if (result.traditional_name) row.traditional_name = result.traditional_name
         if (result.botanical_spirit) row.botanical_spirit = result.botanical_spirit
         if (result.ethnobotany) row.ethnobotany = result.ethnobotany
         if (result.cultural_legacy) row.cultural_legacy = result.cultural_legacy

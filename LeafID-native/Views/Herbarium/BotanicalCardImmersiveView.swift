@@ -88,6 +88,18 @@ struct BotanicalCardImmersiveView: View {
         return "A resilient specimen whose form follows light, patience, and adaptation."
     }
 
+    /// Traditional/indigenous name from the plant's culture of origin — `nil` (row hidden) when
+    /// neither the scan nor a fresh identify preview has one; unlike the narrative fields below,
+    /// this has no generic fallback phrase since "no traditional name" is a legitimate, common case.
+    private var mergedTraditionalName: String? {
+        let candidates = [scan.traditionalName, preview?.traditionalName]
+        for c in candidates {
+            let t = c?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if !t.isEmpty { return t }
+        }
+        return nil
+    }
+
     private var mergedEthnobotany: String {
         let candidates = [scan.ethnobotany, preview?.ethnobotany]
         for c in candidates {
@@ -172,6 +184,7 @@ struct BotanicalCardImmersiveView: View {
                         originPhotoLine: originLineForFront,
                         captureCoordinate: displayCaptureCoordinate,
                         paletteHexes: mergedPaletteHexes,
+                        traditionalName: mergedTraditionalName,
                         spiritText: mergedSpirit,
                         ethnobotanyText: mergedEthnobotany,
                         culturalLegacyText: culturalLegacyDisplay.isEmpty ? mergedCulturalLegacy : culturalLegacyDisplay
@@ -453,6 +466,7 @@ private struct CardBodyView: View {
     let originPhotoLine: String
     var captureCoordinate: (latitude: Double, longitude: Double)?
     let paletteHexes: [String]
+    let traditionalName: String?
     let spiritText: String
     let ethnobotanyText: String
     let culturalLegacyText: String
@@ -472,6 +486,7 @@ private struct CardBodyView: View {
             CardBackView(
                 scan: scan,
                 paletteHexes: paletteHexes,
+                traditionalName: traditionalName,
                 spiritText: spiritText,
                 ethnobotanyText: ethnobotanyText,
                 culturalLegacyText: culturalLegacyText
@@ -571,6 +586,7 @@ private struct CardFrontView: View {
 private struct CardBackView: View {
     let scan: Scan
     let paletteHexes: [String]
+    let traditionalName: String?
     let spiritText: String
     let ethnobotanyText: String
     let culturalLegacyText: String
@@ -594,6 +610,13 @@ private struct CardBackView: View {
                         .tracking(1.4)
                         .foregroundStyle(LeafIDTheme.primary)
                         .lineLimit(2)
+                    if let traditionalName {
+                        Text("Known as “\(traditionalName)”")
+                            .font(.system(size: 12, weight: .regular, design: .serif))
+                            .italic()
+                            .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                            .lineLimit(2)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }

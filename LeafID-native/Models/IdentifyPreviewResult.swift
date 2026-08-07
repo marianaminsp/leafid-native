@@ -26,6 +26,9 @@ struct IdentifyPreviewResult: Equatable {
     var chipWatering: String
     var chipPhylum: String
     var paletteHexes: [String]
+    /// Traditional/indigenous/vernacular name from the plant's culture or region of origin —
+    /// distinct from `scientificName` and `commonName`. Empty when none is well-documented.
+    var traditionalName: String
     var botanicalSpirit: String
     var ethnobotany: String
     var culturalLegacy: String
@@ -49,6 +52,7 @@ extension IdentifyPreviewResult {
             chipWatering: "Moderate watering",
             chipPhylum: "Magnoliophyta",
             paletteHexes: ["#2C4C1A", "#7AAE2E", "#6B4F2E"],
+            traditionalName: "",
             botanicalSpirit: "A patient teacher of adaptation and light-seeking growth.",
             ethnobotany: "Many aroids are cultivated ornamentals and studied for indoor air quality.",
             culturalLegacy: "Lush split-leaf forms appear frequently in modern tropical design and illustration."

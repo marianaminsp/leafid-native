@@ -45,6 +45,9 @@ struct Scan: Identifiable, Codable, Equatable {
     var isNewDiscovery: Bool? = nil
     /// 3-color signature palette for boutique card + profile aggregate.
     var paletteHexes: [String]? = nil
+    /// Traditional/indigenous/vernacular name from the plant's culture or region of origin —
+    /// distinct from `scientificName` and `commonName`. `nil` when none is well-documented.
+    var traditionalName: String? = nil
     var botanicalSpirit: String? = nil
     var ethnobotany: String? = nil
     var culturalLegacy: String? = nil
@@ -72,6 +75,7 @@ struct Scan: Identifiable, Codable, Equatable {
         case tagSecondary = "tag_secondary"
         case isNewDiscovery = "is_new_discovery"
         case paletteHexes = "palette_hexes"
+        case traditionalName = "traditional_name"
         case botanicalSpirit = "botanical_spirit"
         case ethnobotany
         case culturalLegacy = "cultural_legacy"

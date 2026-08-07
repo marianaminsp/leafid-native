@@ -90,6 +90,7 @@ private struct IdentifyPlantJSON: Decodable {
 private struct GeminiNarrative: Decodable {
     let origin: String?
     let colors: [String]?
+    let traditional_name: String?
     let botanical_spirit: String?
     let ethnobotany: String?
     let cultural_legacy: String?
@@ -211,6 +212,7 @@ enum BotanyService {
                     imagePalette: paletteHexes(from: captureJPEGData),
                     geminiPalette: nil
                 ),
+                traditionalName: offline.traditionalName,
                 botanicalSpirit: offline.botanicalSpirit,
                 ethnobotany: offline.ethnobotany,
                 culturalLegacy: offline.culturalLegacy
@@ -314,6 +316,7 @@ enum BotanyService {
             imagePalette: paletteHexes(from: payload.paletteData ?? captureJPEGData),
             geminiPalette: narrative?.colors ?? narrative?.palette_hexes
         )
+        let traditionalName = narrative?.traditional_name?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let spirit = firstMeaningful(
             narrative?.botanical_spirit,
             nonPlaceholderCuriosity(curiosity)
@@ -354,6 +357,7 @@ enum BotanyService {
             chipWatering: chipWater ?? "",
             chipPhylum: chipPhylum ?? "",
             paletteHexes: palette,
+            traditionalName: traditionalName,
             botanicalSpirit: spirit,
             ethnobotany: ethnobotany,
             culturalLegacy: culturalLegacy
@@ -496,6 +500,7 @@ enum BotanyService {
             tagSecondary: result.tagSecondary.nilIfEmpty,
             isNewDiscovery: result.isNewDiscovery,
             paletteHexes: result.paletteHexes,
+            traditionalName: result.traditionalName.nilIfEmpty,
             botanicalSpirit: result.botanicalSpirit.nilIfEmpty,
             ethnobotany: result.ethnobotany.nilIfEmpty,
             culturalLegacy: culturalLegacyForPersist(from: result).nilIfEmpty
@@ -631,6 +636,7 @@ enum BotanyService {
             tagSecondary: result.tagSecondary.nilIfEmpty,
             isNewDiscovery: result.isNewDiscovery,
             paletteHexes: result.paletteHexes,
+            traditionalName: result.traditionalName.nilIfEmpty,
             botanicalSpirit: result.botanicalSpirit.nilIfEmpty,
             ethnobotany: result.ethnobotany.nilIfEmpty,
             culturalLegacy: culturalLegacyForPersist(from: result).nilIfEmpty
@@ -813,6 +819,7 @@ enum BotanyService {
         let chipWatering: String
         let chipPhylum: String
         let paletteHexes: [String]
+        let traditionalName: String
         let botanicalSpirit: String
         let ethnobotany: String
         let culturalLegacy: String
@@ -832,6 +839,7 @@ enum BotanyService {
             chipWatering = preview.chipWatering
             chipPhylum = preview.chipPhylum
             paletteHexes = preview.paletteHexes
+            traditionalName = preview.traditionalName
             botanicalSpirit = preview.botanicalSpirit
             ethnobotany = preview.ethnobotany
             culturalLegacy = preview.culturalLegacy
@@ -853,6 +861,7 @@ enum BotanyService {
                 chipWatering: chipWatering,
                 chipPhylum: chipPhylum,
                 paletteHexes: paletteHexes,
+                traditionalName: traditionalName,
                 botanicalSpirit: botanicalSpirit,
                 ethnobotany: ethnobotany,
                 culturalLegacy: culturalLegacy
