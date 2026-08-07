@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "welcome-hero-placeholder.jpg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

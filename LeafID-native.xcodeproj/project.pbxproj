@@ -17,6 +17,7 @@
 		167C26458EE044BB6DDF3EB7 /* LeafID_nativeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB032EC4293372983E7DC408 /* LeafID_nativeTests.swift */; };
 		A0134776E5296FC7ECBE31E7 /* KeychainTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A466B09C5D53DDD8529A2AA /* KeychainTokenStore.swift */; };
 		7C22BDA973724B41A9AE79A7 /* NeoBrutalistTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D04E70FC6048F2A985AABD /* NeoBrutalistTheme.swift */; };
+		78E47AEDBAC64FFEA729A4D2 /* WelcomeNeoBrutalistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70DF9E02FAD241C08F5856EF /* WelcomeNeoBrutalistView.swift */; };
 		A221302A25F07F610660AF06 /* BotanicalCardImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EFF63FB5F8EC9823649D1F /* BotanicalCardImageProcessor.swift */; };
 		E1A100000000000000000001 /* LeafID_nativeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000001 /* LeafID_nativeApp.swift */; };
 		E1A100000000000000000002 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000002 /* Theme.swift */; };
@@ -91,6 +92,7 @@
 		C969F72065384D23806EB09A /* Syne-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Syne-ExtraBold.ttf"; sourceTree = "<group>"; };
 		4A466B09C5D53DDD8529A2AA /* KeychainTokenStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeychainTokenStore.swift; sourceTree = "<group>"; };
 		F3D04E70FC6048F2A985AABD /* NeoBrutalistTheme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NeoBrutalistTheme.swift; sourceTree = "<group>"; };
+		70DF9E02FAD241C08F5856EF /* WelcomeNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WelcomeNeoBrutalistView.swift; sourceTree = "<group>"; };
 		A0EFF63FB5F8EC9823649D1F /* BotanicalCardImageProcessor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BotanicalCardImageProcessor.swift; sourceTree = "<group>"; };
 		5E614D3E6FDABD490B7A73C1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		70799B872F8C07650054228B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -256,8 +258,17 @@
 				E1A400000000000000000017 /* Identify */,
 				E1A400000000000000000018 /* Herbarium */,
 				E1A400000000000000000019 /* Druid */,
+				FDD2427953E74F01BA44B7C5 /* Redesign */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		FDD2427953E74F01BA44B7C5 /* Redesign */ = {
+			isa = PBXGroup;
+			children = (
+				70DF9E02FAD241C08F5856EF /* WelcomeNeoBrutalistView.swift */,
+			);
+			path = Redesign;
 			sourceTree = "<group>";
 		};
 		E1A400000000000000000013 /* ViewModels */ = {
@@ -584,6 +595,7 @@
 				A0134776E5296FC7ECBE31E7 /* KeychainTokenStore.swift in Sources */,
 				A221302A25F07F610660AF06 /* BotanicalCardImageProcessor.swift in Sources */,
 				7C22BDA973724B41A9AE79A7 /* NeoBrutalistTheme.swift in Sources */,
+				78E47AEDBAC64FFEA729A4D2 /* WelcomeNeoBrutalistView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
