@@ -104,7 +104,7 @@ final class AuthViewModel: ObservableObject {
         guard let root = supabaseRootURLString(), let anon = supabaseAnonKey(),
               let verifier = makePKCEVerifier()
         else { return nil }
-        defaults.set(verifier, forKey: oauthPKCEVerifierKey)
+        KeychainTokenStore.set(verifier, forKey: oauthPKCEVerifierKey)
         let challenge = pkceChallengeS256(verifier: verifier)
         var components = URLComponents(string: "\(root)/auth/v1/authorize")
         components?.queryItems = [
@@ -154,7 +154,7 @@ final class AuthViewModel: ObservableObject {
         let values = parseOAuthValues(url)
         if values["error"] != nil {
             clearSession()
-            defaults.removeObject(forKey: oauthPKCEVerifierKey)
+            KeychainTokenStore.removeObject(forKey: oauthPKCEVerifierKey)
             lastError = String(localized: "Google sign-in was cancelled or denied.")
             return
         }
@@ -178,11 +178,11 @@ final class AuthViewModel: ObservableObject {
         }
 
         guard let accessToken = values["access_token"], !accessToken.isEmpty else {
-            defaults.removeObject(forKey: oauthPKCEVerifierKey)
+            KeychainTokenStore.removeObject(forKey: oauthPKCEVerifierKey)
             lastError = String(localized: "Missing access token from OAuth callback.")
             return
         }
-        defaults.removeObject(forKey: oauthPKCEVerifierKey)
+        KeychainTokenStore.removeObject(forKey: oauthPKCEVerifierKey)
         let refreshToken = values["refresh_token"]
         let expiresAtEpoch = values["expires_at"].flatMap(TimeInterval.init)
             ?? values["expires_in"].flatMap(TimeInterval.init).map { Date().timeIntervalSince1970 + $0 }
@@ -545,7 +545,7 @@ final class AuthViewModel: ObservableObject {
     private func exchangePKCE(authCode: String) async throws -> AuthSession {
         guard let root = supabaseRootURLString(), let anon = supabaseAnonKey(),
               let url = URL(string: "\(root)/auth/v1/token?grant_type=pkce"),
-              let verifier = defaults.string(forKey: oauthPKCEVerifierKey), !verifier.isEmpty
+              let verifier = KeychainTokenStore.string(forKey: oauthPKCEVerifierKey), !verifier.isEmpty
         else { throw AuthError.configuration }
 
         var request = URLRequest(url: url)
@@ -555,7 +555,7 @@ final class AuthViewModel: ObservableObject {
         request.httpBody = try JSONEncoder().encode(PKCEExchangePayload(authCode: authCode, codeVerifier: verifier))
 
         let (data, response) = try await URLSession.shared.data(for: request)
-        defaults.removeObject(forKey: oauthPKCEVerifierKey)
+        KeychainTokenStore.removeObject(forKey: oauthPKCEVerifierKey)
         guard let http = response as? HTTPURLResponse, (200 ... 299).contains(http.statusCode) else {
             throw AuthError.requestFailed
         }

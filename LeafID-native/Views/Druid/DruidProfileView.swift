@@ -348,8 +348,18 @@ struct DruidProfileView: View {
             ) {
                 authViewModel.signOut()
             }
+            if let privacyPolicyURL {
+                Link(String(localized: "Privacy Policy"), destination: privacyPolicyURL)
+                    .font(LeafIDFont.manrope(size: 13, weight: .medium))
+                    .foregroundStyle(LeafIDTheme.slateMuted)
+                    .padding(.top, LeafIDTheme.space4)
+            }
         }
         .padding(.top, LeafIDTheme.space10)
+    }
+
+    private var privacyPolicyURL: URL? {
+        URL(string: "https://marianaminsp.github.io/leafid-native/docs/PRIVACY_POLICY.html")
     }
 
     #if DEBUG

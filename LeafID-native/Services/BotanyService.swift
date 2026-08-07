@@ -507,6 +507,13 @@ enum BotanyService {
                 #if DEBUG
                 print("[LeafID][scans][insert] specimen kept locally only; see preceding error for cause (RLS / column drift / network).")
                 #endif
+                // Silent before this: the scan looked saved this session (still appended below) but
+                // never reached Supabase, so it vanished on the next `hydrateFromSupabase` wholesale
+                // refresh with no visible cause. Surface it so a repeat report is actionable.
+                ToastCenter.shared.show(
+                    String(localized: "Saved, but couldn't sync to your account — it may not appear after reopening the app."),
+                    kind: .error
+                )
             }
         } else {
             #if DEBUG
