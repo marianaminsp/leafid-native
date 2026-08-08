@@ -6,6 +6,12 @@
 //  Map and log-thumbnail images are the mockup's own placeholders, not live MapKit / real specimen
 //  photos — this screen stays a static visual until the real Arboretum map (ADR-0002) is re-enabled.
 //
+//  The map card carries an explicit "Map: Growing" WIP sticker (desaturated/scrimmed map, centered
+//  hard-shadow card) per the "Leaf ID — Arboretum (WIP)" design exploration, so it reads as
+//  intentionally unfinished rather than a broken live map. The individual specimen pins were dropped
+//  for the same reason — a "tap this pin" affordance next to a sticker that says the map isn't
+//  interactive yet would send two contradicting messages.
+//
 
 import SwiftUI
 
@@ -74,18 +80,20 @@ struct ArboretumNeoBrutalistView: View {
                     .aspectRatio(contentMode: .fill)
                     .frame(width: geo.size.width, height: geo.size.height)
                     .clipped()
+                    .saturation(0.7)
+                    .brightness(-0.08)
             }
             .frame(height: 320)
 
-            mapPin(size: 32, color: NeoBrutalistColor.primaryContainer)
-                .offset(x: 60, y: -220)
-                .onTapGesture { missingFeature = "Specimen Detail Card" }
-            mapPin(size: 40, color: NeoBrutalistColor.tertiaryContainer)
-                .offset(x: 200, y: -120)
-                .onTapGesture { missingFeature = "Specimen Detail Card" }
-            mapPin(size: 26, color: NeoBrutalistColor.secondaryContainer)
-                .offset(x: 140, y: -50)
-                .onTapGesture { missingFeature = "Specimen Detail Card" }
+            RadialGradient(
+                colors: [NeoBrutalistColor.ink.opacity(0.14), NeoBrutalistColor.ink.opacity(0.34)],
+                center: UnitPoint(x: 0.5, y: 0.42),
+                startRadius: 20,
+                endRadius: 280
+            )
+            .allowsHitTesting(false)
+
+            wipSticker
 
             HStack(spacing: NeoBrutalistSpacing.sm) {
                 zoneChip("ALL ZONES")
@@ -98,11 +106,29 @@ struct ArboretumNeoBrutalistView: View {
         .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 8)
     }
 
-    private func mapPin(size: CGFloat, color: Color) -> some View {
-        Image(systemName: "mappin")
-            .font(.system(size: size, weight: .bold))
-            .foregroundStyle(color)
-            .shadow(color: NeoBrutalistColor.ink, radius: 0, x: 2, y: 2)
+    /// "Map: Growing" — the honest-WIP treatment: a tilted, hard-shadow sticker centered over the
+    /// desaturated/scrimmed map, naming the specific missing interaction rather than a bare
+    /// "coming soon."
+    private var wipSticker: some View {
+        VStack(spacing: NeoBrutalistSpacing.xs) {
+            Image(systemName: "leaf.fill")
+                .font(.system(size: 30, weight: .bold))
+                .foregroundStyle(NeoBrutalistColor.onSurface)
+            Text("MAP: GROWING")
+                .font(NeoBrutalistFont.headlineMd())
+                .foregroundStyle(NeoBrutalistColor.onSurface)
+            Text("DRAG & PAN COMING SOON")
+                .font(.custom("SpaceMono-Bold", size: 10.5))
+                .kerning(1)
+                .foregroundStyle(NeoBrutalistColor.onTertiaryContainer)
+        }
+        .multilineTextAlignment(.center)
+        .padding(.horizontal, 26)
+        .padding(.vertical, 20)
+        .background(NeoBrutalistColor.tertiaryContainer)
+        .neoBrutalistSurface(borderWidth: 4, shadowOffset: 8)
+        .rotationEffect(.degrees(-3))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func zoneChip(_ title: String) -> some View {
