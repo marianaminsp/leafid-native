@@ -9,6 +9,14 @@ This document defines the canonical logic for Druid identity, progression, and e
 - `16-50` scans: `Oak Guardian` (Icon: `Tree`)
 - `50+` scans: `Archdruid` (Icon: `Sparkles`)
 
+## Redesign Note: Level/XP Backfill (2026-08-08)
+
+The neo-brutalist redesign's Druid screen (`stitch_botanical_explorer/the_druid`, `DruidNeoBrutalistView.swift`) introduces a numeric Level + XP model ("LVL 24", "8,240 / 10,000 XP") on top of the rank titles above — distinct from this doc's original scan-count-only thresholds. Reconciling the two (does XP map 1:1 to scan count, or is it a separate weighted point system per discovery?) is still open and needs to happen before the redesign's Druid screen is built for real, not just mocked.
+
+**Decision:** when Level/XP logic ships, it must be computed from each user's *existing* discovery/scan history, not reset to zero. A user who already has 40 discoveries starts at whatever level that history earns them the same day the feature ships — nobody gets pushed back to "Seedling Druid" / Level 1 just because the feature launched after they signed up. This mirrors ADR-0002's precedent for the Arboretum map: GPS data keeps being captured specifically so the map can backfill historical pins once it ships — same backfill principle applies here to Level/XP.
+
+Consequence for the redesign mockups: the "Seedling Druid" empty state (design exploration only, not yet built) is the correct state solely for users with **zero real history** — not a temporary placeholder state for every user on launch day.
+
 ## Energy System
 
 - Base (free users): `3` scans total
@@ -53,6 +61,7 @@ All future features that touch Druid progression, scan gating, or passport rende
 - Decide and apply the canonical Druid tab surface (`MainTabView` currently routes `.druid` to `ProfileView`, while passport logic is in `DruidProfileView`).
 - Resolve rule mismatch for passport CTA (`Buy me a Coffee`) against this doc's stated condition.
 - Complete production auth/payment configuration work (Google Cloud production redirect setup and premium entitlement activation path).
+- Reconcile scan-count rank thresholds above with the redesign's Level/XP model, then implement Level/XP as a backfill from existing history — see "Redesign Note: Level/XP Backfill" above.
 
 ## Consistency Audit Snapshot
 
