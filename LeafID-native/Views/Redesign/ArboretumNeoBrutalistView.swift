@@ -23,8 +23,6 @@ struct ArboretumNeoBrutalistView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            NeoBrutalistAppHeader(onAvatarTap: { onSelectTab(.druid) })
-
             ScrollView {
                 VStack(alignment: .leading, spacing: NeoBrutalistSpacing.lg) {
                     headerCard
@@ -47,19 +45,25 @@ struct ArboretumNeoBrutalistView: View {
 
     private var headerCard: some View {
         VStack(alignment: .leading, spacing: NeoBrutalistSpacing.sm) {
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text("EXPLORE THE")
+                    .font(NeoBrutalistFont.headlineLgMobile())
                     .foregroundStyle(NeoBrutalistColor.onSurface)
                 Text("ARBORETUM")
-                    .foregroundStyle(NeoBrutalistColor.primary)
+                    .font(NeoBrutalistFont.headlineLgMobile())
+                    .foregroundStyle(NeoBrutalistColor.onPrimaryContainer)
+                    .padding(.horizontal, NeoBrutalistSpacing.sm)
+                    .padding(.vertical, NeoBrutalistSpacing.xs)
+                    .background(NeoBrutalistColor.primaryContainer)
+                    .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 4)
+                    .rotationEffect(.degrees(-2))
             }
-            .font(NeoBrutalistFont.headlineLgMobile())
 
             HStack(alignment: .top, spacing: NeoBrutalistSpacing.md) {
                 Rectangle()
                     .fill(NeoBrutalistColor.primary)
                     .frame(width: 4)
-                Text("See where your botanical discoveries took root on our interactive map.")
+                Text("See where your botanical discoveries took root — drag & pan are on the way.")
                     .font(NeoBrutalistFont.bodyMedium(size: 16))
                     .foregroundStyle(NeoBrutalistColor.onSurfaceVariant)
             }

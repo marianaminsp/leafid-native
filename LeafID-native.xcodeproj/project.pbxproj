@@ -7,33 +7,33 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		160999D0354EC2E83E55C01E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 05246439EFD4918AA442102C /* PrivacyInfo.xcprivacy */; };
-		A7B95EB746E74AC5B1FE4699 /* HankenGrotesk-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5BF4C64011EA49D3AED0CDB6 /* HankenGrotesk-Medium.ttf */; };
 		030794FC907A40A8AE40DE37 /* HankenGrotesk-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8D461E95EBD54ED697593C73 /* HankenGrotesk-Regular.ttf */; };
-		F0ECF9E7237B45B8832CD463 /* SpaceMono-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4726B6878D8645C7BCB63588 /* SpaceMono-Bold.ttf */; };
 		03CCE9D6A59A453C80140DAD /* SpaceMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9C505C9D49064792B3255F81 /* SpaceMono-Regular.ttf */; };
-		A2A4D39341B34A79983BC939 /* Syne-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C79F6C6F06FB4E04969A05D9 /* Syne-Bold.ttf */; };
-		6B39EEC660414F83A03617E0 /* Syne-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C969F72065384D23806EB09A /* Syne-ExtraBold.ttf */; };
+		160999D0354EC2E83E55C01E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 05246439EFD4918AA442102C /* PrivacyInfo.xcprivacy */; };
 		167C26458EE044BB6DDF3EB7 /* LeafID_nativeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB032EC4293372983E7DC408 /* LeafID_nativeTests.swift */; };
-		A0134776E5296FC7ECBE31E7 /* KeychainTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A466B09C5D53DDD8529A2AA /* KeychainTokenStore.swift */; };
-		7C22BDA973724B41A9AE79A7 /* NeoBrutalistTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D04E70FC6048F2A985AABD /* NeoBrutalistTheme.swift */; };
-		78E47AEDBAC64FFEA729A4D2 /* WelcomeNeoBrutalistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70DF9E02FAD241C08F5856EF /* WelcomeNeoBrutalistView.swift */; };
-		59A12248CD8D4AC197F456C9 /* NeoBrutalistTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = E33F008F74954DD2A1CCA154 /* NeoBrutalistTabBar.swift */; };
-		FE6D529C85A240E38054B26B /* NeoBrutalistAppHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35381EC5FF5B404BBF293D02 /* NeoBrutalistAppHeader.swift */; };
 		34095034F0224C078BD8D711 /* IdentifyNeoBrutalistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E08CECE91984FF38CC53293 /* IdentifyNeoBrutalistView.swift */; };
+		388D420653CD31E77EE46CF5 /* ArboretumComingSoonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD938ABEC1D8A0C52567944 /* ArboretumComingSoonView.swift */; };
 		4AF887C83C65441AB7BF3F71 /* ScannerNeoBrutalistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A3F1912B5894B248DD3F089 /* ScannerNeoBrutalistView.swift */; };
-		F4304265B17443C1BD16BA53 /* ArboretumNeoBrutalistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42C284ABF7CC487D96B07494 /* ArboretumNeoBrutalistView.swift */; };
+		59A12248CD8D4AC197F456C9 /* NeoBrutalistTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = E33F008F74954DD2A1CCA154 /* NeoBrutalistTabBar.swift */; };
+		65BC5403A0BE8712CC876A49 /* HerbariumSpecimen.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3AFBC726DE785678284F9A0 /* HerbariumSpecimen.swift */; };
+		6B39EEC660414F83A03617E0 /* Syne-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C969F72065384D23806EB09A /* Syne-ExtraBold.ttf */; };
+		6D27E43BF4C7589D319A29C0 /* RedesignPrototypeState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEB2E44A8CDF7B6C5DF12625 /* RedesignPrototypeState.swift */; };
 		6F5EC4314DA246A9B0ADF437 /* HerbariumNeoBrutalistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6937D10021CE4380BBEC04BC /* HerbariumNeoBrutalistView.swift */; };
+		78E47AEDBAC64FFEA729A4D2 /* WelcomeNeoBrutalistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70DF9E02FAD241C08F5856EF /* WelcomeNeoBrutalistView.swift */; };
+		7C22BDA973724B41A9AE79A7 /* NeoBrutalistTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D04E70FC6048F2A985AABD /* NeoBrutalistTheme.swift */; };
+		A0134776E5296FC7ECBE31E7 /* KeychainTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A466B09C5D53DDD8529A2AA /* KeychainTokenStore.swift */; };
+		A221302A25F07F610660AF06 /* BotanicalCardImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EFF63FB5F8EC9823649D1F /* BotanicalCardImageProcessor.swift */; };
+		A2A4D39341B34A79983BC939 /* Syne-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C79F6C6F06FB4E04969A05D9 /* Syne-Bold.ttf */; };
+		A7B95EB746E74AC5B1FE4699 /* HankenGrotesk-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5BF4C64011EA49D3AED0CDB6 /* HankenGrotesk-Medium.ttf */; };
 		BB76CFF967464718840B6FEE /* DruidNeoBrutalistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E1FBDC435C41D5B97C97C3 /* DruidNeoBrutalistView.swift */; };
 		CA3F33F756CB4239AAAE9CDF /* NeoBrutalistAppRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C80566DD6C0404F9A670B77 /* NeoBrutalistAppRoot.swift */; };
-		A221302A25F07F610660AF06 /* BotanicalCardImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EFF63FB5F8EC9823649D1F /* BotanicalCardImageProcessor.swift */; };
+		D0D3F49C3767034E1810C653 /* BotanicalCardNeoBrutalistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933EA86E324990CD1996CDD5 /* BotanicalCardNeoBrutalistView.swift */; };
 		E1A100000000000000000001 /* LeafID_nativeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000001 /* LeafID_nativeApp.swift */; };
 		E1A100000000000000000002 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000002 /* Theme.swift */; };
 		E1A100000000000000000003 /* Scan.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000003 /* Scan.swift */; };
 		E1A100000000000000000004 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000004 /* Profile.swift */; };
 		E1A100000000000000000005 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000005 /* MainTabView.swift */; };
 		E1A100000000000000000006 /* ArboretumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000006 /* ArboretumView.swift */; };
-		388D420653CD31E77EE46CF5 /* ArboretumComingSoonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD938ABEC1D8A0C52567944 /* ArboretumComingSoonView.swift */; };
 		E1A100000000000000000008 /* HerbariumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000008 /* HerbariumView.swift */; };
 		E1A100000000000000000009 /* DruidProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000009 /* DruidProfileView.swift */; };
 		E1A10000000000000000000A /* HerbariumViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000000A /* HerbariumViewModel.swift */; };
@@ -78,6 +78,8 @@
 		E1A10000000000000000007C /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000007C /* PaywallView.swift */; };
 		E1A10000000000000000007D /* ToastCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000007D /* ToastCenter.swift */; };
 		E792AEADD4FF2240B967FC4E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E614D3E6FDABD490B7A73C1 /* Foundation.framework */; };
+		F0ECF9E7237B45B8832CD463 /* SpaceMono-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4726B6878D8645C7BCB63588 /* SpaceMono-Bold.ttf */; };
+		F4304265B17443C1BD16BA53 /* ArboretumNeoBrutalistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42C284ABF7CC487D96B07494 /* ArboretumNeoBrutalistView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -92,27 +94,26 @@
 
 /* Begin PBXFileReference section */
 		05246439EFD4918AA442102C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		5BF4C64011EA49D3AED0CDB6 /* HankenGrotesk-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "HankenGrotesk-Medium.ttf"; sourceTree = "<group>"; };
-		8D461E95EBD54ED697593C73 /* HankenGrotesk-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "HankenGrotesk-Regular.ttf"; sourceTree = "<group>"; };
+		1E08CECE91984FF38CC53293 /* IdentifyNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IdentifyNeoBrutalistView.swift; sourceTree = "<group>"; };
+		42C284ABF7CC487D96B07494 /* ArboretumNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ArboretumNeoBrutalistView.swift; sourceTree = "<group>"; };
 		4726B6878D8645C7BCB63588 /* SpaceMono-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceMono-Bold.ttf"; sourceTree = "<group>"; };
+		48E1FBDC435C41D5B97C97C3 /* DruidNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DruidNeoBrutalistView.swift; sourceTree = "<group>"; };
+		4A466B09C5D53DDD8529A2AA /* KeychainTokenStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeychainTokenStore.swift; sourceTree = "<group>"; };
+		5BF4C64011EA49D3AED0CDB6 /* HankenGrotesk-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "HankenGrotesk-Medium.ttf"; sourceTree = "<group>"; };
+		5E614D3E6FDABD490B7A73C1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		6937D10021CE4380BBEC04BC /* HerbariumNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HerbariumNeoBrutalistView.swift; sourceTree = "<group>"; };
+		70799B872F8C07650054228B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		70DF9E02FAD241C08F5856EF /* WelcomeNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WelcomeNeoBrutalistView.swift; sourceTree = "<group>"; };
+		7C80566DD6C0404F9A670B77 /* NeoBrutalistAppRoot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NeoBrutalistAppRoot.swift; sourceTree = "<group>"; };
+		8A3F1912B5894B248DD3F089 /* ScannerNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScannerNeoBrutalistView.swift; sourceTree = "<group>"; };
+		8D461E95EBD54ED697593C73 /* HankenGrotesk-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "HankenGrotesk-Regular.ttf"; sourceTree = "<group>"; };
+		933EA86E324990CD1996CDD5 /* BotanicalCardNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BotanicalCardNeoBrutalistView.swift; sourceTree = "<group>"; };
 		9C505C9D49064792B3255F81 /* SpaceMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceMono-Regular.ttf"; sourceTree = "<group>"; };
+		A0EFF63FB5F8EC9823649D1F /* BotanicalCardImageProcessor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BotanicalCardImageProcessor.swift; sourceTree = "<group>"; };
+		BB032EC4293372983E7DC408 /* LeafID_nativeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LeafID_nativeTests.swift; sourceTree = "<group>"; };
 		C79F6C6F06FB4E04969A05D9 /* Syne-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Syne-Bold.ttf"; sourceTree = "<group>"; };
 		C969F72065384D23806EB09A /* Syne-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Syne-ExtraBold.ttf"; sourceTree = "<group>"; };
-		4A466B09C5D53DDD8529A2AA /* KeychainTokenStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeychainTokenStore.swift; sourceTree = "<group>"; };
-		F3D04E70FC6048F2A985AABD /* NeoBrutalistTheme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NeoBrutalistTheme.swift; sourceTree = "<group>"; };
-		70DF9E02FAD241C08F5856EF /* WelcomeNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WelcomeNeoBrutalistView.swift; sourceTree = "<group>"; };
-		E33F008F74954DD2A1CCA154 /* NeoBrutalistTabBar.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NeoBrutalistTabBar.swift; sourceTree = "<group>"; };
-		35381EC5FF5B404BBF293D02 /* NeoBrutalistAppHeader.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NeoBrutalistAppHeader.swift; sourceTree = "<group>"; };
-		1E08CECE91984FF38CC53293 /* IdentifyNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IdentifyNeoBrutalistView.swift; sourceTree = "<group>"; };
-		8A3F1912B5894B248DD3F089 /* ScannerNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScannerNeoBrutalistView.swift; sourceTree = "<group>"; };
-		42C284ABF7CC487D96B07494 /* ArboretumNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ArboretumNeoBrutalistView.swift; sourceTree = "<group>"; };
-		6937D10021CE4380BBEC04BC /* HerbariumNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HerbariumNeoBrutalistView.swift; sourceTree = "<group>"; };
-		48E1FBDC435C41D5B97C97C3 /* DruidNeoBrutalistView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DruidNeoBrutalistView.swift; sourceTree = "<group>"; };
-		7C80566DD6C0404F9A670B77 /* NeoBrutalistAppRoot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NeoBrutalistAppRoot.swift; sourceTree = "<group>"; };
-		A0EFF63FB5F8EC9823649D1F /* BotanicalCardImageProcessor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BotanicalCardImageProcessor.swift; sourceTree = "<group>"; };
-		5E614D3E6FDABD490B7A73C1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		70799B872F8C07650054228B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		BB032EC4293372983E7DC408 /* LeafID_nativeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LeafID_nativeTests.swift; sourceTree = "<group>"; };
+		CEB2E44A8CDF7B6C5DF12625 /* RedesignPrototypeState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RedesignPrototypeState.swift; sourceTree = "<group>"; };
 		D56EC0009B5F05A4EE0142B2 /* LeafID-nativeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "LeafID-nativeTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1A200000000000000000001 /* LeafID_nativeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeafID_nativeApp.swift; sourceTree = "<group>"; };
 		E1A200000000000000000002 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
@@ -120,7 +121,6 @@
 		E1A200000000000000000004 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		E1A200000000000000000005 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		E1A200000000000000000006 /* ArboretumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArboretumView.swift; sourceTree = "<group>"; };
-		FBD938ABEC1D8A0C52567944 /* ArboretumComingSoonView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ArboretumComingSoonView.swift; sourceTree = "<group>"; };
 		E1A200000000000000000008 /* HerbariumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HerbariumView.swift; sourceTree = "<group>"; };
 		E1A200000000000000000009 /* DruidProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DruidProfileView.swift; sourceTree = "<group>"; };
 		E1A20000000000000000000A /* HerbariumViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HerbariumViewModel.swift; sourceTree = "<group>"; };
@@ -168,6 +168,10 @@
 		E1A200000000000000000081 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		E1A200000000000000000082 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		E1A2000000000000000000FF /* LeafID-native.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LeafID-native.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E33F008F74954DD2A1CCA154 /* NeoBrutalistTabBar.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NeoBrutalistTabBar.swift; sourceTree = "<group>"; };
+		E3AFBC726DE785678284F9A0 /* HerbariumSpecimen.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HerbariumSpecimen.swift; sourceTree = "<group>"; };
+		F3D04E70FC6048F2A985AABD /* NeoBrutalistTheme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NeoBrutalistTheme.swift; sourceTree = "<group>"; };
+		FBD938ABEC1D8A0C52567944 /* ArboretumComingSoonView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ArboretumComingSoonView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -195,6 +199,14 @@
 				17EA6EB8B5474C5CB69BE2BD /* iOS */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		112A303DD78141D4B9EF310E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E5B287152D01435885D74C76 /* Fonts */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		17EA6EB8B5474C5CB69BE2BD /* iOS */ = {
@@ -277,22 +289,6 @@
 				FDD2427953E74F01BA44B7C5 /* Redesign */,
 			);
 			path = Views;
-			sourceTree = "<group>";
-		};
-		FDD2427953E74F01BA44B7C5 /* Redesign */ = {
-			isa = PBXGroup;
-			children = (
-				70DF9E02FAD241C08F5856EF /* WelcomeNeoBrutalistView.swift */,
-				E33F008F74954DD2A1CCA154 /* NeoBrutalistTabBar.swift */,
-				35381EC5FF5B404BBF293D02 /* NeoBrutalistAppHeader.swift */,
-				1E08CECE91984FF38CC53293 /* IdentifyNeoBrutalistView.swift */,
-				8A3F1912B5894B248DD3F089 /* ScannerNeoBrutalistView.swift */,
-				42C284ABF7CC487D96B07494 /* ArboretumNeoBrutalistView.swift */,
-				6937D10021CE4380BBEC04BC /* HerbariumNeoBrutalistView.swift */,
-				48E1FBDC435C41D5B97C97C3 /* DruidNeoBrutalistView.swift */,
-				7C80566DD6C0404F9A670B77 /* NeoBrutalistAppRoot.swift */,
-			);
-			path = Redesign;
 			sourceTree = "<group>";
 		};
 		E1A400000000000000000013 /* ViewModels */ = {
@@ -426,14 +422,6 @@
 			path = Config;
 			sourceTree = "<group>";
 		};
-		112A303DD78141D4B9EF310E /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				E5B287152D01435885D74C76 /* Fonts */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
 		E5B287152D01435885D74C76 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
@@ -454,6 +442,24 @@
 			);
 			name = "LeafID-nativeTests";
 			path = "LeafID-native/LeafID-nativeTests";
+			sourceTree = "<group>";
+		};
+		FDD2427953E74F01BA44B7C5 /* Redesign */ = {
+			isa = PBXGroup;
+			children = (
+				70DF9E02FAD241C08F5856EF /* WelcomeNeoBrutalistView.swift */,
+				E33F008F74954DD2A1CCA154 /* NeoBrutalistTabBar.swift */,
+				1E08CECE91984FF38CC53293 /* IdentifyNeoBrutalistView.swift */,
+				8A3F1912B5894B248DD3F089 /* ScannerNeoBrutalistView.swift */,
+				42C284ABF7CC487D96B07494 /* ArboretumNeoBrutalistView.swift */,
+				6937D10021CE4380BBEC04BC /* HerbariumNeoBrutalistView.swift */,
+				48E1FBDC435C41D5B97C97C3 /* DruidNeoBrutalistView.swift */,
+				7C80566DD6C0404F9A670B77 /* NeoBrutalistAppRoot.swift */,
+				933EA86E324990CD1996CDD5 /* BotanicalCardNeoBrutalistView.swift */,
+				E3AFBC726DE785678284F9A0 /* HerbariumSpecimen.swift */,
+				CEB2E44A8CDF7B6C5DF12625 /* RedesignPrototypeState.swift */,
+			);
+			path = Redesign;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -621,13 +627,15 @@
 				7C22BDA973724B41A9AE79A7 /* NeoBrutalistTheme.swift in Sources */,
 				78E47AEDBAC64FFEA729A4D2 /* WelcomeNeoBrutalistView.swift in Sources */,
 				59A12248CD8D4AC197F456C9 /* NeoBrutalistTabBar.swift in Sources */,
-				FE6D529C85A240E38054B26B /* NeoBrutalistAppHeader.swift in Sources */,
 				34095034F0224C078BD8D711 /* IdentifyNeoBrutalistView.swift in Sources */,
 				4AF887C83C65441AB7BF3F71 /* ScannerNeoBrutalistView.swift in Sources */,
 				F4304265B17443C1BD16BA53 /* ArboretumNeoBrutalistView.swift in Sources */,
 				6F5EC4314DA246A9B0ADF437 /* HerbariumNeoBrutalistView.swift in Sources */,
 				BB76CFF967464718840B6FEE /* DruidNeoBrutalistView.swift in Sources */,
 				CA3F33F756CB4239AAAE9CDF /* NeoBrutalistAppRoot.swift in Sources */,
+				D0D3F49C3767034E1810C653 /* BotanicalCardNeoBrutalistView.swift in Sources */,
+				65BC5403A0BE8712CC876A49 /* HerbariumSpecimen.swift in Sources */,
+				6D27E43BF4C7589D319A29C0 /* RedesignPrototypeState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

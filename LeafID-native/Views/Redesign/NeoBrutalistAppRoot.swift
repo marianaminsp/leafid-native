@@ -15,6 +15,7 @@
 import SwiftUI
 
 struct NeoBrutalistAppRoot: View {
+    @StateObject private var prototypeState = RedesignPrototypeState()
     @State private var hasSeenWelcome = false
     @State private var selectedTab: NeoBrutalistTab = .identify
     @State private var showScanner = false
@@ -34,7 +35,9 @@ struct NeoBrutalistAppRoot: View {
                 onClose: { showScanner = false },
                 onSelectTab: { tab in selectedTab = tab }
             )
+            .environmentObject(prototypeState)
         }
+        .environmentObject(prototypeState)
     }
 
     @ViewBuilder

@@ -14,9 +14,9 @@ enum NeoBrutalistTab: CaseIterable {
 
     var label: String {
         switch self {
-        case .map: return "MAP"
+        case .map: return "ARBORETUM"
         case .identify: return "IDENTIFY"
-        case .collection: return "COLLECTION"
+        case .collection: return "HERBARIUM"
         case .druid: return "DRUID"
         }
     }
