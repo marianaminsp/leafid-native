@@ -9,15 +9,17 @@
 /* Begin PBXBuildFile section */
 		160999D0354EC2E83E55C01E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 05246439EFD4918AA442102C /* PrivacyInfo.xcprivacy */; };
 		167C26458EE044BB6DDF3EB7 /* LeafID_nativeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB032EC4293372983E7DC408 /* LeafID_nativeTests.swift */; };
+		388D420653CD31E77EE46CF5 /* ArboretumComingSoonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD938ABEC1D8A0C52567944 /* ArboretumComingSoonView.swift */; };
+		8FF8620AB758C39C281233B8 /* PostHog in Frameworks */ = {isa = PBXBuildFile; productRef = A649FBE528E122402AEE1514 /* PostHog */; };
 		A0134776E5296FC7ECBE31E7 /* KeychainTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A466B09C5D53DDD8529A2AA /* KeychainTokenStore.swift */; };
 		A221302A25F07F610660AF06 /* BotanicalCardImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EFF63FB5F8EC9823649D1F /* BotanicalCardImageProcessor.swift */; };
+		AA47991B7E30323D731CC43D /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = CD6F7E6936365C1D00209A34 /* Sentry */; };
 		E1A100000000000000000001 /* LeafID_nativeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000001 /* LeafID_nativeApp.swift */; };
 		E1A100000000000000000002 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000002 /* Theme.swift */; };
 		E1A100000000000000000003 /* Scan.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000003 /* Scan.swift */; };
 		E1A100000000000000000004 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000004 /* Profile.swift */; };
 		E1A100000000000000000005 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000005 /* MainTabView.swift */; };
 		E1A100000000000000000006 /* ArboretumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000006 /* ArboretumView.swift */; };
-		388D420653CD31E77EE46CF5 /* ArboretumComingSoonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD938ABEC1D8A0C52567944 /* ArboretumComingSoonView.swift */; };
 		E1A100000000000000000008 /* HerbariumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000008 /* HerbariumView.swift */; };
 		E1A100000000000000000009 /* DruidProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000009 /* DruidProfileView.swift */; };
 		E1A10000000000000000000A /* HerbariumViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000000A /* HerbariumViewModel.swift */; };
@@ -77,9 +79,9 @@
 /* Begin PBXFileReference section */
 		05246439EFD4918AA442102C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		4A466B09C5D53DDD8529A2AA /* KeychainTokenStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeychainTokenStore.swift; sourceTree = "<group>"; };
-		A0EFF63FB5F8EC9823649D1F /* BotanicalCardImageProcessor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BotanicalCardImageProcessor.swift; sourceTree = "<group>"; };
 		5E614D3E6FDABD490B7A73C1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		70799B872F8C07650054228B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		A0EFF63FB5F8EC9823649D1F /* BotanicalCardImageProcessor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BotanicalCardImageProcessor.swift; sourceTree = "<group>"; };
 		BB032EC4293372983E7DC408 /* LeafID_nativeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LeafID_nativeTests.swift; sourceTree = "<group>"; };
 		D56EC0009B5F05A4EE0142B2 /* LeafID-nativeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "LeafID-nativeTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1A200000000000000000001 /* LeafID_nativeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeafID_nativeApp.swift; sourceTree = "<group>"; };
@@ -88,7 +90,6 @@
 		E1A200000000000000000004 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		E1A200000000000000000005 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		E1A200000000000000000006 /* ArboretumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArboretumView.swift; sourceTree = "<group>"; };
-		FBD938ABEC1D8A0C52567944 /* ArboretumComingSoonView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ArboretumComingSoonView.swift; sourceTree = "<group>"; };
 		E1A200000000000000000008 /* HerbariumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HerbariumView.swift; sourceTree = "<group>"; };
 		E1A200000000000000000009 /* DruidProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DruidProfileView.swift; sourceTree = "<group>"; };
 		E1A20000000000000000000A /* HerbariumViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HerbariumViewModel.swift; sourceTree = "<group>"; };
@@ -136,6 +137,7 @@
 		E1A200000000000000000081 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		E1A200000000000000000082 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		E1A2000000000000000000FF /* LeafID-native.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LeafID-native.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		FBD938ABEC1D8A0C52567944 /* ArboretumComingSoonView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ArboretumComingSoonView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,6 +153,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA47991B7E30323D731CC43D /* Sentry in Frameworks */,
+				8FF8620AB758C39C281233B8 /* PostHog in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -418,6 +422,10 @@
 			dependencies = (
 			);
 			name = "LeafID-native";
+			packageProductDependencies = (
+				CD6F7E6936365C1D00209A34 /* Sentry */,
+				A649FBE528E122402AEE1514 /* PostHog */,
+			);
 			productName = "LeafID-native";
 			productReference = E1A2000000000000000000FF /* LeafID-native.app */;
 			productType = "com.apple.product-type.application";
@@ -447,6 +455,10 @@
 				es,
 			);
 			mainGroup = E1A400000000000000000001;
+			packageReferences = (
+				1FE003BE6BCED6ED6C038E30 /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
+				36FA373ED7819F7DD2B35510 /* XCRemoteSwiftPackageReference "posthog-ios" */,
+			);
 			productRefGroup = E1A400000000000000000003 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -754,6 +766,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1FE003BE6BCED6ED6C038E30 /* XCRemoteSwiftPackageReference "sentry-cocoa" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/getsentry/sentry-cocoa";
+			requirement = {
+				kind = exactVersion;
+				version = 8.58.4;
+			};
+		};
+		36FA373ED7819F7DD2B35510 /* XCRemoteSwiftPackageReference "posthog-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/PostHog/posthog-ios";
+			requirement = {
+				kind = exactVersion;
+				version = 3.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A649FBE528E122402AEE1514 /* PostHog */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36FA373ED7819F7DD2B35510 /* XCRemoteSwiftPackageReference "posthog-ios" */;
+			productName = PostHog;
+		};
+		CD6F7E6936365C1D00209A34 /* Sentry */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1FE003BE6BCED6ED6C038E30 /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
+			productName = Sentry;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E1A600000000000000000001 /* Project object */;
 }
