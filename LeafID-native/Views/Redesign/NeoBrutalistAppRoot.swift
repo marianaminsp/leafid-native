@@ -51,7 +51,10 @@ struct NeoBrutalistAppRoot: View {
                 onSelectTab: { selectedTab = $0 }
             )
         case .collection:
-            HerbariumNeoBrutalistView(onSelectTab: { selectedTab = $0 })
+            HerbariumNeoBrutalistView(
+                onOpenScanner: { showScanner = true },
+                onSelectTab: { selectedTab = $0 }
+            )
         case .druid:
             DruidNeoBrutalistView(onSelectTab: { selectedTab = $0 })
         }

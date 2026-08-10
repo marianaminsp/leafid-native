@@ -7,6 +7,35 @@
 //  extending Theme.swift — this branch replaces the token set wholesale rather than
 //  adding to it, and keeping it separate means `main` never has to see this file.
 //
+//  MARK: Cross-screen conventions (locked in 2026-08-09 after repeated visual-review passes
+//  found each screen had independently drifted from these — treat this block as the source of
+//  truth before copying a pattern from any one screen to another):
+//
+//  - **Primary CTA buttons** (full-width, one per screen — "Open Scanner," "Start Your
+//    Collection," etc.): `background: primary` (#006D3F), white text, `height: 60`, heavy
+//    border, `shadowOffset: 6`. Confirmed against the canonical "Leaf ID — Arboretum (WIP)"
+//    artifact's `.cta-button`. Do NOT use `primaryContainer`/`onPrimaryContainer` (light mint)
+//    for buttons — that pairing is for headline accent tags only (see below).
+//  - **Headline construction**: first line plain `onSurface` text; second (accent) line is
+//    EITHER (a) a hard-bordered `primaryContainer`-filled tag box — Identify's "STREETS.",
+//    Herbarium's "HERBARIUM" — or (b) plain `primary`-colored text with no box — Arboretum's
+//    "ARBORETUM", confirmed against its canonical artifact. Don't assume one pattern is "more
+//    correct" and silently convert a screen to match — this split is real, confirmed twice.
+//  - **Subhead with a left accent bar**: always build it as `Text(...).padding(.leading:
+//    md).overlay(alignment: .leading) { Rectangle().fill(ink).frame(width: 4) }` — an
+//    unconstrained `Rectangle` as a plain `HStack` sibling will stretch to fill any leftover
+//    space in a zero-scroll flexible layout (bit Identify, then Herbarium, then Arboretum —
+//    always the overlay form, never the HStack form).
+//  - **Screen-level top padding**: apply exactly once, at the outer content container
+//    (`.padding(.top, md)`) — never again inside a child like the headline itself, or the title
+//    sits visibly lower on that one screen than the others (bit Herbarium — its headline had
+//    its own redundant `.padding(.top, md)` stacked on top of the container's).
+//  - **Zero-scroll flexible layout** (Identify, Arboretum): one hero/map element carries
+//    `.frame(maxWidth: .infinity, maxHeight: .infinity)` and absorbs all leftover vertical
+//    space; everything else (headline, CTA) is content-sized. No `ScrollView`. Screens that are
+//    explicitly WIP (Arboretum's map) get no CTA at all — a call-to-action implies there's
+//    somewhere further to go, which isn't true yet.
+//
 
 import SwiftUI
 

@@ -60,11 +60,6 @@ struct ScannerNeoBrutalistView: View {
             .clipped()
             .frame(maxHeight: .infinity)
             .animation(.easeOut(duration: 0.25), value: stage)
-
-            NeoBrutalistTabBar(activeTab: .identify, onSelect: { tab in
-                onClose()
-                onSelectTab(tab)
-            })
         }
         .background(NeoBrutalistColor.surface.ignoresSafeArea())
         .missingScreenAlert($missingFeature)

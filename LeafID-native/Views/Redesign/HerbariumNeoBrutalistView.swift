@@ -20,6 +20,7 @@
 import SwiftUI
 
 struct HerbariumNeoBrutalistView: View {
+    var onOpenScanner: () -> Void = {}
     var onSelectTab: (NeoBrutalistTab) -> Void = { _ in }
 
     @EnvironmentObject private var prototypeState: RedesignPrototypeState
@@ -56,7 +57,7 @@ struct HerbariumNeoBrutalistView: View {
         VStack(spacing: NeoBrutalistSpacing.lg) {
             headline
             cardCollage
-            viewFolioButton
+            startCollectionButton
         }
         .padding(.horizontal, NeoBrutalistSpacing.md)
         .padding(.top, NeoBrutalistSpacing.md)
@@ -65,26 +66,31 @@ struct HerbariumNeoBrutalistView: View {
 
     private var headline: some View {
         ZStack(alignment: .topTrailing) {
-            VStack(spacing: 2) {
-                Text("BUILD YOUR")
-                    .font(NeoBrutalistFont.headlineLgMobile())
-                    .foregroundStyle(NeoBrutalistColor.onSurface)
-                Text("HERBARIUM")
-                    .font(NeoBrutalistFont.headlineLgMobile())
-                    .foregroundStyle(NeoBrutalistColor.onPrimaryContainer)
-                    .padding(.horizontal, NeoBrutalistSpacing.sm)
-                    .padding(.vertical, NeoBrutalistSpacing.xs)
-                    .background(NeoBrutalistColor.primaryContainer)
-                    .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 4)
-                    .rotationEffect(.degrees(-2))
+            VStack(alignment: .leading, spacing: NeoBrutalistSpacing.md) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("BUILD YOUR")
+                        .font(NeoBrutalistFont.headlineLgMobile())
+                        .foregroundStyle(NeoBrutalistColor.onSurface)
+                    Text("HERBARIUM")
+                        .font(NeoBrutalistFont.headlineLgMobile())
+                        .foregroundStyle(NeoBrutalistColor.onPrimaryContainer)
+                        .padding(.horizontal, NeoBrutalistSpacing.sm)
+                        .padding(.vertical, NeoBrutalistSpacing.xs)
+                        .background(NeoBrutalistColor.primaryContainer)
+                        .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 4)
+                        .rotationEffect(.degrees(-2))
+                }
 
                 Text("Preserve your discoveries in your personal digital forest.")
-                    .font(NeoBrutalistFont.bodyMd())
+                    .font(NeoBrutalistFont.bodyMedium(size: 16))
                     .foregroundStyle(NeoBrutalistColor.onSurfaceVariant)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, NeoBrutalistSpacing.xs)
+                    .padding(.leading, NeoBrutalistSpacing.md)
+                    .overlay(alignment: .leading) {
+                        Rectangle()
+                            .fill(NeoBrutalistColor.ink)
+                            .frame(width: 4)
+                    }
             }
-            .padding(.top, NeoBrutalistSpacing.md)
 
             Text("FRESH SPECIMENS")
                 .font(.custom("SpaceMono-Bold", size: 11))
@@ -148,18 +154,18 @@ struct HerbariumNeoBrutalistView: View {
         .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 4)
     }
 
-    private var viewFolioButton: some View {
-        Button(action: { missingFeature = "View My Folio" }) {
+    private var startCollectionButton: some View {
+        Button(action: onOpenScanner) {
             HStack(spacing: NeoBrutalistSpacing.sm) {
-                Image(systemName: "bookmark.fill")
-                Text("View My Folio")
+                Image(systemName: "viewfinder")
+                Text("Start Your Collection")
                     .lineLimit(1)
                     .minimumScaleFactor(0.85)
             }
             .font(NeoBrutalistFont.headlineMd())
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .frame(height: 52)
+            .frame(height: 60)
             .background(NeoBrutalistColor.primary)
             .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 6)
         }
@@ -234,7 +240,7 @@ private struct StickerPileView: View {
     @State private var hasTouched = false
 
     private static let layout: [(x: CGFloat, y: CGFloat, rotation: Double)] = [
-        (0.22, 0.16, -9), (0.68, 0.30, 6), (0.30, 0.60, 11), (0.72, 0.72, -7),
+        (0.30, 0.24, -9), (0.66, 0.32, 6), (0.34, 0.62, 11), (0.68, 0.74, -7),
     ]
 
     var body: some View {
@@ -285,9 +291,13 @@ private struct StickerCard: View {
     @State private var dragTranslation: CGSize = .zero
     @State private var isDragging = false
 
-    private let openThreshold: CGFloat = -110
-    private let cardWidth: CGFloat = 92
-    private let cardHeight: CGFloat = 120
+    private let openThreshold: CGFloat = -130
+    private let cardWidth: CGFloat = 150
+    private let cardHeight: CGFloat = 196
+
+    private var isRareFind: Bool {
+        specimen.chip.localizedCaseInsensitiveContains("RARE")
+    }
 
     private var currentOffset: CGSize {
         CGSize(width: settledOffset.width + dragTranslation.width, height: settledOffset.height + dragTranslation.height)
@@ -302,25 +312,51 @@ private struct StickerCard: View {
             Image(specimen.imageAsset)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(width: cardWidth, height: cardHeight * 0.7)
+                .frame(width: cardWidth, height: cardHeight * 0.6)
                 .clipped()
                 .matchedGeometryEffect(id: specimen.id, in: namespace)
-            Text(specimen.commonName.uppercased())
-                .font(.custom("SpaceMono-Bold", size: 8.5))
-                .foregroundStyle(.white)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-                .padding(.horizontal, 4)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .frame(height: cardHeight * 0.3)
-                .background(specimen.accent)
+
+            VStack(alignment: .leading, spacing: NeoBrutalistSpacing.xs) {
+                Text(specimen.latinName)
+                    .font(.custom("SpaceMono-Bold", size: 10))
+                    .kerning(0.6)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                    .foregroundStyle(NeoBrutalistColor.onSurface)
+                    .padding(.horizontal, NeoBrutalistSpacing.xs)
+                    .padding(.vertical, 3)
+                    .background(specimen.accent)
+                    .overlay(Rectangle().strokeBorder(NeoBrutalistColor.ink, lineWidth: NeoBrutalistStroke.default))
+
+                Text(specimen.commonName)
+                    .font(.custom("Syne-Bold", size: 17))
+                    .foregroundStyle(NeoBrutalistColor.onSurface)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.75)
+            }
+            .padding(NeoBrutalistSpacing.sm)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(NeoBrutalistColor.surface)
         }
         .frame(width: cardWidth, height: cardHeight)
         .neoBrutalistSurface(
             borderWidth: NeoBrutalistStroke.default,
-            shadowOffset: 3,
+            shadowOffset: 4,
             shadowColor: crossedOpenThreshold ? NeoBrutalistColor.primaryContainer : NeoBrutalistColor.ink
         )
+        .overlay(alignment: .topTrailing) {
+            if isRareFind {
+                ZStack {
+                    Circle().fill(NeoBrutalistColor.secondary)
+                    Image(systemName: "star.fill")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(NeoBrutalistColor.onSecondary)
+                }
+                .frame(width: 28, height: 28)
+                .overlay(Circle().strokeBorder(NeoBrutalistColor.ink, lineWidth: NeoBrutalistStroke.default))
+                .offset(x: 8, y: -8)
+            }
+        }
         .rotationEffect(.degrees(baseRotation))
         .position(x: basePosition.x + currentOffset.width, y: basePosition.y + currentOffset.height)
         .zIndex(isFront ? 10 : 0)

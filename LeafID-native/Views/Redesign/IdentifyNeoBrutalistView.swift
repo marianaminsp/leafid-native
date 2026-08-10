@@ -33,6 +33,7 @@ struct IdentifyNeoBrutalistView: View {
 
             NeoBrutalistTabBar(activeTab: .identify, onSelect: onSelectTab)
         }
+        .animation(.none, value: prototypeState.hasDiscoveries)
         .background(NeoBrutalistColor.surface.ignoresSafeArea())
         .missingScreenAlert($missingFeature)
     }
@@ -142,33 +143,30 @@ struct IdentifyNeoBrutalistView: View {
     /// a small illustration card, not a placeholder icon.
     private var folioEmptyCard: some View {
         ZStack {
-            Rectangle()
-                .fill(NeoBrutalistColor.surfaceContainer)
-                .overlay(
-                    Rectangle().strokeBorder(
-                        NeoBrutalistColor.outline,
-                        style: StrokeStyle(lineWidth: NeoBrutalistStroke.default, dash: [7, 5])
-                    )
-                )
-
-            VStack {
-                HStack {
-                    Spacer()
-                    heroBadge("FOLIO: EMPTY")
-                }
-                Spacer()
+            VStack(spacing: NeoBrutalistSpacing.lg) {
+                heroBadge("FOLIO: EMPTY")
+                Spacer(minLength: 0)
+                Image("SamaraLastDiscovery")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 168, height: 210)
+                    .clipped()
+                    .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 4)
+                Spacer(minLength: 0)
+                Text("NO DISCOVERIES YET")
+                    .font(NeoBrutalistFont.headlineMd())
+                    .foregroundStyle(NeoBrutalistColor.onSurface)
             }
-            .padding(NeoBrutalistSpacing.md)
-
-            Image("AlocasiaIllustration")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 120, height: 150)
-                .clipped()
-                .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 4)
+            .padding(NeoBrutalistSpacing.lg)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 8)
+        .background(NeoBrutalistColor.surfaceContainer)
+        .overlay(
+            Rectangle().strokeBorder(
+                NeoBrutalistColor.outline,
+                style: StrokeStyle(lineWidth: NeoBrutalistStroke.default, dash: [7, 5])
+            )
+        )
     }
 
     private func heroBadge(_ text: String) -> some View {
@@ -195,10 +193,10 @@ struct IdentifyNeoBrutalistView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.85)
                 }
-                .foregroundStyle(NeoBrutalistColor.onPrimaryContainer)
+                .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .frame(height: 60)
-                .background(NeoBrutalistColor.primaryContainer)
+                .background(NeoBrutalistColor.primary)
                 .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 6)
             }
             .buttonStyle(NeoBrutalistPressableStyle(shadowOffset: 6))

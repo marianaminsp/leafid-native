@@ -132,21 +132,9 @@ struct DruidNeoBrutalistView: View {
 
     private var relicsSection: some View {
         VStack(alignment: .leading, spacing: NeoBrutalistSpacing.md) {
-            HStack {
-                Text("RELICS & BADGES")
-                    .font(NeoBrutalistFont.headlineMd())
-                    .foregroundStyle(NeoBrutalistColor.onSurface)
-                Spacer()
-                Button(action: { missingFeature = "All Relics & Badges" }) {
-                    Text("VIEW ALL")
-                        .font(.custom("SpaceMono-Bold", size: 11))
-                        .foregroundStyle(NeoBrutalistColor.onSurface)
-                        .padding(.horizontal, NeoBrutalistSpacing.sm)
-                        .padding(.vertical, NeoBrutalistSpacing.xs)
-                        .overlay(Rectangle().strokeBorder(NeoBrutalistColor.ink, lineWidth: NeoBrutalistStroke.default))
-                }
-                .buttonStyle(.plain)
-            }
+            Text("RELICS & BADGES")
+                .font(NeoBrutalistFont.headlineMd())
+                .foregroundStyle(NeoBrutalistColor.onSurface)
 
             LazyVGrid(columns: [GridItem(.flexible(), spacing: NeoBrutalistSpacing.md), GridItem(.flexible())], spacing: NeoBrutalistSpacing.md) {
                 badgeCard(

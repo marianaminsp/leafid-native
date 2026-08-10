@@ -58,7 +58,7 @@ struct BotanicalCardNeoBrutalistView: View {
                         Rectangle().fill(NeoBrutalistColor.ink).frame(height: NeoBrutalistStroke.heavy)
                     }
                 closeButton
-                    .padding(NeoBrutalistSpacing.xs)
+                    .padding(NeoBrutalistSpacing.sm)
             }
 
             VStack(alignment: .leading, spacing: NeoBrutalistSpacing.sm) {
@@ -86,7 +86,7 @@ struct BotanicalCardNeoBrutalistView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(NeoBrutalistColor.surface)
             .overlay(alignment: .bottomTrailing) {
-                flipButton.padding(NeoBrutalistSpacing.xs)
+                flipButton.padding(NeoBrutalistSpacing.sm)
             }
         }
         .frame(maxWidth: .infinity)
@@ -99,19 +99,28 @@ struct BotanicalCardNeoBrutalistView: View {
         VStack(alignment: .leading, spacing: 0) {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: NeoBrutalistSpacing.md) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(specimen.commonName)
-                            .font(NeoBrutalistFont.headlineMd())
-                            .foregroundStyle(NeoBrutalistColor.onSurface)
-                        Text(specimen.latinName.localizedCapitalized)
-                            .font(.custom("SpaceMono-Bold", size: 11))
-                            .italic()
-                            .foregroundStyle(NeoBrutalistColor.onSurfaceVariant)
-                        if let traditionalName = specimen.traditionalName {
-                            Text("Known as “\(traditionalName)”")
-                                .font(NeoBrutalistFont.bodyMedium(size: 12))
+                    HStack(alignment: .top, spacing: NeoBrutalistSpacing.sm) {
+                        Image(specimen.imageAsset)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 56, height: 56)
+                            .clipped()
+                            .overlay(Rectangle().strokeBorder(NeoBrutalistColor.ink, lineWidth: NeoBrutalistStroke.default))
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(specimen.commonName)
+                                .font(NeoBrutalistFont.headlineMd())
+                                .foregroundStyle(NeoBrutalistColor.onSurface)
+                            Text(specimen.latinName.localizedCapitalized)
+                                .font(.custom("SpaceMono-Bold", size: 11))
                                 .italic()
                                 .foregroundStyle(NeoBrutalistColor.onSurfaceVariant)
+                            if let traditionalName = specimen.traditionalName {
+                                Text("Known as “\(traditionalName)”")
+                                    .font(NeoBrutalistFont.bodyMedium(size: 12))
+                                    .italic()
+                                    .foregroundStyle(NeoBrutalistColor.onSurfaceVariant)
+                            }
                         }
                     }
 
@@ -153,10 +162,10 @@ struct BotanicalCardNeoBrutalistView: View {
         .background(NeoBrutalistColor.surface)
         .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 8)
         .overlay(alignment: .topTrailing) {
-            closeButton.padding(NeoBrutalistSpacing.xs)
+            closeButton.padding(NeoBrutalistSpacing.sm)
         }
         .overlay(alignment: .bottomTrailing) {
-            flipButton.padding(NeoBrutalistSpacing.xs)
+            flipButton.padding(NeoBrutalistSpacing.sm)
         }
     }
 

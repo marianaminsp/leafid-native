@@ -23,17 +23,13 @@ struct ArboretumNeoBrutalistView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: NeoBrutalistSpacing.lg) {
-                    headerCard
-                    mapCard
-                    recentLogsSection
-                    exploreNowButton
-                }
-                .padding(.horizontal, NeoBrutalistSpacing.md)
-                .padding(.top, NeoBrutalistSpacing.md)
-                .padding(.bottom, NeoBrutalistSpacing.lg)
+            VStack(alignment: .leading, spacing: NeoBrutalistSpacing.md) {
+                headerCard
+                mapCard
             }
+            .padding(.horizontal, NeoBrutalistSpacing.md)
+            .padding(.top, NeoBrutalistSpacing.md)
+            .padding(.bottom, NeoBrutalistSpacing.md)
 
             NeoBrutalistTabBar(activeTab: .map, onSelect: onSelectTab)
         }
@@ -41,41 +37,41 @@ struct ArboretumNeoBrutalistView: View {
         .missingScreenAlert($missingFeature)
     }
 
-    // MARK: - Header card
+    // MARK: - Header
 
+    /// Plain text on the screen background, matching the canonical "Leaf ID — Arboretum (WIP)"
+    /// artifact (`.headline` has no card wrapper — the same no-card treatment as Identify's own
+    /// headline) — not a bordered/shadowed card like the rest of this screen's surfaces.
     private var headerCard: some View {
-        VStack(alignment: .leading, spacing: NeoBrutalistSpacing.sm) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("EXPLORE THE")
-                    .font(NeoBrutalistFont.headlineLgMobile())
-                    .foregroundStyle(NeoBrutalistColor.onSurface)
-                Text("ARBORETUM")
-                    .font(NeoBrutalistFont.headlineLgMobile())
-                    .foregroundStyle(NeoBrutalistColor.onPrimaryContainer)
-                    .padding(.horizontal, NeoBrutalistSpacing.sm)
-                    .padding(.vertical, NeoBrutalistSpacing.xs)
-                    .background(NeoBrutalistColor.primaryContainer)
-                    .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 4)
-                    .rotationEffect(.degrees(-2))
-            }
+        VStack(alignment: .leading, spacing: 2) {
+            Text("EXPLORE THE")
+                .font(NeoBrutalistFont.headlineLgMobile())
+                .foregroundStyle(NeoBrutalistColor.onSurface)
+            Text("ARBORETUM")
+                .font(NeoBrutalistFont.headlineLgMobile())
+                .foregroundStyle(NeoBrutalistColor.primary)
 
-            HStack(alignment: .top, spacing: NeoBrutalistSpacing.md) {
-                Rectangle()
-                    .fill(NeoBrutalistColor.primary)
-                    .frame(width: 4)
-                Text("See where your botanical discoveries took root — drag & pan are on the way.")
-                    .font(NeoBrutalistFont.bodyMedium(size: 16))
-                    .foregroundStyle(NeoBrutalistColor.onSurfaceVariant)
-            }
+            Text("See where your botanical discoveries took root — drag & pan are on the way.")
+                .font(NeoBrutalistFont.bodyMedium(size: 16))
+                .foregroundStyle(NeoBrutalistColor.onSurfaceVariant)
+                .padding(.leading, NeoBrutalistSpacing.md)
+                .padding(.top, NeoBrutalistSpacing.sm)
+                .overlay(alignment: .leading) {
+                    Rectangle()
+                        .fill(NeoBrutalistColor.ink)
+                        .frame(width: 4)
+                        .padding(.top, NeoBrutalistSpacing.sm)
+                }
         }
-        .padding(NeoBrutalistSpacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(NeoBrutalistColor.surfaceContainer)
-        .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 6)
     }
 
     // MARK: - Map
 
+    /// The one flexible element absorbing leftover space — this screen fits one viewport with no
+    /// scroll, same as Identify's hero card, per the canonical artifact ("recent logs" was
+    /// deliberately dropped from this screen to make that hold: "a map is one continuous canvas
+    /// the same way the homepage hero is").
     private var mapCard: some View {
         ZStack(alignment: .bottomLeading) {
             GeometryReader { geo in
@@ -87,7 +83,6 @@ struct ArboretumNeoBrutalistView: View {
                     .saturation(0.7)
                     .brightness(-0.08)
             }
-            .frame(height: 320)
 
             RadialGradient(
                 colors: [NeoBrutalistColor.ink.opacity(0.14), NeoBrutalistColor.ink.opacity(0.34)],
@@ -104,10 +99,29 @@ struct ArboretumNeoBrutalistView: View {
                 zoneChip("RARE FINDS")
                 zoneChip("RECENT")
             }
+            .padding(.trailing, 52)
             .padding(NeoBrutalistSpacing.sm)
+
+            recenterButton
+                .padding(NeoBrutalistSpacing.sm)
         }
-        .frame(height: 320)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 8)
+    }
+
+    private var recenterButton: some View {
+        Button(action: { missingFeature = "Recenter Map" }) {
+            ZStack {
+                Circle().fill(NeoBrutalistColor.primary)
+                Image(systemName: "scope")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(.white)
+            }
+            .frame(width: 42, height: 42)
+            .overlay(Circle().strokeBorder(NeoBrutalistColor.ink, lineWidth: NeoBrutalistStroke.default))
+        }
+        .buttonStyle(NeoBrutalistPressableStyle(shadowOffset: 3))
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
     }
 
     /// "Map: Growing" — the honest-WIP treatment: a tilted, hard-shadow sticker centered over the
@@ -141,94 +155,16 @@ struct ArboretumNeoBrutalistView: View {
             Text(title)
                 .font(.custom("SpaceMono-Bold", size: 11))
                 .kerning(1)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
                 .foregroundStyle(filled ? NeoBrutalistColor.onPrimary : NeoBrutalistColor.onSurface)
-                .padding(.horizontal, NeoBrutalistSpacing.sm)
+                .padding(.horizontal, NeoBrutalistSpacing.xs)
                 .padding(.vertical, NeoBrutalistSpacing.xs)
+                .frame(maxWidth: .infinity)
                 .background(filled ? NeoBrutalistColor.primary : NeoBrutalistColor.surface)
                 .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 4)
         }
         .buttonStyle(NeoBrutalistPressableStyle(shadowOffset: 4))
-    }
-
-    // MARK: - Recent logs
-
-    private var recentLogsSection: some View {
-        VStack(alignment: .leading, spacing: NeoBrutalistSpacing.md) {
-            HStack {
-                Text("RECENT LOGS")
-                    .font(NeoBrutalistFont.headlineMd())
-                    .foregroundStyle(NeoBrutalistColor.onSurface)
-                Spacer()
-                Text("3 NEW")
-                    .font(.custom("SpaceMono-Bold", size: 11))
-                    .foregroundStyle(NeoBrutalistColor.secondary)
-                    .padding(.horizontal, NeoBrutalistSpacing.xs)
-                    .padding(.vertical, 2)
-                    .overlay(Rectangle().strokeBorder(NeoBrutalistColor.secondary, lineWidth: NeoBrutalistStroke.default))
-            }
-            .padding(.bottom, NeoBrutalistSpacing.xs)
-            .overlay(alignment: .bottom) {
-                Rectangle().fill(NeoBrutalistColor.ink).frame(height: NeoBrutalistStroke.heavy)
-            }
-
-            logRow(image: "PinstripeCalatheaThumb", name: "PINSTRIPE CALATHEA", latin: "Calathea ornata", tag: "URBAN", confirmed: true)
-            logRow(image: "AfricanMaskThumb", name: "AFRICAN MASK", latin: "Alocasia amazonica", tag: "WILD", confirmed: false)
-        }
-    }
-
-    private func logRow(image: String, name: String, latin: String, tag: String, confirmed: Bool) -> some View {
-        HStack(spacing: NeoBrutalistSpacing.md) {
-            Image(image)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 56, height: 56)
-                .clipped()
-                .overlay(Rectangle().strokeBorder(NeoBrutalistColor.ink, lineWidth: NeoBrutalistStroke.default))
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(name)
-                    .font(NeoBrutalistFont.bodyMedium(size: 16))
-                    .foregroundStyle(NeoBrutalistColor.onSurface)
-                Text(latin)
-                    .font(.custom("SpaceMono-Bold", size: 10))
-                    .foregroundStyle(NeoBrutalistColor.onSurfaceVariant)
-            }
-
-            Spacer()
-
-            VStack(alignment: .trailing, spacing: NeoBrutalistSpacing.xs) {
-                Text(tag)
-                    .font(.custom("SpaceMono-Bold", size: 9))
-                    .foregroundStyle(NeoBrutalistColor.onSurfaceVariant)
-                    .padding(.horizontal, 4)
-                    .overlay(Rectangle().strokeBorder(NeoBrutalistColor.ink, lineWidth: 1))
-                Image(systemName: confirmed ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(confirmed ? NeoBrutalistColor.primaryContainer : NeoBrutalistColor.outline)
-            }
-        }
-        .padding(NeoBrutalistSpacing.sm)
-        .background(NeoBrutalistColor.surfaceContainer)
-        .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 4)
-        .contentShape(Rectangle())
-        .onTapGesture { missingFeature = "Botanical Card (\(name))" }
-    }
-
-    // MARK: - CTA
-
-    private var exploreNowButton: some View {
-        Button(action: { missingFeature = "Explore Now" }) {
-            HStack(spacing: NeoBrutalistSpacing.sm) {
-                Text("Explore Now")
-                Image(systemName: "arrow.right")
-            }
-            .font(NeoBrutalistFont.headlineMd())
-            .foregroundStyle(NeoBrutalistColor.onTertiary)
-            .frame(maxWidth: .infinity)
-            .frame(height: 56)
-            .background(NeoBrutalistColor.tertiary)
-            .neoBrutalistSurface(borderWidth: NeoBrutalistStroke.heavy, shadowOffset: 6)
-        }
-        .buttonStyle(NeoBrutalistPressableStyle(shadowOffset: 6))
     }
 }
 
