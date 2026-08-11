@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		160999D0354EC2E83E55C01E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 05246439EFD4918AA442102C /* PrivacyInfo.xcprivacy */; };
 		167C26458EE044BB6DDF3EB7 /* LeafID_nativeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB032EC4293372983E7DC408 /* LeafID_nativeTests.swift */; };
+		2805FA2A78F82BE0B1D8F22A /* AppMonitoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2ED6734285CFC408ACDF0C4 /* AppMonitoring.swift */; };
 		388D420653CD31E77EE46CF5 /* ArboretumComingSoonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD938ABEC1D8A0C52567944 /* ArboretumComingSoonView.swift */; };
 		8FF8620AB758C39C281233B8 /* PostHog in Frameworks */ = {isa = PBXBuildFile; productRef = A649FBE528E122402AEE1514 /* PostHog */; };
 		A0134776E5296FC7ECBE31E7 /* KeychainTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A466B09C5D53DDD8529A2AA /* KeychainTokenStore.swift */; };
@@ -137,6 +138,7 @@
 		E1A200000000000000000081 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		E1A200000000000000000082 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		E1A2000000000000000000FF /* LeafID-native.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LeafID-native.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E2ED6734285CFC408ACDF0C4 /* AppMonitoring.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppMonitoring.swift; sourceTree = "<group>"; };
 		FBD938ABEC1D8A0C52567944 /* ArboretumComingSoonView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ArboretumComingSoonView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -268,6 +270,7 @@
 				E1A200000000000000000030 /* CapturePickLocation.swift */,
 				4A466B09C5D53DDD8529A2AA /* KeychainTokenStore.swift */,
 				A0EFF63FB5F8EC9823649D1F /* BotanicalCardImageProcessor.swift */,
+				E2ED6734285CFC408ACDF0C4 /* AppMonitoring.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -552,6 +555,7 @@
 				E1A10000000000000000002A /* ScanningDensityProgress.swift in Sources */,
 				A0134776E5296FC7ECBE31E7 /* KeychainTokenStore.swift in Sources */,
 				A221302A25F07F610660AF06 /* BotanicalCardImageProcessor.swift in Sources */,
+				2805FA2A78F82BE0B1D8F22A /* AppMonitoring.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

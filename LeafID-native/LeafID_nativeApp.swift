@@ -13,6 +13,10 @@ import SwiftUI
 struct LeafID_nativeApp: App {
     @StateObject private var authViewModel = AuthViewModel()
 
+    init() {
+        AppMonitoring.configure()
+    }
+
     var body: some Scene {
         WindowGroup {
             Group {
