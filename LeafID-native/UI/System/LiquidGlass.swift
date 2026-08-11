@@ -9,11 +9,18 @@ import SwiftUI
 
 struct LiquidGlassViewModifier: ViewModifier {
     var cornerRadius: CGFloat = LeafIDTheme.liquidGlassCornerRadius
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
         content
-            .background(shape.fill(.ultraThinMaterial))
+            .background {
+                if reduceTransparency {
+                    shape.fill(LeafIDTheme.surfaceContainerHigh)
+                } else {
+                    shape.fill(.ultraThinMaterial)
+                }
+            }
             .overlay(shape.strokeBorder(LeafIDTheme.chromeHighlight.opacity(LeafIDTheme.liquidGlassBorderOpacity), lineWidth: 1))
             .clipShape(shape)
     }

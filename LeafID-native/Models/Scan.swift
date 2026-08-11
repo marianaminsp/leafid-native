@@ -123,10 +123,10 @@ extension Scan {
 
     /// “Found 2 days ago” copy for Herbarium list rows (`Herbarium.png`).
     func foundRelativePhrase(reference: Date = .now) -> String {
-        guard let createdAt else { return "Found recently" }
+        guard let createdAt else { return String(localized: "Found recently") }
         let f = RelativeDateTimeFormatter()
         f.unitsStyle = .full
-        return "Found \(f.localizedString(for: createdAt, relativeTo: reference))"
+        return "\(String(localized: "Found")) \(f.localizedString(for: createdAt, relativeTo: reference))"
     }
 
     // MARK: - Thumbnails (`photoURL` / `cardImageURL` may be `file://`, absolute path, or remote)

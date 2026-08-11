@@ -2,6 +2,8 @@
 "No specimens yet" = "Aún no hay especímenes";
 "When you identify a plant, tap Save on the results screen — it will appear here." = "Cuando identifiques una planta, pulsa Guardar en la pantalla de resultados: aparecerá aquí.";
 "Open Scan to identify a plant, then save it from the results." = "Abre Escanear para identificar una planta y guárdala desde los resultados.";
+"Found" = "Encontrado";
+"Found recently" = "Encontrado recientemente";
 
 /* Arboretum */
 "No geotagged specimens yet. Capture with location enabled to plant discoveries on the map." = "Aún no hay especímenes geolocalizados. Activa la ubicación al capturar para fijar tus hallazgos en el mapa.";
@@ -44,6 +46,7 @@
 "Ready to explore nature?" = "¿Listo para explorar la naturaleza?";
 "Upload from Gallery" = "Subir desde la galería";
 "Last Found" = "Último hallazgo";
+"Get Started" = "Empieza aquí";
 "Save a specimen to your Herbarium" = "Guarda un espécimen en tu Herbario";
 "Camera unavailable" = "Cámara no disponible";
 "This device has no camera (e.g. Simulator). Use Upload from Gallery or run on a physical iPhone." = "Este dispositivo no tiene cámara (p. ej. Simulador). Usa Subir desde la galería o un iPhone físico.";

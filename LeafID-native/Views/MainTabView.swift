@@ -95,6 +95,7 @@ enum RootTab: Int, CaseIterable, Hashable {
 
 private struct FloatingLiquidTabBar: View {
     @Binding var selection: RootTab
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let pillRadius: CGFloat = 28
 
@@ -126,13 +127,14 @@ private struct FloatingLiquidTabBar: View {
     private func tabButton(_ tab: RootTab) -> some View {
         let isSelected = selection == tab
         return Button {
-            withAnimation(.easeInOut(duration: 0.22)) {
+            withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.22)) {
                 selection = tab
             }
         } label: {
             VStack(spacing: LeafIDTheme.space4) {
                 Image(systemName: tab.systemImage(isSelected: isSelected))
                     .font(.system(size: 20, weight: .semibold))
+                    .accessibilityHidden(true)
                 Text(tab.title)
                     .font(LeafIDFont.manrope(size: 10, weight: .bold))
                     .tracking(0.2)
@@ -142,5 +144,6 @@ private struct FloatingLiquidTabBar: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }

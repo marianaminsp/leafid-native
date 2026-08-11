@@ -60,9 +60,10 @@ private struct HomeEmptyLastFoundCard: View {
                         .font(.system(size: 28, weight: .medium))
                         .foregroundStyle(LeafIDTheme.primary.opacity(0.35))
                 }
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: LeafIDTheme.space6) {
-                Text("Last Found")
+                Text(String(localized: "Get Started"))
                     .font(LeafIDFont.manrope(size: 10, weight: .bold))
                     .tracking(2.4)
                     .foregroundStyle(LeafIDTheme.primary)
@@ -82,6 +83,7 @@ private struct HomeEmptyLastFoundCard: View {
             RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous)
                 .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.15), lineWidth: 1)
         }
+        .accessibilityElement(children: .combine)
     }
 }
 

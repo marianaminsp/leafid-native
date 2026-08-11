@@ -2,6 +2,8 @@
 "No specimens yet" = "No specimens yet";
 "When you identify a plant, tap Save on the results screen — it will appear here." = "When you identify a plant, tap Save on the results screen — it will appear here.";
 "Open Scan to identify a plant, then save it from the results." = "Open Scan to identify a plant, then save it from the results.";
+"Found" = "Found";
+"Found recently" = "Found recently";
 
 /* Arboretum */
 "No geotagged specimens yet. Capture with location enabled to plant discoveries on the map." = "No geotagged specimens yet. Capture with location enabled to plant discoveries on the map.";
@@ -44,6 +46,7 @@
 "Ready to explore nature?" = "Ready to explore nature?";
 "Upload from Gallery" = "Upload from Gallery";
 "Last Found" = "Last Found";
+"Get Started" = "Get Started";
 "Save a specimen to your Herbarium" = "Save a specimen to your Herbarium";
 "Camera unavailable" = "Camera unavailable";
 "This device has no camera (e.g. Simulator). Use Upload from Gallery or run on a physical iPhone." = "This device has no camera (e.g. Simulator). Use Upload from Gallery or run on a physical iPhone.";

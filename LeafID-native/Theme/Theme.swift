@@ -105,6 +105,12 @@ enum LeafIDTheme {
     /// Extra space below scroll content when the system safe area does not already include chrome (e.g. full-screen flows).
     static let homeBottomTabClearance: CGFloat = 0
 
+    /// Bottom reserve for scroll content sharing the screen with `FloatingLiquidTabBar` (`MainTabView.swift`).
+    /// `.safeAreaInset` from `MainTabView` doesn't reliably propagate through each tab's own `NavigationStack`
+    /// on this project's iOS 16.4 floor, so screens add this manually — use this shared constant instead of
+    /// a fresh guessed number per screen (Druid/Herbarium/Arboretum previously each hardcoded a different value).
+    static let tabBarBottomReserve: CGFloat = 160
+
     // MARK: - Legacy aliases (pre–Visual Bible call sites)
 
     static let deepForest = surface

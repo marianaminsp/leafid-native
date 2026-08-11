@@ -19,10 +19,6 @@ struct DruidProfileView: View {
     @EnvironmentObject private var herbarium: HerbariumViewModel
     @StateObject private var viewModel = DruidProfileViewModel()
     @State private var showPaywall = false
-    @State private var showFoundryPasswordGate = false
-    @State private var showFoundryGallery = false
-    @State private var foundryPasswordEntry = ""
-    @State private var foundryPasswordError = false
     @State private var headerMinY: CGFloat = 0
     @Environment(\.openURL) private var openURL
 
@@ -71,14 +67,11 @@ struct DruidProfileView: View {
                                 quotaCard
                                 achievementsRow
                                 supportCard
-                                #if DEBUG
-                                foundryAccessCard
-                                #endif
                                 signOutFooter
                             }
                             .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
                             .padding(.top, LeafIDTheme.space12)
-                            .padding(.bottom, 140)
+                            .padding(.bottom, LeafIDTheme.tabBarBottomReserve)
                         }
                         .coordinateSpace(name: "druidScroll")
                         .onPreferenceChange(DruidHeaderMinYKey.self) { headerMinY = $0 }
@@ -103,14 +96,6 @@ struct DruidProfileView: View {
         .sheet(isPresented: $showPaywall) {
             PaywallView()
         }
-        #if DEBUG
-        .sheet(isPresented: $showFoundryPasswordGate) {
-            foundryPasswordSheet
-        }
-        .fullScreenCover(isPresented: $showFoundryGallery) {
-            DesignSystemGalleryView(dismiss: { showFoundryGallery = false })
-        }
-        #endif
     }
 
     private var druidHeader: some View {
@@ -120,23 +105,6 @@ struct DruidProfileView: View {
                     .font(LeafIDFont.plusJakarta(size: druidTitlePointSize, weight: .bold))
                     .foregroundStyle(LeafIDTheme.onSurface)
                 Spacer(minLength: 0)
-                #if DEBUG
-                Button {
-                    showFoundryPasswordGate = true
-                } label: {
-                    Image(systemName: "gearshape.fill")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(LeafIDTheme.onSurfaceVariant)
-                        .frame(width: 44, height: 44)
-                        .background(LeafIDTheme.surfaceContainerHigh.opacity(0.85))
-                        .clipShape(Circle())
-                        .overlay {
-                            Circle()
-                                .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.12), lineWidth: 1)
-                        }
-                }
-                .buttonStyle(.plain)
-                #endif
             }
             if headerCollapseProgress < 0.94 {
                 Text(String(localized: "Your druid identity, progress, and unlocks."))
@@ -292,25 +260,6 @@ struct DruidProfileView: View {
         AchievementUnlockStore.tiles(scans: scansForAchievements)
     }
 
-    #if DEBUG
-    private var foundryAccessCard: some View {
-        VStack(alignment: .leading, spacing: LeafIDTheme.space14) {
-            Text(String(localized: "Foundry"))
-                .font(LeafIDFont.plusJakarta(size: 22, weight: .bold))
-                .foregroundStyle(LeafIDTheme.onSurface)
-            Text(String(localized: "Design system gallery and internal tools."))
-                .font(LeafIDFont.manrope(size: 14, weight: .medium))
-                .foregroundStyle(LeafIDTheme.slateMuted)
-            LeafPrimaryButton(title: String(localized: "Open Foundry"), useSolidPrimaryFill: true) {
-                showFoundryPasswordGate = true
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(LeafIDTheme.space20)
-        .liquidGlass()
-    }
-    #endif
-
     private var supportCard: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
             Text(String(localized: "Support LeafID"))
@@ -361,69 +310,6 @@ struct DruidProfileView: View {
     private var privacyPolicyURL: URL? {
         URL(string: "https://marianaminsp.github.io/leafid-native/docs/PRIVACY_POLICY.html")
     }
-
-    #if DEBUG
-    private var foundryPasswordSheet: some View {
-        NavigationStack {
-            VStack(alignment: .leading, spacing: LeafIDTheme.space16) {
-                Text("Design System Foundry")
-                    .font(LeafIDFont.plusJakarta(size: 20, weight: .bold))
-                    .foregroundStyle(LeafIDTheme.onSurface)
-
-                SecureField(String(localized: "Password"), text: $foundryPasswordEntry)
-                    .textContentType(.password)
-                    .padding(LeafIDTheme.space16)
-                    .background(LeafIDTheme.surfaceContainerLow)
-                    .clipShape(RoundedRectangle(cornerRadius: LeafIDTheme.space12, style: .continuous))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: LeafIDTheme.space12, style: .continuous)
-                            .strokeBorder(
-                                foundryPasswordError ? LeafIDTheme.primary.opacity(0.45) : LeafIDTheme.outlineVariant.opacity(0.15),
-                                lineWidth: 1
-                            )
-                    }
-
-                if foundryPasswordError {
-                    Text("Incorrect password")
-                        .font(LeafIDFont.manrope(size: 13, weight: .medium))
-                        .foregroundStyle(LeafIDTheme.errorForeground)
-                }
-
-                Button(String(localized: "Unlock Foundry")) {
-                    if foundryPasswordEntry == "Test" {
-                        foundryPasswordError = false
-                        showFoundryPasswordGate = false
-                        foundryPasswordEntry = ""
-                        showFoundryGallery = true
-                    } else {
-                        foundryPasswordError = true
-                    }
-                }
-                .font(LeafIDFont.manrope(size: 17, weight: .semibold))
-                .foregroundStyle(LeafIDTheme.primary)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, LeafIDTheme.space14)
-                .background(LeafIDTheme.surfaceContainerHigh)
-                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous))
-
-                Spacer(minLength: 0)
-            }
-            .padding(LeafIDTheme.space24)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .background(LeafIDTheme.surface.ignoresSafeArea())
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    ModalCloseButton {
-                        showFoundryPasswordGate = false
-                        foundryPasswordEntry = ""
-                        foundryPasswordError = false
-                    }
-                }
-            }
-        }
-        .preferredColorScheme(.dark)
-    }
-    #endif
 
     private var loginOverlay: some View {
         ZStack {

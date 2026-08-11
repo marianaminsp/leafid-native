@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LeafID — UI / HIG / "Liquid Glass" Review</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+  --page-bg:#08090a; --panel-bg:#111312; --panel-border:#22251f;
+  --ink:#e9ece4; --ink-dim:#9a9d92; --accent:#93BC10;
+  --tag-blocker:#5a2323; --tag-blocker-fg:#ffb4b0;
+  --tag-high:#5a4318; --tag-high-fg:#f5c877;
+  --tag-medium:#3a3560; --tag-medium-fg:#c8c1ff;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--page-bg);color:var(--ink);font-family:var(--sans);}
+body{padding-bottom:80px;}
+a{color:var(--accent);}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:4px;font-size:.92em;}
+.wrap{max-width:1100px;margin:0 auto;padding:0 28px;}
+header.hero{padding:56px 0 32px;border-bottom:1px solid var(--panel-border);}
+header.hero h1{font-size:34px;margin:0 0 8px;letter-spacing:-0.02em;}
+header.hero p.lede{font-size:16px;color:var(--ink-dim);max-width:780px;line-height:1.55;margin:0 0 20px;}
+.methodology{margin-top:22px;padding:16px 18px;background:var(--panel-bg);border:1px solid var(--panel-border);border-left:3px solid var(--accent);border-radius:10px;font-size:13.5px;color:var(--ink-dim);line-height:1.6;}
+.methodology b{color:var(--ink);}
+nav.jump{position:sticky;top:0;z-index:50;background:color-mix(in srgb, var(--page-bg) 88%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--panel-border);}
+nav.jump .wrap{display:flex;gap:4px;overflow-x:auto;padding:12px 28px;align-items:center;}
+nav.jump a{white-space:nowrap;font-size:13px;color:var(--ink-dim);text-decoration:none;padding:8px 12px;border-radius:8px;font-weight:600;}
+nav.jump a:hover{color:var(--ink);background:var(--panel-bg);}
+
+section.feature{padding:48px 0 8px;}
+section.feature h2{font-size:24px;margin:0 0 6px;}
+section.feature > p.intro{color:var(--ink-dim);font-size:14px;margin:0 0 24px;max-width:780px;line-height:1.55;}
+h3.group{font-size:15px;margin:34px 0 4px;color:var(--ink);}
+p.group-note{margin:0 0 12px;font-size:12.5px;color:var(--ink-dim);max-width:780px;line-height:1.55;}
+
+.tag{font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:3px 10px;border-radius:6px;text-transform:uppercase;white-space:nowrap;}
+.tag-blocker{background:var(--tag-blocker);color:var(--tag-blocker-fg);}
+.tag-high{background:var(--tag-high);color:var(--tag-high-fg);}
+.tag-medium{background:var(--tag-medium);color:var(--tag-medium-fg);}
+.tag-resolved{background:#1e3a1e;color:#8fd68f;}
+.tag-note{background:#2a2f45;color:#a9b4e8;}
+.gap{border:1px solid var(--panel-border);background:var(--panel-bg);border-radius:12px;padding:16px 18px;margin-bottom:12px;}
+.gap .head{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.gap .head h4{margin:0;font-size:14.5px;}
+.gap p{margin:0 0 8px;font-size:13px;color:var(--ink);line-height:1.55;}
+.gap .consequence{font-size:12.5px;color:var(--ink-dim);line-height:1.5;padding:8px 12px;background:rgba(255,255,255,.03);border-radius:8px;border-left:2px solid var(--accent);}
+.gap .consequence b{color:var(--ink);}
+.gap .loc{font-family:ui-monospace,monospace;font-size:11px;color:var(--ink-dim);margin-top:6px;}
+
+.screen-state{display:inline-block;font-size:11px;font-weight:600;color:var(--ink-dim);background:var(--panel-bg);border:1px solid var(--panel-border);padding:2px 9px;border-radius:999px;margin-bottom:2px;}
+
+footer.summary{margin-top:70px;padding:36px 0;border-top:1px solid var(--panel-border);}
+.stat-row{display:flex;gap:32px;flex-wrap:wrap;}
+.stat{min-width:120px;}
+.stat b{display:block;font-size:26px;color:var(--accent);}
+.stat span{font-size:12px;color:var(--ink-dim);}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>LeafID — UI / HIG / "Liquid Glass" Review</h1>
+    <p class="lede">Scope: the current <code>main</code>-branch dark glassmorphism UI (not the <code>redesign/neo-brutalist</code> branch), walked end-to-end for both a brand-new account and an account with a real saved specimen, cross-checked against iOS HIG and the app's own "Liquid Glass" design language.</p>
+    <div class="methodology">
+      <b>Method:</b> static code audit (grep + targeted reads across every <code>Views/</code> and <code>UI/System/</code> file) plus a live Simulator walkthrough — real Sign Up against production Supabase, a real photo → identify → save round trip, screenshots at each step. Session date 2026-08-11.
+      <br><br>
+      <b>Important framing correction before anything else:</b> this codebase's "Liquid Glass" (<code>LiquidGlass.swift</code>, <code>GlassContainer.swift</code>) is a hand-built <code>.ultraThinMaterial</code> + border glassmorphism skin, <b>not</b> Apple's real Liquid Glass API (<code>glassEffect()</code>, <code>GlassEffectContainer</code>) — that API is iOS 26+ only, and this project is structurally capped at the iOS 16.4 SDK (Xcode 14.3.1, per the dev-hardware constraint). This isn't a bug, just a fact that changes what "perfect execution" can mean here: judge it as a well-executed custom glass skin against general HIG translucency guidance, not against the real API's checklist (containers, morphing, <code>.interactive()</code>, etc. — none of that can exist in this build).
+      <br><br>
+      Several gaps here (Dynamic Type, dark-mode-only, weak accessibility coverage) were already tracked in <a href="qa-launch-checklist.html">qa-launch-checklist.html</a>'s Medium section — this document adds hard numbers/file citations to those and adds screen-specific findings that checklist didn't cover.
+    </div>
+  </div>
+</header>
+
+<nav class="jump">
+  <div class="wrap">
+    <a href="#systemic">Systemic HIG gaps</a>
+    <a href="#screens">Screen-by-screen</a>
+    <a href="#feedback">Requested fixes</a>
+    <a href="#scope">Not covered</a>
+    <a href="#summary">Summary</a>
+  </div>
+</nav>
+
+<!-- ================= SYSTEMIC ================= -->
+<section class="feature" id="systemic">
+  <div class="wrap">
+    <h2>Systemic HIG gaps</h2>
+    <p class="intro">Codebase-wide patterns, not one-screen bugs — each confirmed by direct grep count, not a sample.</p>
+
+    <div class="gap">
+      <div class="head"><h4>Dynamic Type is effectively non-functional app-wide</h4><span class="tag tag-high">High</span></div>
+      <p>142 call sites use <code>LeafIDFont.plusJakarta(size:)</code> / <code>.manrope(size:)</code> — both build on fixed-<code>CGFloat</code> <code>Font.custom(_:size:)</code> / <code>.system(size:weight:design:)</code>, neither of which scales with the user's text-size setting. Codebase-wide search for scaling-aware font APIs (<code>relativeTo:</code>, <code>Font.system(.body)</code>-style text styles) returns exactly <b>1</b> hit.</p>
+      <div class="consequence"><b>Consequence:</b> a user who increases their preferred text size in Settings sees zero change anywhere in this app. This is a core, first-class HIG requirement, not an edge case.</div>
+      <div class="loc">Theme/Theme.swift:201-231 (LeafIDFont), 142 call sites across Views/ and UI/System/</div>
+    </div>
+
+    <div class="gap">
+      <div class="head"><h4>Reduce Motion / Reduce Transparency are ignored almost everywhere</h4><span class="tag tag-high">High</span></div>
+      <p>Only 2 files in the entire app (<code>ScanReticleFrame.swift</code>, <code>ScannerView.swift</code>) read <code>@Environment(\.accessibilityReduceMotion)</code> or <code>accessibilityReduceTransparency</code>. Every other animation (tab switches, card transitions, the glassmorphism <code>.ultraThinMaterial</code> itself) runs unconditionally.</p>
+      <div class="consequence"><b>Consequence:</b> users with motion sensitivity or transparency needs get no accommodation outside the scanner screen. <code>LiquidGlass.swift</code> — the one place all glass surfaces funnel through — has no Reduce Transparency handling at all, despite being the natural, single choke point to add it once for the whole app.</div>
+      <div class="loc">UI/System/LiquidGlass.swift, UI/System/GlassContainer.swift</div>
+    </div>
+
+    <div class="gap">
+      <div class="head"><h4>Custom floating tab bar skips standard accessibility/motion behavior</h4><span class="tag tag-medium">Medium</span></div>
+      <p><code>MainTabView.swift</code>'s <code>FloatingLiquidTabBar</code> is a fully custom reimplementation of the primary navigation surface (not SwiftUI's <code>TabView</code>). Two concrete gaps versus what <code>TabView</code> gives for free: no <code>.accessibilityAddTraits(.isSelected)</code> on the active tab (VoiceOver never announces which tab is selected), and tab-switch animation uses unconditional <code>withAnimation(.easeInOut...)</code> with no Reduce Motion gate.</p>
+      <div class="consequence"><b>Consequence:</b> not necessarily wrong as a design choice (the floating pill is part of the visual identity), but it trades away system-provided accessibility behavior that now needs to be manually re-added.</div>
+      <div class="loc">Views/MainTabView.swift:126-146</div>
+    </div>
+
+    <div class="gap">
+      <div class="head"><h4>Icon-only buttons: mixed compliance</h4><span class="tag tag-note">Context</span></div>
+      <p>The dedicated <code>GlassChromeCircleButton</code> primitive (44×44pt, forces callers to pass a real <code>accessibilityLabel</code>, haptic feedback) is used consistently and correctly at every real call site (Scanner, Scan Results, Botanical Card). But 11 other files use bare <code>Image(systemName:)</code> buttons with no accessibility label in the same file — inconsistent, not universally broken.</p>
+      <div class="consequence">Good primitive exists; it's just not the only pattern in use. Worth standardizing on it rather than writing new bespoke icon buttons.</div>
+      <div class="loc">UI/System/GlassChromeCircleButton.swift vs. 11 files incl. HerbariumView.swift, DruidProfileView.swift, PaywallView.swift</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCREENS ================= -->
+<section class="feature" id="screens">
+  <div class="wrap">
+    <h2>Screen-by-screen, live-verified</h2>
+    <p class="intro">Walked as a brand-new Sign Up account, then again after a real scan → identify → save round trip populated the account.</p>
+
+    <h3 class="group">Login / Sign Up <span class="screen-state">clean</span></h3>
+    <div class="gap">
+      <div class="head"><h4>No issues found</h4><span class="tag tag-resolved">Clean</span></div>
+      <p>Dark glassmorphism renders correctly, form fields work, Sign Up → session creation → landing on Home all worked first try against production Supabase, no email confirmation blocker.</p>
+    </div>
+
+    <h3 class="group">Home <span class="screen-state">new-user + populated, both checked</span></h3>
+    <div class="gap">
+      <div class="head"><h4>Empty "Last Found" card copy is ambiguous, and ungrouped for VoiceOver</h4><span class="tag tag-medium">Medium</span></div>
+      <p><code>HomeEmptyLastFoundCard</code> labels itself "LAST FOUND" (uppercase, past tense) over the instructional text "Save a specimen to your Herbarium" — for a genuinely first-time user with zero history, "Last Found" reads as if something already exists. Compare to the Herbarium empty state's clearer "No specimens yet."</p>
+      <p>Separately: the card is three ungrouped <code>Text</code> views plus an undecorated <code>leaf.fill</code> icon (no <code>.accessibilityHidden(true)</code>) — VoiceOver hits 4 separate swipe stops for one visual unit. The <em>populated</em> version of this same slot correctly wraps everything in one labeled <code>Button</code> — the pattern exists in-file, just not applied to the empty variant.</p>
+      <div class="consequence"><b>Fix is small:</b> reword the empty-state copy, and add <code>.accessibilityElement(children: .combine)</code> + hide the decorative icon.</div>
+      <div class="loc">Views/Home/HomeView.swift:52-86</div>
+    </div>
+    <div class="gap">
+      <div class="head"><h4>"Upload from Gallery" hang — false alarm, testing artifact</h4><span class="tag tag-resolved">Not a real bug</span></div>
+      <p>Mid-session the gallery picker hung indefinitely on a blank black sheet. Root-caused to an earlier <code>simctl privacy reset all</code> command run during unrelated analytics-SDK testing, which reset the Photos permission mid-session. Re-granting photo access and relaunching fixed it immediately; confirmed working normally afterward (full scan → identify → save succeeded).</p>
+      <div class="consequence">Recorded here only so a future session doesn't rediscover and re-report this as a live bug.</div>
+    </div>
+
+    <h3 class="group">Herbarium — empty state <span class="screen-state">new-user</span></h3>
+    <div class="gap">
+      <div class="head"><h4>Clear copy, but ~half the screen is dead space</h4><span class="tag tag-medium">Medium</span></div>
+      <p>"No specimens yet" + clear instructional copy — good, unambiguous empty-state writing. But the card sits near the top and roughly the bottom half of the screen (well over 1000px on a standard device) is just flat black background before the tab bar.</p>
+      <div class="consequence">Visual polish gap, not a functional bug — reads as unfinished rather than deliberately centered/breathing room.</div>
+      <div class="loc">Views/Herbarium/HerbariumView.swift</div>
+    </div>
+
+    <h3 class="group">Herbarium — populated <span class="screen-state">recurrent-user</span></h3>
+    <div class="gap">
+      <div class="head"><h4>Mixed-language string: "Found hace 2 minutos"</h4><span class="tag tag-high">High</span></div>
+      <p>Confirmed live and in code. The word "Found" is a raw, unlocalized string literal concatenated with <code>RelativeDateTimeFormatter</code>'s output — which correctly follows system locale (Spanish, in this case), producing English+Spanish mixed in one line for any non-English device.</p>
+      <div class="consequence"><b>Fix:</b> wrap the whole interpolated string in <code>String(localized:)</code> so "Found" gets a real Spanish translation instead of concatenating a hardcoded English word onto a localized formatter result.</div>
+      <div class="loc">Models/Scan.swift:127-129</div>
+    </div>
+
+    <h3 class="group">Druid <span class="screen-state">new-user + populated, both checked</span></h3>
+    <div class="gap">
+      <div class="head"><h4>Bottom content renders behind the floating tab bar</h4><span class="tag tag-medium">Medium</span></div>
+      <p>The profile <code>ScrollView</code> reserves a fixed <code>.padding(.bottom, 140)</code> for the floating tab bar, but with the achievement grid + Support card (+ the DEBUG-only Foundry card) rendered, the last card's text visibly slides under the tab bar. Confirmed live via screenshot.</p>
+      <div class="consequence">The DEBUG-only Foundry card is what pushed it over in this session's Release-equivalent content length it could still happen (achievement tiles grow over time; behavior will vary by device size). A fixed padding constant is fragile — better to measure the actual tab bar height via <code>GeometryReader</code>/safe-area inset rather than a hardcoded number.</div>
+      <div class="loc">Views/Druid/DruidProfileView.swift:81</div>
+    </div>
+    <div class="gap">
+      <div class="head"><h4>"Open Foundry" internal-tools card, and Foundry access via settings gear</h4><span class="tag tag-note">Requested removal — see below</span></div>
+      <p>Confirmed <code>#if DEBUG</code>-gated — will not compile into Release/TestFlight builds, so this is not an App Store exposure risk as-is. User has requested it be removed from the codebase entirely regardless (see Requested Fixes).</p>
+      <div class="loc">Views/Druid/DruidProfileView.swift:295-312</div>
+    </div>
+
+    <h3 class="group">GPS / location <span class="screen-state">Simulator environment note</span></h3>
+    <div class="gap">
+      <div class="head"><h4>Saved specimen shows "San Francisco" instead of real location — false alarm, Simulator limitation</h4><span class="tag tag-resolved">Not a real bug</span></div>
+      <p>Device log confirmed the app correctly calls real <code>CLLocationManager</code> and receives a real <code>didUpdateLocations</code> response — the code path works. The Simulator has no physical GPS; with no explicit simulated location configured (Xcode → Features → Location, or <code>simctl location set</code>), it falls back to Apple's default canned coordinate, which resolves to the San Francisco Bay Area regardless of the operator's real location.</p>
+      <div class="consequence">Same category as the earlier gallery-picker hang: a Simulator-environment artifact, not an app defect. Would need a physical-device test (or <code>simctl location set &lt;lat&gt;,&lt;lon&gt;</code> before testing) to actually verify real-GPS behavior.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FEEDBACK ================= -->
+<section class="feature" id="feedback">
+  <div class="wrap">
+    <h2>Requested fixes (to execute later)</h2>
+    <p class="intro">Direct feedback from the live walkthrough — action items, not audit findings, but recorded here so nothing is lost.</p>
+
+    <div class="gap">
+      <div class="head"><h4>Herbarium empty state should be more delightful</h4><span class="tag tag-note">Requested</span></div>
+      <p>Current state is functionally clear ("No specimens yet") but visually sparse — see the dead-space finding above. Needs a real design pass, not just a copy tweak.</p>
+    </div>
+    <div class="gap">
+      <div class="head"><h4>Remove Foundry access from the Druid settings gear</h4><span class="tag tag-note">Requested</span></div>
+      <p>The settings-gear button on Druid currently provides a path to Foundry. Requested: remove this access point.</p>
+    </div>
+    <div class="gap">
+      <div class="head"><h4>Druid header should show the user's real name, not "The Druid"</h4><span class="tag tag-note">Requested — root cause confirmed</span></div>
+      <p>Not just a display fallback — this is a missing feature. <code>displayName</code>/<code>realName</code> falls back to <code>"The Druid"</code> when <code>profiles.display_name</code> is empty, and there is <b>no <code>TextField</code> or edit path anywhere in the codebase</b> to ever set a name after email/password Sign Up (only Google OAuth's <code>full_name</code> would auto-populate it). Every email-signup user is permanently stuck on "The Druid" today.</p>
+      <div class="consequence"><b>Real fix needs:</b> (a) a name field on Sign Up, and/or (b) an edit-name control somewhere in Druid/Settings — not just changing the fallback string.</div>
+      <div class="loc">LeafID_nativeApp.swift (hydrateSession), ViewModels/DruidProfileViewModel.swift:83</div>
+    </div>
+    <div class="gap">
+      <div class="head"><h4>Remove the "Open Foundry" card entirely</h4><span class="tag tag-note">Requested</span></div>
+      <p>Already <code>#if DEBUG</code>-gated (won't ship), but user wants it removed from the DEBUG UI/codebase too, not just relying on the compile flag.</p>
+      <div class="loc">Views/Druid/DruidProfileView.swift:295-312</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCOPE ================= -->
+<section class="feature" id="scope">
+  <div class="wrap">
+    <h2>Not covered this session</h2>
+    <p class="intro">Honest scope boundary — this was not exhaustive. Not live-verified:</p>
+    <p class="group-note">
+      Scanner live-camera UI detail pass · Scan Results screen · Paywall screen · Arboretum (deferred to Post-MVP per <code>ADR-0002</code> anyway) · Botanical Card immersive back-face flip interaction · Password recovery flow · landscape orientation · iPad layout · device-size matrix (iPhone SE / Pro Max) · light-mode (app is dark-mode-only by design, already tracked in <a href="qa-launch-checklist.html">qa-launch-checklist.html</a>) · color-contrast (WCAG) measurement · VoiceOver/Voice Control/Switch Control live testing (only static-code accessibility-label presence was checked, not actual assistive-tech behavior).
+    </p>
+    <p class="group-note">Most of these already have QA cases tracked in <a href="qa-launch-checklist.html#qa">qa-launch-checklist.html</a>'s Home/Herbarium/Druid/Cross-cutting sections — this document doesn't duplicate that checklist, it adds file-cited findings on top of it.</p>
+  </div>
+</section>
+
+<footer class="summary" id="summary">
+  <div class="wrap">
+    <h2>Summary</h2>
+    <div class="stat-row">
+      <div class="stat"><b>2</b><span>High-priority findings (Dynamic Type, mixed-language string)</span></div>
+      <div class="stat"><b>4</b><span>Medium findings</span></div>
+      <div class="stat"><b>3</b><span>False alarms ruled out (gallery hang, GPS/San Francisco, Foundry exposure)</span></div>
+      <div class="stat"><b>4</b><span>User-requested fixes logged</span></div>
+    </div>
+    <p style="color:var(--ink-dim);font-size:13px;max-width:760px;line-height:1.6;margin-top:20px;">
+      Bottom line: no crashes, no broken core flows — Sign Up → Scan (via gallery) → Identify → Save → Herbarium/Druid/Home all update correctly worked end-to-end live. The real findings are (1) the "Liquid Glass" framing correction above, since it changes what any future "make this perfect" pass should even target, (2) Dynamic Type being effectively dead app-wide, and (3) the mixed-language relative-date string, which is a one-line fix at <code>Models/Scan.swift:129</code>.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
