@@ -254,9 +254,11 @@ struct CompactSpecimenCard: View {
     }
 
     private func lastFoundBody(scan: Scan) -> some View {
-        HStack(alignment: .center, spacing: LeafIDTheme.space20) {
+        // Deliberately smaller than Herbarium's own row thumbnail (LeafIDTheme.herbariumRowThumbnail,
+        // 80pt) — attention on Home belongs to the scan CTA, not a preview of the last specimen.
+        HStack(alignment: .center, spacing: LeafIDTheme.space12) {
             lastFoundThumbnail(scan: scan)
-                .frame(width: 96, height: 96)
+                .frame(width: 60, height: 60)
                 .clipShape(RoundedRectangle(cornerRadius: LeafIDTheme.radiusSpecimenThumb, style: .continuous))
 
             VStack(alignment: .leading, spacing: LeafIDTheme.space6) {
@@ -266,8 +268,8 @@ struct CompactSpecimenCard: View {
                     .foregroundStyle(LeafIDTheme.primary)
                     .textCase(.uppercase)
                 Text(scan.commonName.localizedCapitalized)
-                    .font(LeafIDFont.plusJakarta(size: 22, weight: .bold))
-                    .tracking(-0.35)
+                    .font(LeafIDFont.plusJakarta(size: 17, weight: .bold))
+                    .tracking(-0.3)
                     .foregroundStyle(LeafIDTheme.onSurface)
                     .lineLimit(2)
                 Text(scan.captureLocationLine)
@@ -289,12 +291,14 @@ struct CompactSpecimenCard: View {
                 .foregroundStyle(LeafIDTheme.outlineVariant.opacity(0.8))
         }
         .frame(maxWidth: .infinity, alignment: .center)
-        .padding(LeafIDTheme.space20)
-        .background(LeafIDTheme.surfaceContainerLow)
+        .padding(LeafIDTheme.space12)
+        // surfaceContainerLow (0x10150C) was barely distinguishable from the page's own
+        // surface (0x0B0F08) — bumped a step for a background that actually reads as a card.
+        .background(LeafIDTheme.surfaceContainerHigh)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous)
-                .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.15), lineWidth: 1)
+                .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.25), lineWidth: 1)
         }
     }
 

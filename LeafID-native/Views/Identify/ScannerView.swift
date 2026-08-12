@@ -366,13 +366,13 @@ private struct ScannerLiveView: View {
 
                 VStack(spacing: 0) {
                     HStack(spacing: 0) {
+                        Spacer(minLength: 0)
                         GlassChromeCircleButton(
                             systemImage: "xmark",
                             accessibilityLabel: String(localized: "Close")
                         ) {
                             onClose()
                         }
-                        Spacer(minLength: 0)
                     }
                     .padding(.top, geo.safeAreaInsets.top + LeafIDTheme.headerTopInset)
                     .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
@@ -528,18 +528,18 @@ private struct ScannerAnalyzeView: View {
 
                 VStack(spacing: 0) {
                     HStack(alignment: .center, spacing: 0) {
+                        Color.clear
+                            .frame(width: 44, height: 44)
+                            .accessibilityHidden(true)
+                        Spacer(minLength: 0)
+                        AnalyzingLeafStatusPill(isAnalyzing: scanningChromeActive)
+                        Spacer(minLength: 0)
                         GlassChromeCircleButton(
                             systemImage: "xmark",
                             accessibilityLabel: String(localized: "Close")
                         ) {
                             onClose()
                         }
-                        Spacer(minLength: 0)
-                        AnalyzingLeafStatusPill(isAnalyzing: scanningChromeActive)
-                        Spacer(minLength: 0)
-                        Color.clear
-                            .frame(width: 44, height: 44)
-                            .accessibilityHidden(true)
                     }
                     .padding(.top, geo.safeAreaInsets.top + LeafIDTheme.headerTopInset)
                     .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
@@ -575,10 +575,14 @@ private struct ScannerAnalyzeView: View {
             densityProgress = 0
         }
 
+        let requestStart = Date()
+        // A fast API response would otherwise cut the ease-out progress animation short,
+        // snapping it to complete almost instantly — enforce a floor so it always plays out.
+        let minimumAnalyzingDuration: TimeInterval = 1.8
+
         let progressTask = Task { @MainActor in
-            let start = Date()
             while !Task.isCancelled {
-                let elapsed = Date().timeIntervalSince(start)
+                let elapsed = Date().timeIntervalSince(requestStart)
                 let eased = 1 - exp(-elapsed / 7)
                 densityProgress = min(0.94, eased * 0.94)
                 try? await Task.sleep(nanoseconds: 50_000_000)
@@ -587,13 +591,17 @@ private struct ScannerAnalyzeView: View {
 
         do {
             let result = try await BotanyService.identifyPlantWithAI(imageBase64: "", captureJPEGData: jpeg)
+            let elapsed = Date().timeIntervalSince(requestStart)
+            if elapsed < minimumAnalyzingDuration {
+                try? await Task.sleep(nanoseconds: UInt64((minimumAnalyzingDuration - elapsed) * 1_000_000_000))
+            }
             progressTask.cancel()
             await MainActor.run {
                 withAnimation(.easeOut(duration: 0.38)) {
                     densityProgress = 1
                 }
             }
-            try await Task.sleep(nanoseconds: 320_000_000)
+            try await Task.sleep(nanoseconds: 550_000_000)
             await MainActor.run {
                 isAnalyzing = false
                 onComplete(result, jpeg)

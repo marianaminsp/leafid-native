@@ -23,6 +23,7 @@
 		E1A100000000000000000006 /* ArboretumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000006 /* ArboretumView.swift */; };
 		E1A100000000000000000008 /* HerbariumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000008 /* HerbariumView.swift */; };
 		E1A100000000000000000009 /* DruidProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000009 /* DruidProfileView.swift */; };
+		62E0D2B8AAB320707EF28715 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BF78AE254EB173A7E3D4D7E /* OnboardingView.swift */; };
 		E1A10000000000000000000A /* HerbariumViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000000A /* HerbariumViewModel.swift */; };
 		E1A10000000000000000000B /* BotanyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000000B /* BotanyService.swift */; };
 		E1A10000000000000000000C /* Animation+LeafID.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000000C /* Animation+LeafID.swift */; };
@@ -34,6 +35,7 @@
 		E1A100000000000000000013 /* GreenDotMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000013 /* GreenDotMarker.swift */; };
 		E1A100000000000000000014 /* CompactSpecimenCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000014 /* CompactSpecimenCard.swift */; };
 		E1A100000000000000000015 /* LeafPrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000015 /* LeafPrimaryButton.swift */; };
+		A422C9AB84A647D29B6EA380 /* ScrollOffsetReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9A5725BCDFA6F0AAE53DF5F /* ScrollOffsetReader.swift */; };
 		E1A100000000000000000016 /* GlassStatTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000016 /* GlassStatTile.swift */; };
 		E1A100000000000000000017 /* ScanningLeafAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000017 /* ScanningLeafAnimationView.swift */; };
 		E1A100000000000000000018 /* DesignSystemGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000018 /* DesignSystemGalleryView.swift */; };
@@ -93,6 +95,7 @@
 		E1A200000000000000000006 /* ArboretumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArboretumView.swift; sourceTree = "<group>"; };
 		E1A200000000000000000008 /* HerbariumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HerbariumView.swift; sourceTree = "<group>"; };
 		E1A200000000000000000009 /* DruidProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DruidProfileView.swift; sourceTree = "<group>"; };
+		0BF78AE254EB173A7E3D4D7E /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		E1A20000000000000000000A /* HerbariumViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HerbariumViewModel.swift; sourceTree = "<group>"; };
 		E1A20000000000000000000B /* BotanyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BotanyService.swift; sourceTree = "<group>"; };
 		E1A20000000000000000000C /* Animation+LeafID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Animation+LeafID.swift"; sourceTree = "<group>"; };
@@ -104,6 +107,7 @@
 		E1A200000000000000000013 /* GreenDotMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreenDotMarker.swift; sourceTree = "<group>"; };
 		E1A200000000000000000014 /* CompactSpecimenCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompactSpecimenCard.swift; sourceTree = "<group>"; };
 		E1A200000000000000000015 /* LeafPrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeafPrimaryButton.swift; sourceTree = "<group>"; };
+		D9A5725BCDFA6F0AAE53DF5F /* ScrollOffsetReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollOffsetReader.swift; sourceTree = "<group>"; };
 		E1A200000000000000000016 /* GlassStatTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassStatTile.swift; sourceTree = "<group>"; };
 		E1A200000000000000000017 /* ScanningLeafAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanningLeafAnimationView.swift; sourceTree = "<group>"; };
 		E1A200000000000000000018 /* DesignSystemGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystemGalleryView.swift; sourceTree = "<group>"; };
@@ -246,6 +250,7 @@
 				E1A400000000000000000017 /* Identify */,
 				E1A400000000000000000018 /* Herbarium */,
 				E1A400000000000000000019 /* Druid */,
+				B968051A99B79FECB51930B1 /* Onboarding */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -321,6 +326,14 @@
 			path = Druid;
 			sourceTree = "<group>";
 		};
+		B968051A99B79FECB51930B1 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				0BF78AE254EB173A7E3D4D7E /* OnboardingView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
 		E1A400000000000000000020 /* UI */ = {
 			isa = PBXGroup;
 			children = (
@@ -341,6 +354,7 @@
 				E1A20000000000000000002C /* HerbariumSpecimenRowCard.swift */,
 				E1A200000000000000000014 /* CompactSpecimenCard.swift */,
 				E1A200000000000000000015 /* LeafPrimaryButton.swift */,
+				D9A5725BCDFA6F0AAE53DF5F /* ScrollOffsetReader.swift */,
 				E1A200000000000000000016 /* GlassStatTile.swift */,
 				E1A200000000000000000017 /* ScanningLeafAnimationView.swift */,
 				E1A20000000000000000001E /* GalleryScanButton.swift */,
@@ -514,6 +528,7 @@
 				388D420653CD31E77EE46CF5 /* ArboretumComingSoonView.swift in Sources */,
 				E1A100000000000000000008 /* HerbariumView.swift in Sources */,
 				E1A100000000000000000009 /* DruidProfileView.swift in Sources */,
+				62E0D2B8AAB320707EF28715 /* OnboardingView.swift in Sources */,
 				E1A10000000000000000000A /* HerbariumViewModel.swift in Sources */,
 				E1A10000000000000000000B /* BotanyService.swift in Sources */,
 				E1A10000000000000000007B /* Achievements.swift in Sources */,
@@ -528,6 +543,7 @@
 				E1A10000000000000000002C /* HerbariumSpecimenRowCard.swift in Sources */,
 				E1A100000000000000000014 /* CompactSpecimenCard.swift in Sources */,
 				E1A100000000000000000015 /* LeafPrimaryButton.swift in Sources */,
+				A422C9AB84A647D29B6EA380 /* ScrollOffsetReader.swift in Sources */,
 				E1A100000000000000000016 /* GlassStatTile.swift in Sources */,
 				E1A100000000000000000017 /* ScanningLeafAnimationView.swift in Sources */,
 				E1A100000000000000000018 /* DesignSystemGalleryView.swift in Sources */,

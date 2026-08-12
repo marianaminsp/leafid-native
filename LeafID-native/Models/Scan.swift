@@ -83,6 +83,46 @@ struct Scan: Identifiable, Codable, Equatable {
 }
 
 extension Scan {
+    /// Custom decode: a handful of legacy `scans` rows have `NULL` in columns this struct
+    /// treats as required (seen in practice: `common_name`). The synthesized decoder fails
+    /// the *entire* `[Scan]` array over one bad row — decode leniently instead, so one
+    /// malformed row can't take down the whole Herbarium fetch. Declared in an extension
+    /// (not the struct body) so the compiler-synthesized memberwise initializer, used
+    /// elsewhere to construct `Scan` directly, is preserved. `encode(to:)` stays synthesized.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        userId = try container.decodeIfPresent(UUID.self, forKey: .userId)
+        treeId = try container.decodeIfPresent(UUID.self, forKey: .treeId)
+        let decodedCommonName = try container.decodeIfPresent(String.self, forKey: .commonName)
+        let decodedScientificName = try container.decodeIfPresent(String.self, forKey: .scientificName)
+        commonName = decodedCommonName ?? decodedScientificName ?? "Unnamed specimen"
+        scientificName = decodedScientificName ?? decodedCommonName ?? "Unknown species"
+        photoURL = try container.decodeIfPresent(String.self, forKey: .photoURL) ?? ""
+        confidence = try container.decodeIfPresent(Double.self, forKey: .confidence) ?? 0
+        location = try container.decodeIfPresent(String.self, forKey: .location) ?? ""
+        createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt)
+        latitude = try container.decodeIfPresent(Double.self, forKey: .latitude)
+        longitude = try container.decodeIfPresent(Double.self, forKey: .longitude)
+        locality = try container.decodeIfPresent(String.self, forKey: .locality)
+        cardImageURL = try container.decodeIfPresent(String.self, forKey: .cardImageURL)
+        family = try container.decodeIfPresent(String.self, forKey: .family)
+        descriptionText = try container.decodeIfPresent(String.self, forKey: .descriptionText)
+        sunExposure = try container.decodeIfPresent(String.self, forKey: .sunExposure)
+        watering = try container.decodeIfPresent(String.self, forKey: .watering)
+        phylum = try container.decodeIfPresent(String.self, forKey: .phylum)
+        originCountry = try container.decodeIfPresent(String.self, forKey: .originCountry)
+        tagSecondary = try container.decodeIfPresent(String.self, forKey: .tagSecondary)
+        isNewDiscovery = try container.decodeIfPresent(Bool.self, forKey: .isNewDiscovery)
+        paletteHexes = try container.decodeIfPresent([String].self, forKey: .paletteHexes)
+        traditionalName = try container.decodeIfPresent(String.self, forKey: .traditionalName)
+        botanicalSpirit = try container.decodeIfPresent(String.self, forKey: .botanicalSpirit)
+        ethnobotany = try container.decodeIfPresent(String.self, forKey: .ethnobotany)
+        culturalLegacy = try container.decodeIfPresent(String.self, forKey: .culturalLegacy)
+    }
+}
+
+extension Scan {
     var clCoordinate: CLLocationCoordinate2D? {
         guard let latitude, let longitude else { return nil }
         return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)

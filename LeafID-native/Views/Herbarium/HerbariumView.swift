@@ -7,20 +7,14 @@
 
 import SwiftUI
 
-private struct HerbariumHeaderMinYKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
-}
-
 struct HerbariumView: View {
     @EnvironmentObject private var viewModel: HerbariumViewModel
     @EnvironmentObject private var auth: AuthViewModel
     @Namespace private var specimenNamespace
     @State private var selectedScan: Scan?
     @State private var immersiveUseMatchedGeometry = true
-    @State private var headerMinY: CGFloat = 0
+    /// Raw `UIScrollView.contentOffset.y` — 0 at rest, positive as the user scrolls down.
+    @State private var rawScrollOffsetY: CGFloat = 0
 
     private let pendingPresentScan: Binding<Scan?>
     private let restoreTabAfterImmersiveDismiss: Binding<RootTab?>
@@ -37,10 +31,10 @@ struct HerbariumView: View {
     }
 
     private var headerCollapseProgress: CGFloat {
-        let y = headerMinY
+        let y = rawScrollOffsetY
         let threshold: CGFloat = 96
-        if y >= 0 { return 0 }
-        return min(1, -y / threshold)
+        if y <= 0 { return 0 }
+        return min(1, y / threshold)
     }
 
     private var herbariumTitlePointSize: CGFloat {
@@ -64,17 +58,6 @@ struct HerbariumView: View {
 
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: LeafIDTheme.space16) {
-                            Color.clear
-                                .frame(height: 1)
-                                .background(
-                                    GeometryReader { proxy in
-                                        Color.clear.preference(
-                                            key: HerbariumHeaderMinYKey.self,
-                                            value: proxy.frame(in: .named("herbariumScroll")).minY
-                                        )
-                                    }
-                                )
-
                             if viewModel.scans.isEmpty, !viewModel.isRemoteLoading {
                                 emptyState
                             } else if !viewModel.scans.isEmpty {
@@ -96,9 +79,11 @@ struct HerbariumView: View {
                         .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
                         .padding(.top, LeafIDTheme.space8)
                         .padding(.bottom, LeafIDTheme.space28)
+                        .background(
+                            ScrollOffsetReader(offsetY: $rawScrollOffsetY)
+                                .frame(width: 0, height: 0)
+                        )
                     }
-                    .coordinateSpace(name: "herbariumScroll")
-                    .onPreferenceChange(HerbariumHeaderMinYKey.self) { headerMinY = $0 }
                     .refreshable {
                         await viewModel.hydrateFromSupabase(auth: auth)
                     }

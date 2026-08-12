@@ -8,6 +8,8 @@
 /* Arboretum */
 "No geotagged specimens yet. Capture with location enabled to plant discoveries on the map." = "Aún no hay especímenes geolocalizados. Activa la ubicación al capturar para fijar tus hallazgos en el mapa.";
 "LeafID could not determine your location right now. Check permission access and try again." = "LeafID no pudo determinar tu ubicación ahora. Revisa los permisos e inténtalo de nuevo.";
+"Taking root" = "Echando raíces";
+"Every place you've stood to look closer becomes a pin on this map. We're building it now — keep scanning, and it'll already be full the day it opens." = "Cada lugar donde te detuviste a mirar más de cerca se convierte en un punto en este mapa. Lo estamos construyendo ahora: sigue escaneando, y ya estará lleno el día que se abra.";
 
 /* Profile */
 "Identify a plant and save it to your Herbarium — it will show up here." = "Identifica una planta y guárdala en tu Herbario: aparecerá aquí.";
@@ -198,3 +200,21 @@
 
 /* Profile defaults */
 "Botanical Enthusiast" = "Entusiasta botánico";
+
+/* Onboarding */
+"You just noticed something." = "Acabas de notar algo.";
+"Look closer at what it holds." = "Mira más de cerca lo que guarda.";
+"The world expands when you uncover the history behind the green." = "El mundo se expande cuando descubres la historia detrás del verde.";
+"Start with the leaf in front of you." = "Empieza por la hoja que tienes delante.";
+"Continue" = "Continuar";
+"HOW IT WORKS" = "CÓMO FUNCIONA";
+"Point. Capture. Reveal the depth." = "Apunta. Captura. Revela la profundidad.";
+"The species, the family, the story most people walk past." = "La especie, la familia, la historia que casi nadie se detiene a ver.";
+"YOUR HERBARIUM" = "TU HERBARIO";
+"Treasure the moment, build your living archive." = "Atesora el momento, construye tu archivo vivo.";
+"Every discovery adds another layer — yours to keep, yours to revisit." = "Cada descubrimiento suma una capa más: tuya para guardar, tuya para revisitar.";
+"Next" = "Siguiente";
+"THE PATH" = "EL CAMINO";
+"Wandering Seed to Archdruid." = "De Semilla errante a Archidruida.";
+"Stay curious, and even the forest starts to notice." = "Sigue siendo curioso, y hasta el bosque empezará a notarlo.";
+"Not now" = "Ahora no";

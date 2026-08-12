@@ -595,8 +595,10 @@ struct ScanResultsView: View {
     private func sheetPanel(geo: GeometryProxy) -> some View {
         let shape = resultsSheetShape()
         let sheetHorizontalInset = LeafIDTheme.space16
-        /// Tight to safe area: 8pt above home indicator / bottom inset.
-        let contentBottom = geo.safeAreaInsets.bottom + 8
+        /// This sheet's own safe-area inset reads near-zero in practice (the presenting
+        /// context already accounts for it), so the fixed component is the real buffer —
+        /// kept generous rather than the 8pt this used to add, which read as cramped.
+        let contentBottom = geo.safeAreaInsets.bottom + LeafIDTheme.space20
         let scrollMaxHeight = max(
             260,
             geo.size.height - geo.safeAreaInsets.top - geo.safeAreaInsets.bottom - 96

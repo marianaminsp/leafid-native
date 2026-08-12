@@ -7,26 +7,20 @@
 
 import SwiftUI
 
-private struct DruidHeaderMinYKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
-}
-
 struct DruidProfileView: View {
     @EnvironmentObject private var authViewModel: AuthViewModel
     @EnvironmentObject private var herbarium: HerbariumViewModel
     @StateObject private var viewModel = DruidProfileViewModel()
     @State private var showPaywall = false
-    @State private var headerMinY: CGFloat = 0
+    /// Raw `UIScrollView.contentOffset.y` — 0 at rest, positive as the user scrolls down.
+    @State private var rawScrollOffsetY: CGFloat = 0
     @Environment(\.openURL) private var openURL
 
     private var headerCollapseProgress: CGFloat {
-        let y = headerMinY
+        let y = rawScrollOffsetY
         let threshold: CGFloat = 96
-        if y >= 0 { return 0 }
-        return min(1, -y / threshold)
+        if y <= 0 { return 0 }
+        return min(1, y / threshold)
     }
 
     private var druidTitlePointSize: CGFloat {
@@ -51,17 +45,6 @@ struct DruidProfileView: View {
 
                         ScrollView {
                             VStack(alignment: .leading, spacing: LeafIDTheme.space28) {
-                                Color.clear
-                                    .frame(height: 1)
-                                    .background(
-                                        GeometryReader { proxy in
-                                            Color.clear.preference(
-                                                key: DruidHeaderMinYKey.self,
-                                                value: proxy.frame(in: .named("druidScroll")).minY
-                                            )
-                                        }
-                                    )
-
                                 identityRow
                                 rankBadgeCard
                                 quotaCard
@@ -72,12 +55,14 @@ struct DruidProfileView: View {
                             .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
                             .padding(.top, LeafIDTheme.space12)
                             .padding(.bottom, LeafIDTheme.tabBarBottomReserve)
+                            .background(
+                                ScrollOffsetReader(offsetY: $rawScrollOffsetY)
+                                    .frame(width: 0, height: 0)
+                            )
                         }
-                        .coordinateSpace(name: "druidScroll")
-                        .onPreferenceChange(DruidHeaderMinYKey.self) { headerMinY = $0 }
                     }
 
-                    if !viewModel.isLoggedIn {
+                    if !authViewModel.isAuthenticated {
                         loginOverlay
                     }
                 }

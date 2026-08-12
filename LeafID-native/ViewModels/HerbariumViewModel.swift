@@ -134,7 +134,7 @@ final class HerbariumViewModel: ObservableObject {
                 kind: .error
             )
             #if DEBUG
-            print("[LeafID] Herbarium sync failed: \(error.localizedDescription)")
+            NSLog("[LeafID] Herbarium sync failed: %@", "\(error)")
             #endif
         }
 

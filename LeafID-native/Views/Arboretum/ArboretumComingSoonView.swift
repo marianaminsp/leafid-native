@@ -35,7 +35,7 @@ struct ArboretumComingSoonView: View {
                         .font(.system(size: 40, weight: .medium))
                         .foregroundStyle(LeafIDTheme.primary)
 
-                    Text(String(localized: "Coming soon"))
+                    Text(String(localized: "Taking root"))
                         .font(LeafIDFont.manrope(size: 11, weight: .bold))
                         .tracking(0.6)
                         .textCase(.uppercase)
@@ -45,7 +45,7 @@ struct ArboretumComingSoonView: View {
                         .background(LeafIDTheme.primaryContainer)
                         .clipShape(Capsule())
 
-                    Text(String(localized: "We're building an interactive map of every specimen you've found. Keep scanning — LeafID is already saving the location of each discovery so your map is ready the moment it launches."))
+                    Text(String(localized: "Every place you've stood to look closer becomes a pin on this map. We're building it now — keep scanning, and it'll already be full the day it opens."))
                         .font(LeafIDFont.manrope(size: 14, weight: .medium))
                         .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                         .multilineTextAlignment(.center)

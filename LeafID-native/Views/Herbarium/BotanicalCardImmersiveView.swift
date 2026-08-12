@@ -444,7 +444,7 @@ private struct CardShellView: View {
                     Spacer(minLength: 0)
                     GlassChromeCircleButton(systemImage: "square.and.arrow.up", accessibilityLabel: "Share", action: onShare)
                     GlassChromeCircleButton(
-                        systemImage: "arrow.right.circle",
+                        systemImage: "arrow.triangle.2.circlepath",
                         accessibilityLabel: isFlipped ? "View specimen photo" : "View card back",
                         action: onFlip
                     )
@@ -528,10 +528,16 @@ private struct CardFrontView: View {
 
                 VStack(spacing: 0) {
                     Spacer(minLength: 0)
+                    // Eased multi-stop fade (matches CardShellView's scrim) instead of a flat
+                    // 2-stop ramp, which read as an abrupt cut; holds shy of full opacity so
+                    // the photo stays faintly visible even at the card's bottom edge.
                     LinearGradient(
                         stops: [
-                            .init(color: Color.clear, location: 0),
-                            .init(color: LeafIDTheme.surface.opacity(0.9), location: 1),
+                            .init(color: Color.clear, location: 0.00),
+                            .init(color: Color.clear, location: 0.20),
+                            .init(color: LeafIDTheme.surface.opacity(0.35), location: 0.55),
+                            .init(color: LeafIDTheme.surface.opacity(0.72), location: 0.80),
+                            .init(color: LeafIDTheme.surface.opacity(0.88), location: 1.00),
                         ],
                         startPoint: .top,
                         endPoint: .bottom
@@ -612,13 +618,16 @@ private struct CardBackView: View {
                         .lineLimit(2)
                     if let traditionalName {
                         Text("Known as “\(traditionalName)”")
-                            .font(.system(size: 12, weight: .regular, design: .serif))
+                            .font(LeafIDFont.manrope(size: 12, weight: .medium))
                             .italic()
                             .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                             .lineLimit(2)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                // Clears CardShellView's absolutely-positioned close button (44pt + 16pt inset)
+                // so a long scientific name doesn't run underneath it.
+                .padding(.trailing, 28)
             }
             .padding(.horizontal, LeafIDTheme.botanicalFrontOverlayPaddingH)
             .padding(.top, LeafIDTheme.space24)
@@ -635,7 +644,7 @@ private struct CardBackView: View {
                             .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                             .textCase(.uppercase)
                         Text("“\(spiritText)”")
-                            .font(.system(size: 16, weight: .regular, design: .serif))
+                            .font(LeafIDFont.manrope(size: 16, weight: .medium))
                             .italic()
                             .foregroundStyle(LeafIDTheme.onSurface)
                             .lineSpacing(5)

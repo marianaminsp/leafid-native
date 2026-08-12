@@ -24,25 +24,27 @@ private struct HomeUploadGalleryButton: View {
         Button(action: action) {
             HStack(spacing: 0) {
                 Spacer(minLength: 0)
-                HStack(spacing: LeafIDTheme.space12) {
+                HStack(spacing: LeafIDTheme.space10) {
                     Image(systemName: "arrow.up.square")
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.system(size: 16, weight: .semibold))
                         .symbolRenderingMode(.hierarchical)
                         .foregroundStyle(LeafIDTheme.primary)
                     Text(String(localized: "Upload from Gallery"))
-                        .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .semibold))
+                        .font(LeafIDFont.manrope(size: 15, weight: .semibold))
                         .foregroundStyle(LeafIDTheme.onSurface)
                 }
                 Spacer(minLength: 0)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, LeafIDTheme.space14)
-            .padding(.horizontal, LeafIDTheme.space20)
-            .background(LeafIDTheme.surfaceContainerHigh)
+            .padding(.vertical, LeafIDTheme.space10)
+            .padding(.horizontal, LeafIDTheme.space16)
+            // surfaceContainerHigh still read as barely-there against surface — bumped a
+            // step further, same reasoning as the Last Found card treatment.
+            .background(LeafIDTheme.surfaceContainerHighest)
             .clipShape(Capsule())
             .overlay {
                 Capsule()
-                    .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.22), lineWidth: 1)
+                    .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.32), lineWidth: 1)
             }
         }
         .buttonStyle(.plain)
@@ -51,13 +53,13 @@ private struct HomeUploadGalleryButton: View {
 
 private struct HomeEmptyLastFoundCard: View {
     var body: some View {
-        HStack(alignment: .center, spacing: LeafIDTheme.space20) {
+        HStack(alignment: .center, spacing: LeafIDTheme.space12) {
             RoundedRectangle(cornerRadius: LeafIDTheme.radiusSpecimenThumb, style: .continuous)
-                .fill(LeafIDTheme.surfaceContainerHigh)
-                .frame(width: 96, height: 96)
+                .fill(LeafIDTheme.surfaceContainerHighest)
+                .frame(width: 60, height: 60)
                 .overlay {
                     Image(systemName: "leaf.fill")
-                        .font(.system(size: 28, weight: .medium))
+                        .font(.system(size: 24, weight: .medium))
                         .foregroundStyle(LeafIDTheme.primary.opacity(0.35))
                 }
                 .accessibilityHidden(true)
@@ -69,19 +71,21 @@ private struct HomeEmptyLastFoundCard: View {
                     .foregroundStyle(LeafIDTheme.primary)
                     .textCase(.uppercase)
                 Text(String(localized: "Save a specimen to your Herbarium"))
-                    .font(LeafIDFont.plusJakarta(size: 17, weight: .semibold))
+                    .font(LeafIDFont.plusJakarta(size: 16, weight: .semibold))
                     .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                     .lineLimit(2)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .frame(maxWidth: .infinity, alignment: .center)
-        .padding(LeafIDTheme.space20)
-        .background(LeafIDTheme.surfaceContainerLow)
+        .padding(LeafIDTheme.space12)
+        // surfaceContainerLow (0x10150C) was barely distinguishable from the page's own
+        // surface (0x0B0F08) — bumped a step for a background that actually reads as a card.
+        .background(LeafIDTheme.surfaceContainerHigh)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous)
-                .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.15), lineWidth: 1)
+                .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.25), lineWidth: 1)
         }
         .accessibilityElement(children: .combine)
     }
@@ -89,6 +93,7 @@ private struct HomeEmptyLastFoundCard: View {
 
 struct HomeView: View {
     @EnvironmentObject private var herbarium: HerbariumViewModel
+    @EnvironmentObject private var authViewModel: AuthViewModel
 
     @AppStorage("profile.scans_count") private var scansCount = 0
     @AppStorage("profile.is_premium") private var isPremium = false
@@ -104,12 +109,17 @@ struct HomeView: View {
 
     private var greetingTitle: String {
         let h = Calendar.current.component(.hour, from: Date())
+        let base: String
         switch h {
-        case 5 ..< 12: return String(localized: "Good Morning")
-        case 12 ..< 17: return String(localized: "Good Afternoon")
-        case 17 ..< 22: return String(localized: "Good Evening")
-        default: return String(localized: "Good Evening")
+        case 5 ..< 12: base = String(localized: "Good Morning")
+        case 12 ..< 17: base = String(localized: "Good Afternoon")
+        default: base = String(localized: "Good Evening")
         }
+        // Skip the fallback placeholder name — greeting "Good Morning, The Druid" to
+        // everyone who hasn't set a real name isn't actually personalized.
+        let name = authViewModel.displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty, name != String(localized: "The Druid") else { return base }
+        return "\(base), \(name)"
     }
 
     @ViewBuilder

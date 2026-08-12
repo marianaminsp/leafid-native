@@ -1195,17 +1195,26 @@ enum BotanyService {
         ) else { return nil }
         ctx.draw(cg, in: CGRect(x: 0, y: 0, width: width, height: height))
         var bins: [Int: Int] = [:]
-        var reps: [Int: (Int, Int, Int)] = [:]
+        var sums: [Int: (Int, Int, Int)] = [:]
         for i in stride(from: 0, to: pixels.count, by: 4) {
             let r = Int(pixels[i]); let g = Int(pixels[i + 1]); let b = Int(pixels[i + 2])
-            let qr = (r / 32) * 32
-            let qg = (g / 32) * 32
-            let qb = (b / 32) * 32
-            let key = (qr << 16) | (qg << 8) | qb
+            // Near-black shadow/bokeh pixels are common in the background of a plant
+            // photo but aren't a color anyone would pick as "the" leaf/flower color —
+            // exclude them so they can't win the vote just by covering the most area.
+            if max(r, g, b) < 24 { continue }
+            let qr = r / 32
+            let qg = g / 32
+            let qb = b / 32
+            let key = (qr << 6) | (qg << 3) | qb
             bins[key, default: 0] += 1
-            reps[key] = (qr, qg, qb)
+            let sum = sums[key] ?? (0, 0, 0)
+            sums[key] = (sum.0 + r, sum.1 + g, sum.2 + b)
         }
-        let top = bins.sorted { $0.value > $1.value }.prefix(3).compactMap { reps[$0.key] }
+        let top = bins.sorted { $0.value > $1.value }.prefix(3).compactMap { entry -> (Int, Int, Int)? in
+            guard let sum = sums[entry.key] else { return nil }
+            let count = entry.value
+            return (sum.0 / count, sum.1 / count, sum.2 / count)
+        }
         guard !top.isEmpty else { return nil }
         return top.map { rgbToHex($0.0, $0.1, $0.2) }
     }
@@ -1646,7 +1655,7 @@ enum BotanyService {
             return try supabaseJSONDecoder().decode([Scan].self, from: data)
         } catch {
             #if DEBUG
-            print("[LeafID] scans decode error: \(error.localizedDescription)")
+            NSLog("[LeafID] scans decode error: %@", "\(error)")
             #endif
             throw BotanyServiceError.invalidResponse
         }

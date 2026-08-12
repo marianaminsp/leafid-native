@@ -12,6 +12,7 @@ import SwiftUI
 @main
 struct LeafID_nativeApp: App {
     @StateObject private var authViewModel = AuthViewModel()
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
     init() {
         AppMonitoring.configure()
@@ -32,6 +33,8 @@ struct LeafID_nativeApp: App {
                     PasswordRecoveryView()
                 } else if authViewModel.isAuthenticated {
                     MainTabView()
+                } else if !hasCompletedOnboarding {
+                    OnboardingView(onFinished: { hasCompletedOnboarding = true })
                 } else {
                     LoginView()
                 }
@@ -117,6 +120,7 @@ final class AuthViewModel: ObservableObject {
             URLQueryItem(name: "apikey", value: anon),
             URLQueryItem(name: "code_challenge", value: challenge),
             URLQueryItem(name: "code_challenge_method", value: "S256"),
+            URLQueryItem(name: "scopes", value: "openid email profile"),
         ]
         return components?.url
     }

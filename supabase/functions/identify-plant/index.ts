@@ -76,6 +76,13 @@ const pickString = (...values: unknown[]): string => {
 
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value))
 
+const joinNaturally = (items: string[]): string => {
+  if (items.length === 0) return ""
+  if (items.length === 1) return items[0]
+  if (items.length === 2) return `${items[0]} and ${items[1]}`
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`
+}
+
 const classifyStatus = (status: number): { code: string; retriable: boolean } => {
   if (status === 401 || status === 403) return { code: "auth", retriable: false }
   if (status === 429) return { code: "rate_limit", retriable: true }
@@ -188,7 +195,10 @@ const normalizePlantNet = (payload: Record<string, unknown>): Omit<NormalizedIde
   const familyRecord = toRecord(species.family)
   const genusRecord = toRecord(species.genus)
   const phylumRecord = toRecord(species.phylum)
-  const commonNames = Array.isArray(species.commonNames) ? species.commonNames : []
+  const commonNamesRaw = Array.isArray(species.commonNames) ? species.commonNames : []
+  const commonNames = commonNamesRaw
+    .map((n) => (typeof n === "string" ? n.trim() : ""))
+    .filter((n) => n.length > 0)
 
   const scientificName = pickString(
     species.scientificNameWithoutAuthor,
@@ -197,8 +207,22 @@ const normalizePlantNet = (payload: Record<string, unknown>): Omit<NormalizedIde
   ) || "Unknown species"
   const commonName = pickString(commonNames[0]) || scientificName
   const family = pickString(familyRecord.scientificNameWithoutAuthor, familyRecord.scientificName) || "Unknown family"
+  const genus = pickString(genusRecord.scientificNameWithoutAuthor, genusRecord.scientificName)
   const phylum = pickString(phylumRecord.scientificNameWithoutAuthor, phylumRecord.scientificName)
   const score = typeof best.score === "number" ? clamp01(best.score) : 0.55
+
+  // The confidence percentage already shows in the results-screen badge, so repeating it
+  // here was redundant — and "backup" is stale copy from before ADR-0004 (Pl@ntNet is now
+  // the principal provider, not a fallback). Surface something free instead: the rest of
+  // Pl@ntNet's own commonNames list, or the genus — both already in this same response.
+  const otherCommonNames = commonNames
+    .slice(1)
+    .filter((name, index, all) => all.indexOf(name) === index)
+  const curiosity = otherCommonNames.length > 0
+    ? `Also known as ${joinNaturally(otherCommonNames)}.`
+    : genus && genus.toLowerCase() !== commonName.toLowerCase()
+    ? `Part of the ${genus} genus.`
+    : `Identified via Pl@ntNet's visual match.`
 
   return {
     native_name: commonName,
@@ -206,7 +230,7 @@ const normalizePlantNet = (payload: Record<string, unknown>): Omit<NormalizedIde
     scientific_name: scientificName,
     family,
     origin_country: "Origin data not provided by Pl@ntNet",
-    curiosity: `Identified by Pl@ntNet backup with ${(score * 100).toFixed(1)}% confidence.`,
+    curiosity,
     confidence: score,
     phylum,
     sun_exposure: "",

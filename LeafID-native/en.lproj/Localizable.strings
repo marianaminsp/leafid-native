@@ -8,6 +8,8 @@
 /* Arboretum */
 "No geotagged specimens yet. Capture with location enabled to plant discoveries on the map." = "No geotagged specimens yet. Capture with location enabled to plant discoveries on the map.";
 "LeafID could not determine your location right now. Check permission access and try again." = "LeafID could not determine your location right now. Check permission access and try again.";
+"Taking root" = "Taking root";
+"Every place you've stood to look closer becomes a pin on this map. We're building it now — keep scanning, and it'll already be full the day it opens." = "Every place you've stood to look closer becomes a pin on this map. We're building it now — keep scanning, and it'll already be full the day it opens.";
 
 /* Profile */
 "Identify a plant and save it to your Herbarium — it will show up here." = "Identify a plant and save it to your Herbarium — it will show up here.";
@@ -198,3 +200,21 @@
 
 /* Profile defaults */
 "Botanical Enthusiast" = "Botanical Enthusiast";
+
+/* Onboarding */
+"You just noticed something." = "You just noticed something.";
+"Look closer at what it holds." = "Look closer at what it holds.";
+"The world expands when you uncover the history behind the green." = "The world expands when you uncover the history behind the green.";
+"Start with the leaf in front of you." = "Start with the leaf in front of you.";
+"Continue" = "Continue";
+"HOW IT WORKS" = "HOW IT WORKS";
+"Point. Capture. Reveal the depth." = "Point. Capture. Reveal the depth.";
+"The species, the family, the story most people walk past." = "The species, the family, the story most people walk past.";
+"YOUR HERBARIUM" = "YOUR HERBARIUM";
+"Treasure the moment, build your living archive." = "Treasure the moment, build your living archive.";
+"Every discovery adds another layer — yours to keep, yours to revisit." = "Every discovery adds another layer — yours to keep, yours to revisit.";
+"Next" = "Next";
+"THE PATH" = "THE PATH";
+"Wandering Seed to Archdruid." = "Wandering Seed to Archdruid.";
+"Stay curious, and even the forest starts to notice." = "Stay curious, and even the forest starts to notice.";
+"Not now" = "Not now";
