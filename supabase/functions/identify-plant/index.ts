@@ -16,6 +16,7 @@ type NormalizedIdentifyResult = {
   curiosity: string
   confidence: number
   fallback: boolean
+  quota_exceeded: boolean
   diagnostic_error: string | null
   diagnostic_code: string | null
   provider: ProviderName
@@ -49,6 +50,7 @@ const fallbackResponse = (diagnosticError?: string, diagnosticCode?: string, pro
   curiosity: "This specimen needs a clearer image for a confident field identification.",
   confidence: 0.2,
   fallback: true,
+  quota_exceeded: false,
   diagnostic_error: diagnosticError ?? null,
   diagnostic_code: diagnosticCode ?? null,
   provider: "none",
@@ -58,6 +60,47 @@ const fallbackResponse = (diagnosticError?: string, diagnosticCode?: string, pro
   sun_exposure: "",
   watering: "",
 })
+
+const quotaExceededResponse = (): NormalizedIdentifyResult => ({
+  ...fallbackResponse(
+    "You've used today's free identifications. Come back tomorrow for more.",
+    "daily_quota_exceeded"
+  ),
+  quota_exceeded: true,
+})
+
+// Runs as the calling user (their JWT, forwarded from the incoming request) so the DB function's
+// auth.uid() resolves correctly — never the service role, since this is meant to be attributable
+// to one user, not a privileged bypass. Fails OPEN (returns true) on any infra hiccup: a broken
+// quota check should never be the reason a user can't identify a plant, only a real, confirmed
+// "you've hit today's limit" should block the request. See ADR-0005.
+const checkDailyScanQuota = async (
+  authHeader: string | null,
+  supabaseUrl: string | undefined,
+  anonKey: string | undefined
+): Promise<boolean> => {
+  if (!authHeader || !supabaseUrl || !anonKey) return true
+  try {
+    const response = await fetch(`${supabaseUrl}/rest/v1/rpc/check_and_increment_daily_scan_quota`, {
+      method: "POST",
+      headers: {
+        apikey: anonKey,
+        Authorization: authHeader,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}),
+    })
+    if (!response.ok) {
+      console.error("[identify-plant] quota check HTTP", response.status, await response.text())
+      return true
+    }
+    const allowed = await response.json()
+    return allowed !== false
+  } catch (error) {
+    console.error("[identify-plant] quota check failed, failing open:", error)
+    return true
+  }
+}
 
 const toRecord = (v: unknown): Record<string, unknown> => {
   if (typeof v === "object" && v !== null && !Array.isArray(v)) return v as Record<string, unknown>
@@ -485,6 +528,19 @@ serve(async (req) => {
       throw new ProviderError("Missing provider keys: PLANTNET_API_KEY, GEMINI_API_KEY", "missing_all_provider_keys", false)
     }
 
+    // Checked before any provider call so a user over quota never costs a Pl@ntNet/Gemini request.
+    const quotaOk = await checkDailyScanQuota(
+      req.headers.get('Authorization'),
+      Deno.env.get('SUPABASE_URL'),
+      Deno.env.get('SUPABASE_ANON_KEY')
+    )
+    if (!quotaOk) {
+      return new Response(JSON.stringify(quotaExceededResponse()), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     const base64Data = image.includes(',') ? image.split(',')[1] : image
     const providerChain: string[] = []
     let lastTechnicalError = "No provider attempted"
@@ -534,6 +590,7 @@ serve(async (req) => {
           JSON.stringify({
             ...normalized,
             fallback: false,
+            quota_exceeded: false,
             diagnostic_error: null,
             diagnostic_code: null,
             provider: provider.name,

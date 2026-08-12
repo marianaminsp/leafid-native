@@ -38,6 +38,7 @@
 		A422C9AB84A647D29B6EA380 /* ScrollOffsetReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9A5725BCDFA6F0AAE53DF5F /* ScrollOffsetReader.swift */; };
 		E1A100000000000000000016 /* GlassStatTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000016 /* GlassStatTile.swift */; };
 		E1A100000000000000000017 /* ScanningLeafAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000017 /* ScanningLeafAnimationView.swift */; };
+		E1A100000000000000000041 /* LeafIDIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000041 /* LeafIDIcons.swift */; };
 		E1A100000000000000000018 /* DesignSystemGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000018 /* DesignSystemGalleryView.swift */; };
 		E1A100000000000000000019 /* IdentifyPreviewResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000019 /* IdentifyPreviewResult.swift */; };
 		E1A10000000000000000001B /* ScanResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000001B /* ScanResultsView.swift */; };
@@ -110,6 +111,7 @@
 		D9A5725BCDFA6F0AAE53DF5F /* ScrollOffsetReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollOffsetReader.swift; sourceTree = "<group>"; };
 		E1A200000000000000000016 /* GlassStatTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassStatTile.swift; sourceTree = "<group>"; };
 		E1A200000000000000000017 /* ScanningLeafAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanningLeafAnimationView.swift; sourceTree = "<group>"; };
+		E1A200000000000000000041 /* LeafIDIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeafIDIcons.swift; sourceTree = "<group>"; };
 		E1A200000000000000000018 /* DesignSystemGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystemGalleryView.swift; sourceTree = "<group>"; };
 		E1A200000000000000000019 /* IdentifyPreviewResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifyPreviewResult.swift; sourceTree = "<group>"; };
 		E1A20000000000000000001B /* ScanResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanResultsView.swift; sourceTree = "<group>"; };
@@ -357,6 +359,7 @@
 				D9A5725BCDFA6F0AAE53DF5F /* ScrollOffsetReader.swift */,
 				E1A200000000000000000016 /* GlassStatTile.swift */,
 				E1A200000000000000000017 /* ScanningLeafAnimationView.swift */,
+				E1A200000000000000000041 /* LeafIDIcons.swift */,
 				E1A20000000000000000001E /* GalleryScanButton.swift */,
 				E1A20000000000000000001F /* SecondaryActionButton.swift */,
 				E1A200000000000000000021 /* ModalCloseButton.swift */,
@@ -546,6 +549,7 @@
 				A422C9AB84A647D29B6EA380 /* ScrollOffsetReader.swift in Sources */,
 				E1A100000000000000000016 /* GlassStatTile.swift in Sources */,
 				E1A100000000000000000017 /* ScanningLeafAnimationView.swift in Sources */,
+				E1A100000000000000000041 /* LeafIDIcons.swift in Sources */,
 				E1A100000000000000000018 /* DesignSystemGalleryView.swift in Sources */,
 				E1A100000000000000000019 /* IdentifyPreviewResult.swift in Sources */,
 				E1A10000000000000000002B /* ScanSession.swift in Sources */,

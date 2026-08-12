@@ -209,6 +209,42 @@ struct DesignSystemGalleryView: View {
                         foundrySection("CTA LeafPrimaryButton with icon") {
                             LeafPrimaryButton(title: "Save to Herbarium", leadingSystemImage: "leaf.fill", action: {})
                         }
+
+                        foundrySection("Icons - LeafIDIcon family") {
+                            VStack(alignment: .leading, spacing: LeafIDTheme.space16) {
+                                Text("Filled, 36pt, with vein detail")
+                                    .font(LeafIDFont.manrope(size: 11, weight: .bold))
+                                    .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(alignment: .bottom, spacing: LeafIDTheme.space16) {
+                                        ForEach(LeafIDIcon.Kind.allCases, id: \.self) { kind in
+                                            LeafIDIcon(kind: kind, style: .filled, size: 36, showsVein: true, color: LeafIDTheme.primary)
+                                        }
+                                    }
+                                }
+
+                                Text("Outline, 36pt")
+                                    .font(LeafIDFont.manrope(size: 11, weight: .bold))
+                                    .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(alignment: .bottom, spacing: LeafIDTheme.space16) {
+                                        ForEach(LeafIDIcon.Kind.allCases, id: \.self) { kind in
+                                            LeafIDIcon(kind: kind, style: .outline, size: 36, color: LeafIDTheme.onSurfaceVariant)
+                                        }
+                                    }
+                                }
+
+                                Text("Tab-bar scale (20pt) and circle badge (32pt) — samara")
+                                    .font(LeafIDFont.manrope(size: 11, weight: .bold))
+                                    .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                                HStack(spacing: LeafIDTheme.space24) {
+                                    LeafIDIcon(kind: .samara, style: .outline, size: 20, color: LeafIDTheme.onSurfaceVariant)
+                                    LeafIDIcon(kind: .samara, style: .filled, size: 20, color: LeafIDTheme.primary)
+                                    LeafIDIcon(kind: .samara, style: .circleOutline, size: 32, color: LeafIDTheme.onSurfaceVariant)
+                                    LeafIDIcon(kind: .samara, style: .circleFilled, size: 32, color: LeafIDTheme.primary)
+                                }
+                            }
+                        }
                         }
                     }
                     .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)

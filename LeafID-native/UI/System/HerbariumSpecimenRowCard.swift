@@ -37,7 +37,7 @@ struct HerbariumSpecimenRowCard: View {
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(LeafIDTheme.outlineVariant.opacity(0.85))
         }
-        .padding(LeafIDTheme.space16)
+        .padding(LeafIDTheme.space12)
         .background(LeafIDTheme.surfaceContainerHigh)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.resultsSheetTop, style: .continuous))
         .overlay {

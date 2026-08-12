@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LeafID — Sizing &amp; Consistency Review</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+  --page-bg:#08090a; --panel-bg:#111312; --panel-border:#22251f;
+  --ink:#e9ece4; --ink-dim:#9a9d92; --accent:#93BC10;
+  --tag-blocker:#5a2323; --tag-blocker-fg:#ffb4b0;
+  --tag-high:#5a4318; --tag-high-fg:#f5c877;
+  --tag-medium:#3a3560; --tag-medium-fg:#c8c1ff;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--page-bg);color:var(--ink);font-family:var(--sans);}
+body{padding-bottom:80px;}
+a{color:var(--accent);}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:4px;font-size:.92em;}
+.wrap{max-width:1100px;margin:0 auto;padding:0 28px;}
+header.hero{padding:56px 0 32px;border-bottom:1px solid var(--panel-border);}
+header.hero h1{font-size:34px;margin:0 0 8px;letter-spacing:-0.02em;}
+header.hero p.lede{font-size:16px;color:var(--ink-dim);max-width:780px;line-height:1.55;margin:0 0 20px;}
+.methodology{margin-top:22px;padding:16px 18px;background:var(--panel-bg);border:1px solid var(--panel-border);border-left:3px solid var(--accent);border-radius:10px;font-size:13.5px;color:var(--ink-dim);line-height:1.6;}
+.methodology b{color:var(--ink);}
+nav.jump{position:sticky;top:0;z-index:50;background:color-mix(in srgb, var(--page-bg) 88%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--panel-border);}
+nav.jump .wrap{display:flex;gap:4px;overflow-x:auto;padding:12px 28px;align-items:center;}
+nav.jump a{white-space:nowrap;font-size:13px;color:var(--ink-dim);text-decoration:none;padding:8px 12px;border-radius:8px;font-weight:600;}
+nav.jump a:hover{color:var(--ink);background:var(--panel-bg);}
+
+section.feature{padding:48px 0 8px;}
+section.feature h2{font-size:24px;margin:0 0 6px;}
+section.feature > p.intro{color:var(--ink-dim);font-size:14px;margin:0 0 24px;max-width:780px;line-height:1.55;}
+h3.group{font-size:15px;margin:34px 0 4px;color:var(--ink);}
+p.group-note{margin:0 0 12px;font-size:12.5px;color:var(--ink-dim);max-width:780px;line-height:1.55;}
+
+.tag{font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:3px 10px;border-radius:6px;text-transform:uppercase;white-space:nowrap;}
+.tag-blocker{background:var(--tag-blocker);color:var(--tag-blocker-fg);}
+.tag-high{background:var(--tag-high);color:var(--tag-high-fg);}
+.tag-medium{background:var(--tag-medium);color:var(--tag-medium-fg);}
+.tag-resolved{background:#1e3a1e;color:#8fd68f;}
+.tag-note{background:#2a2f45;color:#a9b4e8;}
+.gap{border:1px solid var(--panel-border);background:var(--panel-bg);border-radius:12px;padding:16px 18px;margin-bottom:12px;}
+.gap .head{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.gap .head h4{margin:0;font-size:14.5px;}
+.gap p{margin:0 0 8px;font-size:13px;color:var(--ink);line-height:1.55;}
+.gap .consequence{font-size:12.5px;color:var(--ink-dim);line-height:1.5;padding:8px 12px;background:rgba(255,255,255,.03);border-radius:8px;border-left:2px solid var(--accent);}
+.gap .consequence b{color:var(--ink);}
+.gap .loc{font-family:ui-monospace,monospace;font-size:11px;color:var(--ink-dim);margin-top:6px;}
+
+.screen-state{display:inline-block;font-size:11px;font-weight:600;color:var(--ink-dim);background:var(--panel-bg);border:1px solid var(--panel-border);padding:2px 9px;border-radius:999px;margin-bottom:2px;}
+
+table.scale{width:100%;border-collapse:collapse;margin:16px 0 28px;font-size:12.5px;}
+table.scale th{text-align:left;color:var(--ink-dim);font-weight:600;padding:6px 10px;border-bottom:1px solid var(--panel-border);}
+table.scale td{padding:6px 10px;border-bottom:1px solid var(--panel-border);}
+table.scale td.pt{font-family:ui-monospace,monospace;color:var(--accent);}
+table.scale tr.outlier td.pt{color:#f5c877;}
+
+footer.summary{margin-top:70px;padding:36px 0;border-top:1px solid var(--panel-border);}
+.stat-row{display:flex;gap:32px;flex-wrap:wrap;}
+.stat{min-width:120px;}
+.stat b{display:block;font-size:26px;color:var(--accent);}
+.stat span{font-size:12px;color:var(--ink-dim);}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>LeafID — Sizing &amp; Consistency Review</h1>
+    <p class="lede">Every screen, read the way a platform design reviewer at Apple would read it: not "does this look nice" but "does this app agree with itself" — one type scale, one spacing rhythm, one corner-radius vocabulary, touch targets that meet the 44pt floor everywhere, not just where someone remembered.</p>
+    <div class="methodology">
+      <b>Method:</b> every literal <code>font(.system(size:))</code> / <code>plusJakarta(size:)</code> / <code>manrope(size:)</code> call site across <code>Views/</code> and <code>UI/System/</code> pulled and cross-referenced against the app's own defined scale (<code>LeafIDTypography.displayTitle</code> = 34, <code>LeafIDFont.boutiqueTitleSize</code> = 30, <code>.boutiqueSubtitleSize</code> = 16, <code>botanicalFrontEyebrowSize</code> = 10), plus corner-radius and horizontal-padding literals checked against <code>CornerRadius.card</code>/<code>.immersive</code> and <code>LeafIDTheme.screenHorizontalPadding</code>. Cross-checked against a live build in Simulator. Session date 2026-08-12.
+      <br><br>
+      This is a companion to <a href="ui-hig-liquid-glass-review.html">ui-hig-liquid-glass-review.html</a> (accessibility/HIG gaps) and <a href="icon-review.html">icon-review.html</a> (iconography) — this document is scoped to <b>numbers</b>: type scale, spacing, radius, touch targets.
+    </div>
+  </div>
+</header>
+
+<nav class="jump">
+  <div class="wrap">
+    <a href="#scale">The type scale</a>
+    <a href="#screens">Screen-by-screen</a>
+    <a href="#systemic">What's actually working</a>
+    <a href="#summary">Summary</a>
+  </div>
+</nav>
+
+<!-- ================= SCALE TABLE ================= -->
+<section class="feature" id="scale">
+  <div class="wrap">
+    <h2>The type scale, as it actually exists</h2>
+    <p class="intro">The app has a <em>de facto</em> hero-title scale — 34pt, used deliberately and consistently on Home, Herbarium, Druid, Arboretum, and this session's new Onboarding flow. Two screens break it in opposite directions without a stated reason.</p>
+
+    <table class="scale">
+      <tr><th>Size</th><th>Where</th><th>Role</th></tr>
+      <tr class="outlier"><td class="pt">46pt</td><td>LoginView — "Welcome Back"</td><td>Larger than the app's own biggest defined size. Nothing else in the app is this big.</td></tr>
+      <tr class="outlier"><td class="pt">44pt</td><td>BotanicalCardImmersiveView — front hero title</td><td>Also above the 34pt scale, but arguably earned (see below).</td></tr>
+      <tr><td class="pt">34pt</td><td>Home greeting, Herbarium/Druid expanded header, Arboretum title, Onboarding cover headlines</td><td>The app's real, consistently-applied hero scale (<code>LeafIDTypography.displayTitle</code>).</td></tr>
+      <tr><td class="pt">30pt</td><td>Paywall hero, ScanResultsView "Exploring Specimen…" state</td><td>Secondary-hero / celebratory-but-not-top-level scale (<code>LeafIDFont.boutiqueTitleSize</code>).</td></tr>
+      <tr><td class="pt">28pt</td><td>ScanResultsView — scientific name title</td><td>Slightly below 30, intentional-reading given how much else competes on that screen.</td></tr>
+      <tr><td class="pt">22pt</td><td>Herbarium/Druid <em>collapsed</em> header, sign-in screen (Onboarding) headline</td><td>The scale's "compressed" counterpart to 34pt.</td></tr>
+      <tr><td class="pt">16pt</td><td>Body copy app-wide</td><td>Standard body size (<code>boutiqueSubtitleSize</code>) — this one is genuinely consistent.</td></tr>
+      <tr class="outlier"><td class="pt">20pt</td><td>LoginView subtitle</td><td>Above the app's 16pt body standard — one more place Login invents its own scale.</td></tr>
+      <tr><td class="pt">10–11pt</td><td>Eyebrows/labels app-wide</td><td>Consistent (<code>botanicalFrontEyebrowSize</code> = 10).</td></tr>
+      <tr class="outlier"><td class="pt">9pt</td><td>ScanResultsView:438 — "NEW DISCOVERY" badge</td><td>Below the app's own 10pt label floor, and below general legibility guidance for anything a user needs to read.</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ================= SCREENS ================= -->
+<section class="feature" id="screens">
+  <div class="wrap">
+    <h2>Screen-by-screen</h2>
+
+    <h3 class="group">LoginView <span class="screen-state">fixed same session</span></h3>
+    <div class="gap">
+      <div class="head"><h4>Title and subtitle both exceeded every other screen's scale — this is why it read as "web, not app"</h4><span class="tag tag-resolved">Fixed</span></div>
+      <p><code>"Welcome Back"</code> was set at 46pt — larger than <code>LeafIDTypography.displayTitle</code> (34pt), the size every other screen in the app treats as its ceiling. The subtitle beneath it was 20pt against the app's standard 16pt body size. Neither number appeared anywhere else in the codebase.</p>
+      <div class="consequence"><b>Fixed:</b> title now uses <code>LeafIDFont.boutiqueTitleSize</code> (30pt, matching Paywall's hero scale), subtitle now <code>boutiqueSubtitleSize</code> (16pt). Also trimmed the surrounding vertical rhythm (28pt top padding → 20pt, 12pt internal spacing → 10pt) and the two text fields' vertical padding (16pt → 12pt) — the oversized rhythm was compounding the type-scale issue, not just the type itself.</div>
+      <div class="loc">LeafID_nativeApp.swift:785 (title), :790 (subtitle), AuthTextField/AuthSecureField</div>
+    </div>
+    <div class="gap">
+      <div class="head"><h4>The leading arrow on "Login" didn't mean anything</h4><span class="tag tag-resolved">Fixed</span></div>
+      <p>Every other primary action button in the app pairs its icon with what the action actually does — "Save to Herbarium" gets a leaf, "Scan another specimen" gets a viewfinder. "Login" had <code>arrow.right</code>, a generic "forward" glyph that didn't describe signing in any more than it described any other button in the app.</p>
+      <div class="consequence"><b>Fixed:</b> removed <code>leadingSystemImage: "arrow.right"</code> — the label "Login" already says what it does.</div>
+      <div class="loc">LeafID_nativeApp.swift:825</div>
+    </div>
+    <div class="gap">
+      <div class="head"><h4>68pt circular brand mark had no counterpart anywhere else</h4><span class="tag tag-resolved">Fixed</span></div>
+      <p>Home, Herbarium, Druid, and Arboretum all open straight into content — no "hero icon in a tinted circle" moment. Login's leaf-in-a-circle was a one-off piece of chrome that didn't recur, reading as imported rather than native to this app's visual language.</p>
+      <div class="consequence"><b>Fixed:</b> brought down to 48pt (icon 28pt → 20pt), closer to the Onboarding flow's 52pt fixed leaf mark — quiet, not a hero moment.</div>
+      <div class="loc">LeafID_nativeApp.swift:773-780</div>
+    </div>
+
+    <h3 class="group">Botanical Card <span class="screen-state">one deliberate exception, worth naming as one</span></h3>
+    <div class="gap">
+      <div class="head"><h4>Front hero title (44pt) is the other place that beats the 34pt ceiling — but this one's earned</h4><span class="tag tag-note">Context</span></div>
+      <p>Unlike Login, this is the actual payoff moment of the whole app — the full-bleed photo reveal after a successful scan. Going bigger than the standard hero scale here is a legitimate, deliberate choice a principal designer would sign off on. The problem is it's not <em>recorded</em> as one: it's a bare literal <code>size: 44</code> with no comment explaining it's an intentional exception, sitting in the same file as a dozen other literals that <em>aren't</em> deliberate.</p>
+      <div class="consequence"><b>Fix:</b> name it — a <code>LeafIDTypography.heroCelebration</code> token (or even just a one-line comment) turns "the one place we go bigger" into a documented rule instead of an unlabeled outlier indistinguishable from drift.</div>
+      <div class="loc">Views/Herbarium/BotanicalCardImmersiveView.swift:553</div>
+    </div>
+
+    <h3 class="group">Scan Results <span class="screen-state">dense screen, mostly fine, one real floor violation</span></h3>
+    <div class="gap">
+      <div class="head"><h4>"NEW DISCOVERY" badge sat below the app's own label floor</h4><span class="tag tag-resolved">Fixed</span></div>
+      <p>Every other eyebrow/label in the app (family names, "COLOUR SIGNATURE", onboarding eyebrows) sits at 10-11pt. This one badge was 9pt — smaller than anything else meant to be read, on a screen that <a href="ui-hig-liquid-glass-review.html">the companion HIG review</a> already flags as having zero Dynamic Type support.</p>
+      <div class="consequence"><b>Fixed:</b> brought to 10pt to match the rest of the app's label floor.</div>
+      <div class="loc">Views/Identify/ScanResultsView.swift:438</div>
+    </div>
+    <div class="gap">
+      <div class="head"><h4>Otherwise, this screen's smaller title (28pt vs. the 34pt standard) is the right call, not a bug</h4><span class="tag tag-resolved">Working as intended</span></div>
+      <p>This is the most content-dense screen in the app — badges, chips, description, two CTAs all competing for the same viewport. Stepping the title down one notch from the 34pt hero scale is a reasonable, proportionate response to that density, not an inconsistency to fix.</p>
+    </div>
+
+    <h3 class="group">Home, Herbarium, Druid, Arboretum, Onboarding <span class="screen-state">clean</span></h3>
+    <div class="gap">
+      <div class="head"><h4>All five agree with each other</h4><span class="tag tag-resolved">Clean</span></div>
+      <p>Headers on all five consistently use the 34pt/22pt expanded-collapsed pair (or plain 34pt where there's no collapsing header). Body copy is consistently 16pt. Screen-edge horizontal padding is consistently <code>LeafIDTheme.screenHorizontalPadding</code> (24pt) — only two stray literals found in the entire <code>Views/</code> + <code>UI/System/</code> tree, both in <code>BotanicalCardImmersiveView.swift</code>, both small/contextual exceptions rather than drift. This is the actual, working baseline the two outlier screens above should be brought back to.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= WHAT'S WORKING ================= -->
+<section class="feature" id="systemic">
+  <div class="wrap">
+    <h2>What's actually working — say it plainly, not just the gaps</h2>
+    <div class="gap">
+      <div class="head"><h4>Corner radius is disciplined</h4><span class="tag tag-resolved">Clean</span></div>
+      <p>Nearly everything routes through <code>CornerRadius.card</code> (32) or <code>.immersive</code> (48). Only two bare literal radii found in the whole tree — a 3pt radius on a thin progress-bar element and a 20pt radius on a small avatar-scale image in Druid — both proportionate to elements far smaller than a card, not evidence of a second competing radius system.</p>
+    </div>
+    <div class="gap">
+      <div class="head"><h4>Touch targets clear the 44pt floor everywhere checked</h4><span class="tag tag-resolved">Clean</span></div>
+      <p><code>LeafPrimaryButton</code>/<code>SecondaryActionButton</code> both use 16pt vertical padding around their label, landing comfortably above 44pt total height. The floating tab bar's buttons land around 56pt once icon, label, and the bar's own padding are summed. No shortfall found.</p>
+    </div>
+    <div class="gap">
+      <div class="head"><h4>The collapsing-header pattern (34→22pt) is now a real, working, shared idiom</h4><span class="tag tag-resolved">Clean</span></div>
+      <p>Druid and Herbarium both implement the identical shrink-and-fade behavior on scroll (fixed this session — see git history), and it's the same numbers in both places. Worth formally extracting into one shared component next time either screen is touched, so the idiom can't drift the way LoginView's type scale did.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="summary">
+  <div class="wrap">
+    <div class="stat-row">
+      <div class="stat"><b>2</b><span>screens breaking the 34pt hero ceiling (1 unearned, 1 earned-but-unlabeled)</span></div>
+      <div class="stat"><b>1</b><span>label below the app's own 10pt floor</span></div>
+      <div class="stat"><b>2</b><span>stray horizontal-padding literals in the entire Views/ tree</span></div>
+      <div class="stat"><b>0</b><span>touch-target shortfalls found</span></div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

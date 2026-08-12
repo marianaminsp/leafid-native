@@ -171,16 +171,19 @@ struct BotanicalCardImmersiveView: View {
             let desiredCardH = screenH * 0.92
             let maxCardH = geo.size.height - topPad - bottomGap
             let cardHeight = max(320, min(desiredCardH, maxCardH))
-            let bodyContentHeight = max(220, cardHeight - ImmersiveCardActionLayout.footerHeight)
 
             ZStack(alignment: .top) {
                 LeafIDTheme.surface.ignoresSafeArea()
 
                 ZStack {
+                    // Full cardHeight, not shortened by footerHeight: the photo/back content
+                    // needs to extend all the way behind the button footer, or that strip is
+                    // just flat background showing through — not gradient, no matter how the
+                    // gradient itself is tuned. The footer's own scrim (below) handles legibility.
                     CardBodyView(
                         scan: scan,
                         isFlipped: isFlipped,
-                        contentHeight: bodyContentHeight,
+                        contentHeight: cardHeight,
                         originPhotoLine: originLineForFront,
                         captureCoordinate: displayCaptureCoordinate,
                         paletteHexes: mergedPaletteHexes,
@@ -189,8 +192,7 @@ struct BotanicalCardImmersiveView: View {
                         ethnobotanyText: mergedEthnobotany,
                         culturalLegacyText: culturalLegacyDisplay.isEmpty ? mergedCulturalLegacy : culturalLegacyDisplay
                     )
-                    .frame(width: cardWidth, height: bodyContentHeight)
-                    .frame(width: cardWidth, height: cardHeight, alignment: .top)
+                    .frame(width: cardWidth, height: cardHeight)
                     .rotation3DEffect(
                         .degrees(isFlipped ? 180 : 0),
                         axis: (x: 0, y: 1, z: 0),
@@ -423,22 +425,23 @@ private struct CardShellView: View {
                 .allowsHitTesting(false)
 
             ZStack(alignment: .bottom) {
-                if isFlipped {
-                    LinearGradient(
-                        gradient: Gradient(stops: [
-                            .init(color: LeafIDTheme.surface.opacity(0.00), location: 0.00),
-                            .init(color: LeafIDTheme.surface.opacity(0.00), location: 0.58),
-                            .init(color: LeafIDTheme.surface.opacity(0.22), location: 0.78),
-                            .init(color: LeafIDTheme.surface.opacity(0.58), location: 0.90),
-                            .init(color: LeafIDTheme.surface.opacity(0.90), location: 1.00),
-                        ]),
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    .frame(maxWidth: .infinity)
-                    .frame(height: bottomScrimHeight)
-                    .allowsHitTesting(false)
-                }
+                // Always on now, not just `if isFlipped` — CardBodyView's content (photo or
+                // back) extends the full card height on both faces, so the footer buttons
+                // need this scrim for legibility regardless of which face is showing.
+                LinearGradient(
+                    gradient: Gradient(stops: [
+                        .init(color: LeafIDTheme.surface.opacity(0.00), location: 0.00),
+                        .init(color: LeafIDTheme.surface.opacity(0.00), location: 0.58),
+                        .init(color: LeafIDTheme.surface.opacity(0.22), location: 0.78),
+                        .init(color: LeafIDTheme.surface.opacity(0.58), location: 0.90),
+                        .init(color: LeafIDTheme.surface.opacity(0.90), location: 1.00),
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(maxWidth: .infinity)
+                .frame(height: bottomScrimHeight)
+                .allowsHitTesting(false)
 
                 HStack(spacing: LeafIDTheme.space16) {
                     Spacer(minLength: 0)
@@ -548,7 +551,7 @@ private struct CardFrontView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
                 .allowsHitTesting(false)
 
-                VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
+                VStack(alignment: .leading, spacing: LeafIDTheme.space8) {
                     Text(commonNameTitleCase)
                         .font(LeafIDFont.plusJakarta(size: 44, weight: .bold))
                         .foregroundStyle(LeafIDTheme.onSurface)
@@ -582,7 +585,10 @@ private struct CardFrontView: View {
                     }
                 }
                 .padding(.horizontal, 24)
-                .padding(.bottom, 110)
+                // Was a flat 110 magic number, un-tied to the footer it needs to clear — once
+                // CardBodyView started spanning the full card height, that stopped leaving
+                // reliable clearance and the GPS line ended up rendering behind the buttons.
+                .padding(.bottom, ImmersiveCardActionLayout.footerHeight + LeafIDTheme.space16)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
@@ -598,9 +604,9 @@ private struct CardBackView: View {
     let culturalLegacyText: String
     var body: some View {
         VStack(spacing: 0) {
-            HStack(alignment: .center, spacing: LeafIDTheme.space16) {
+            HStack(alignment: .center, spacing: LeafIDTheme.space12) {
                 ImmersiveSpecimenFill(scan: scan)
-                    .frame(width: 80, height: 80)
+                    .frame(width: 64, height: 64)
                     .clipShape(Circle())
                     .overlay {
                         Circle().strokeBorder(LeafIDTheme.outlineVariant.opacity(0.3), lineWidth: 1)
@@ -629,12 +635,14 @@ private struct CardBackView: View {
                 // so a long scientific name doesn't run underneath it.
                 .padding(.trailing, 28)
             }
-            .padding(.horizontal, LeafIDTheme.botanicalFrontOverlayPaddingH)
-            .padding(.top, LeafIDTheme.space24)
-            .padding(.bottom, LeafIDTheme.space16)
+            // botanicalFrontOverlayPaddingH (40) is tuned for the front's hero photo caption,
+            // not this dense info panel — was making every margin on the back needlessly wide.
+            .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
+            .padding(.top, LeafIDTheme.space16)
+            .padding(.bottom, LeafIDTheme.space12)
 
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: LeafIDTheme.space16) {
+                VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
                     colorSignatureSection
 
                     VStack(alignment: .leading, spacing: LeafIDTheme.space10) {
@@ -649,11 +657,11 @@ private struct CardBackView: View {
                             .foregroundStyle(LeafIDTheme.onSurface)
                             .lineSpacing(5)
                             .fixedSize(horizontal: false, vertical: true)
-                            .padding(LeafIDTheme.space16)
+                            .padding(LeafIDTheme.space12)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(
                                 RoundedRectangle(cornerRadius: CornerRadius.resultsSheetTop, style: .continuous)
-                                    .fill(LeafIDTheme.surfaceContainerHigh)
+                                    .fill(LeafIDTheme.surfaceContainerHighest)
                             )
                             .overlay {
                                 RoundedRectangle(cornerRadius: CornerRadius.resultsSheetTop, style: .continuous)
@@ -664,18 +672,20 @@ private struct CardBackView: View {
                     narrativeSection(title: "Ethnobotany", text: ethnobotanyText)
                     narrativeSection(title: "Cultural Legacy", text: culturalLegacyText)
                 }
-                .padding(.horizontal, LeafIDTheme.botanicalFrontOverlayPaddingH)
+                .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
                 .padding(.top, LeafIDTheme.space8)
-                .padding(.bottom, LeafIDTheme.space24)
+                // Must clear CardShellView's button footer, which overlays this ScrollView's
+                // full-height content — same fix, same reasoning as CardFrontView above.
+                .padding(.bottom, ImmersiveCardActionLayout.footerHeight + LeafIDTheme.space16)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .overlay(alignment: .bottom) {
                 LinearGradient(
                     gradient: Gradient(stops: [
-                        .init(color: LeafIDTheme.surfaceContainerLow.opacity(0.00), location: 0.00),
-                        .init(color: LeafIDTheme.surfaceContainerLow.opacity(0.00), location: 0.45),
-                        .init(color: LeafIDTheme.surfaceContainerLow.opacity(0.42), location: 0.78),
-                        .init(color: LeafIDTheme.surfaceContainerLow.opacity(0.92), location: 1.00),
+                        .init(color: LeafIDTheme.surfaceContainerHigh.opacity(0.00), location: 0.00),
+                        .init(color: LeafIDTheme.surfaceContainerHigh.opacity(0.00), location: 0.45),
+                        .init(color: LeafIDTheme.surfaceContainerHigh.opacity(0.42), location: 0.78),
+                        .init(color: LeafIDTheme.surfaceContainerHigh.opacity(0.92), location: 1.00),
                     ]),
                     startPoint: .top,
                     endPoint: .bottom
@@ -686,7 +696,9 @@ private struct CardBackView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(LeafIDTheme.surfaceContainerLow)
+        // surfaceContainerLow (0x10150C) reads as barely-there against the app's base surface
+        // (0x0B0F08) — same fix as Home's cards earlier this session.
+        .background(LeafIDTheme.surfaceContainerHigh)
     }
 
     private var colorSignatureSection: some View {
@@ -731,11 +743,11 @@ private struct CardBackView: View {
                 .lineSpacing(5)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(LeafIDTheme.space16)
+        .padding(LeafIDTheme.space12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: CornerRadius.resultsSheetTop, style: .continuous)
-                .fill(LeafIDTheme.surfaceContainerHigh)
+                .fill(LeafIDTheme.surfaceContainerHighest)
         )
         .overlay {
             RoundedRectangle(cornerRadius: CornerRadius.resultsSheetTop, style: .continuous)

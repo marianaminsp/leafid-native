@@ -16,6 +16,9 @@ struct LeafPrimaryButton: View {
     var isEnabled: Bool = true
     /// When `true`, uses solid `LeafIDTheme.primary` (e.g. scan results) instead of the leaf/deep gradient.
     var useSolidPrimaryFill: Bool = false
+    /// For a secondary CTA living inside a card (e.g. Druid's "Unlock more"), not a full-screen
+    /// primary action — smaller text and padding so it doesn't compete with the card it's in.
+    var compact: Bool = false
     let action: () -> Void
 
     @State private var pressed = false
@@ -30,15 +33,15 @@ struct LeafPrimaryButton: View {
             HStack(spacing: LeafIDTheme.space12) {
                 if let leadingSystemImage {
                     Image(systemName: leadingSystemImage)
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.system(size: compact ? 15 : 18, weight: .semibold))
                 }
                 Text(title)
-                    .font(LeafIDFont.plusJakarta(size: 17, weight: .bold))
+                    .font(LeafIDFont.plusJakarta(size: compact ? 15 : 17, weight: .bold))
                     .tracking(0.4)
             }
             .foregroundStyle(useSolidPrimaryFill ? LeafIDTheme.onPrimary : LeafIDTheme.chromeHighlight)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, LeafIDTheme.space16)
+            .padding(.vertical, compact ? LeafIDTheme.space10 : LeafIDTheme.space16)
                 .background(
                     RoundedRectangle(cornerRadius: LeafIDTheme.radiusPrimaryButton, style: .continuous)
                         .fill(buttonFill)

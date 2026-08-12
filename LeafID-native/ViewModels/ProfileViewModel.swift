@@ -109,6 +109,12 @@ final class ProfileViewModel: ObservableObject {
         let f = DateFormatter()
         f.dateStyle = .medium
         f.timeStyle = .none
+        // Match the app's resolved bundle language rather than the system Locale.current,
+        // which can diverge from it (see Scan.foundRelativePhrase for the mixed-language bug
+        // this exact mismatch caused elsewhere).
+        if let preferred = Bundle.main.preferredLocalizations.first {
+            f.locale = Locale(identifier: preferred)
+        }
         return f
     }()
 

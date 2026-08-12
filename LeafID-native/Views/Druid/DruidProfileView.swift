@@ -153,7 +153,7 @@ struct DruidProfileView: View {
                 .foregroundStyle(LeafIDTheme.slateMuted)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(LeafIDTheme.space20)
+        .padding(LeafIDTheme.space14)
         .liquidGlass()
     }
 
@@ -188,19 +188,21 @@ struct DruidProfileView: View {
             Text(viewModel.isPremium ? String(localized: "Premium unlocked. You can scan without limits.") : String(localized: "You have 3 free scans. Unlock more to keep exploring."))
                 .font(LeafIDFont.manrope(size: 12, weight: .medium))
                 .foregroundStyle(LeafIDTheme.slateMuted)
-            LeafPrimaryButton(title: String(localized: "Unlock more"), useSolidPrimaryFill: true) {
+            LeafPrimaryButton(title: String(localized: "Unlock more"), useSolidPrimaryFill: true, compact: true) {
                 showPaywall = true
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(LeafIDTheme.space20)
+        .padding(LeafIDTheme.space14)
         .liquidGlass()
     }
 
     private var achievementsRow: some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
+            // Section label within a scrolling list, not a screen title — was set at the
+            // same 30pt scale as a top-level heading despite the role being closer to a subtitle.
             Text(String(localized: "Achievements"))
-                .font(LeafIDFont.plusJakarta(size: 30, weight: .bold))
+                .font(LeafIDFont.plusJakarta(size: 20, weight: .bold))
                 .foregroundStyle(LeafIDTheme.onSurface)
 
             let columns = [GridItem(.flexible(), spacing: LeafIDTheme.space12), GridItem(.flexible(), spacing: LeafIDTheme.space12)]
@@ -226,8 +228,8 @@ struct DruidProfileView: View {
                             .font(LeafIDFont.manrope(size: 14, weight: .medium))
                             .foregroundStyle(LeafIDTheme.slateMuted)
                     }
-                    .frame(maxWidth: .infinity, minHeight: 126, alignment: .topLeading)
-                    .padding(LeafIDTheme.space16)
+                    .frame(maxWidth: .infinity, minHeight: 110, alignment: .topLeading)
+                    .padding(LeafIDTheme.space12)
                     .background(LeafIDTheme.surfaceContainerHigh)
                     .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                     .opacity(unlocked ? 1 : 0.8)
@@ -254,12 +256,12 @@ struct DruidProfileView: View {
                 .font(LeafIDFont.manrope(size: 14, weight: .medium))
                 .foregroundStyle(LeafIDTheme.slateMuted)
                 .lineSpacing(4)
-            LeafPrimaryButton(title: String(localized: "Buy me a coffee"), useSolidPrimaryFill: true) {
+            LeafPrimaryButton(title: String(localized: "Buy me a coffee"), useSolidPrimaryFill: true, compact: true) {
                 showPaywall = true
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(LeafIDTheme.space20)
+        .padding(LeafIDTheme.space14)
         .liquidGlass()
     }
 

@@ -435,7 +435,7 @@ struct ScanResultsView: View {
             HStack(alignment: .center, spacing: LeafIDTheme.space12) {
                 if result.isNewDiscovery {
                     Text(String(localized: "NEW DISCOVERY"))
-                        .font(LeafIDFont.manrope(size: 9, weight: .bold))
+                        .font(LeafIDFont.manrope(size: 10, weight: .bold))
                         .tracking(2.2)
                         .foregroundStyle(LeafIDTheme.onPrimary)
                         .padding(.horizontal, LeafIDTheme.space10)

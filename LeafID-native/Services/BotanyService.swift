@@ -23,6 +23,7 @@ enum BotanyServiceError: Error, LocalizedError {
     case emptyImagePayload
     case identifyFailed(String)
     case invalidResponse
+    case dailyQuotaExceeded
 
     var errorDescription: String? {
         switch self {
@@ -32,6 +33,8 @@ enum BotanyServiceError: Error, LocalizedError {
             return detail
         case .invalidResponse:
             return String(localized: "Couldn’t read the identification response. Try again.")
+        case .dailyQuotaExceeded:
+            return String(localized: "You’ve used today’s free identifications. Come back tomorrow for more.")
         }
     }
 }
@@ -77,6 +80,7 @@ private struct IdentifyPlantJSON: Decodable {
     let curiosity: String?
     let confidence: Double?
     let fallback: Bool?
+    let quota_exceeded: Bool?
     let diagnostic_error: String?
     let diagnostic_code: String?
     let provider: String?
@@ -100,8 +104,14 @@ private struct GeminiNarrative: Decodable {
 
 enum BotanyService {
     private static let unknownOriginFallback = "Origin unavailable"
-    private static let identifyCacheKey = "leafid.identify.cache.v1"
+    // Bumped v1 -> v2: entries cached under v1 could never expire (see identifyCacheMaxAgeSeconds
+    // below, added at the same time) and were masking identify-plant backend fixes indefinitely -
+    // e.g. re-scanning a previously-seen photo kept returning the pre-fix Pl@ntNet fallback copy
+    // even after the edge function itself was corrected and redeployed. The version bump clears
+    // every entry saved before this fix once, for everyone.
+    private static let identifyCacheKey = "leafid.identify.cache.v2"
     private static let identifyCacheMaxEntries = 160
+    private static let identifyCacheMaxAgeSeconds: TimeInterval = 7 * 24 * 60 * 60
     private static let perceptualMatchMaxHammingDistance = 6
 
     /// `true` when the app POSTs to your Supabase `identify-plant` function (that function uses Plant.id on the server). `false` = demo-only results, no network identify.
@@ -173,7 +183,7 @@ enum BotanyService {
     }
 
     /// POST to `identify-plant` when `SUPABASE_URL` + `SUPABASE_ANON_KEY` are set in Info.plist (via xcconfig); otherwise mock.
-    static func identifyPlantWithAI(imageBase64: String, captureJPEGData: Data? = nil) async throws -> IdentifyPreviewResult {
+    static func identifyPlantWithAI(imageBase64: String, captureJPEGData: Data? = nil, accessToken: String? = nil) async throws -> IdentifyPreviewResult {
         let payload: (base64: String, paletteData: Data?)
         do {
             payload = try prepareIdentifyImagePayload(imageBase64: imageBase64, captureJPEGData: captureJPEGData)
@@ -224,7 +234,9 @@ enum BotanyService {
         var request = URLRequest(url: endpoint)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(anon)", forHTTPHeaderField: "Authorization")
+        // The user's own JWT (not the anon key) so the server-side daily scan quota can attribute
+        // this call to `auth.uid()` — falls back to anon only if somehow called while signed out.
+        request.setValue("Bearer \(accessToken ?? anon)", forHTTPHeaderField: "Authorization")
         request.setValue(anon, forHTTPHeaderField: "apikey")
         request.httpBody = try JSONSerialization.data(withJSONObject: ["image": payload.base64])
 
@@ -254,6 +266,10 @@ enum BotanyService {
             print("[LeafID] identify-plant decode error: \(error). Body: \(String(data: data, encoding: .utf8) ?? "")")
             #endif
             throw BotanyServiceError.identifyFailed("Invalid identify response (HTTP \(http.statusCode))")
+        }
+
+        if decoded.quota_exceeded == true {
+            throw BotanyServiceError.dailyQuotaExceeded
         }
 
         let common = decoded.common_name?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
@@ -874,7 +890,11 @@ enum BotanyService {
               let queryPHash = perceptualHashHex(for: imageData)
         else { return nil }
         let queryExact = exactHashHex(for: imageData)
-        let entries = loadIdentifyCacheEntries()
+        let now = Date().timeIntervalSince1970
+        // Entries never used to expire, so a cached response could outlive whatever backend
+        // fix should have superseded it. A week balances real cost-saving (the common case:
+        // re-viewing/re-saving the same recent scan) against not hiding fixes indefinitely.
+        let entries = loadIdentifyCacheEntries().filter { now - $0.savedAtEpoch <= identifyCacheMaxAgeSeconds }
 
         if let queryExact {
             if let exactHit = entries.first(where: { $0.exactHash == queryExact }) {

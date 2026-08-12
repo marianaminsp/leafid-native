@@ -156,6 +156,68 @@ private struct ScannerLaserSweep: View {
     }
 }
 
+// MARK: - Reveal sweep (analyze screen only — one deliberate pass, not a bouncing laser)
+
+private struct ScannerRevealSweep: View {
+    var finderWidth: CGFloat
+    var finderHeight: CGFloat
+    var isRunning: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private static func smoothstep(_ x: Double) -> Double {
+        let t = min(1, max(0, x))
+        return t * t * (3 - 2 * t)
+    }
+
+    /// Full loop: travel down (0...travelFraction), then hold before repeating — a single
+    /// "reading" pass, not a laser bouncing back and forth.
+    private static let cycle: TimeInterval = 3.6
+    private static let travelFraction = 0.45
+    private static let bandHeight: CGFloat = 46
+
+    var body: some View {
+        Group {
+            if isRunning && !reduceMotion {
+                TimelineView(.animation(minimumInterval: 1 / 60, paused: false)) { context in
+                    let t = context.date.timeIntervalSinceReferenceDate
+                    let phase = (t.truncatingRemainder(dividingBy: Self.cycle)) / Self.cycle
+                    let travelPhase = min(1, phase / Self.travelFraction)
+                    let eased = Self.smoothstep(travelPhase)
+
+                    // Trail holds through the pass, then fades out over the next quarter-cycle.
+                    let fadePhase = min(1, max(0, (phase - Self.travelFraction) / 0.25))
+                    let trailOpacity = phase < Self.travelFraction ? 0.9 : 0.9 * (1 - fadePhase)
+
+                    ZStack(alignment: .top) {
+                        LinearGradient(
+                            colors: [ScannerVisual.accentPrimary.opacity(0.16), .clear],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .frame(width: finderWidth, height: finderHeight * CGFloat(eased))
+                        .opacity(trailOpacity)
+
+                        LinearGradient(
+                            stops: [
+                                .init(color: ScannerVisual.accentPrimary.opacity(0), location: 0),
+                                .init(color: ScannerVisual.accentPrimary.opacity(0.85), location: 0.5),
+                                .init(color: ScannerVisual.accentPrimary.opacity(0), location: 1),
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .frame(width: finderWidth, height: Self.bandHeight)
+                        .blur(radius: 2)
+                        .shadow(color: ScannerVisual.accentPrimary.opacity(0.6), radius: 10, y: 0)
+                        .offset(y: -Self.bandHeight + CGFloat(eased) * (finderHeight + Self.bandHeight))
+                    }
+                    .frame(width: finderWidth, height: finderHeight, alignment: .top)
+                }
+            }
+        }
+    }
+}
+
 // MARK: - Even-odd dim (full outer rect + single rounded hole, eoFill)
 
 private struct CinematicViewfinderDimShape: Shape {
@@ -484,10 +546,11 @@ private struct ScannerAnalyzeView: View {
     var onClose: () -> Void
     var onComplete: (IdentifyPreviewResult, Data) -> Void
 
+    @EnvironmentObject private var authViewModel: AuthViewModel
+
     @State private var failedMessage: String?
     @State private var analysisRunId = UUID()
     @State private var isAnalyzing = true
-    @State private var densityProgress: Double = 0
 
     private var scanningChromeActive: Bool {
         failedMessage == nil && isAnalyzing
@@ -496,10 +559,11 @@ private struct ScannerAnalyzeView: View {
     var body: some View {
         GeometryReader { geo in
             let fullH = ScannerChrome.fullViewportHeight(geo)
-            let densityBlock: CGFloat = 44
+            // No more bottom chrome to clear now that the progress bar is gone — the cutout
+            // can use that space instead of reserving room for something no longer there.
             let layout = ScannerChrome.holeLayout(
                 in: geo,
-                bottomReserved: geo.safeAreaInsets.bottom + LeafIDTheme.space16 + densityBlock + LeafIDTheme.space12
+                bottomReserved: geo.safeAreaInsets.bottom + LeafIDTheme.space24
             )
 
             ZStack {
@@ -518,13 +582,26 @@ private struct ScannerAnalyzeView: View {
                 LeafIDTheme.surface
                 #endif
 
+                // Laser off here — ScannerRevealSweep below replaces it for this screen with
+                // one deliberate top-to-bottom pass instead of a bouncing beam.
                 ScannerChrome.cutoutLayers(
                     geo: geo,
                     fullViewportHeight: fullH,
                     layout: layout,
-                    showLaser: scanningChromeActive
+                    showLaser: false
                 )
                 .zIndex(1)
+
+                ScannerRevealSweep(
+                    finderWidth: layout.finderW,
+                    finderHeight: layout.finderH,
+                    isRunning: scanningChromeActive
+                )
+                .frame(width: layout.finderW, height: layout.finderH)
+                .position(x: geo.size.width * 0.5, y: layout.holeTop + layout.finderH * 0.5)
+                .clipShape(RoundedRectangle(cornerRadius: ScannerChrome.cutoutCornerRadius, style: .continuous))
+                .allowsHitTesting(false)
+                .zIndex(2)
 
                 VStack(spacing: 0) {
                     HStack(alignment: .center, spacing: 0) {
@@ -545,10 +622,6 @@ private struct ScannerAnalyzeView: View {
                     .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
 
                     Spacer(minLength: 0)
-
-                    ScanningDensityProgress(progress: densityProgress, style: .scannerOverlay)
-                        .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
-                        .padding(.bottom, max(geo.safeAreaInsets.bottom, LeafIDTheme.space12))
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .zIndex(4)
@@ -572,42 +645,29 @@ private struct ScannerAnalyzeView: View {
     private func runIdentify() async {
         await MainActor.run {
             isAnalyzing = true
-            densityProgress = 0
         }
 
         let requestStart = Date()
-        // A fast API response would otherwise cut the ease-out progress animation short,
-        // snapping it to complete almost instantly — enforce a floor so it always plays out.
-        let minimumAnalyzingDuration: TimeInterval = 1.8
-
-        let progressTask = Task { @MainActor in
-            while !Task.isCancelled {
-                let elapsed = Date().timeIntervalSince(requestStart)
-                let eased = 1 - exp(-elapsed / 7)
-                densityProgress = min(0.94, eased * 0.94)
-                try? await Task.sleep(nanoseconds: 50_000_000)
-            }
-        }
+        // A fast API response would otherwise cut the reveal-sweep effect short, ending the
+        // moment almost instantly — enforce a floor so it always plays out and actually reads.
+        let minimumAnalyzingDuration: TimeInterval = 2.6
 
         do {
-            let result = try await BotanyService.identifyPlantWithAI(imageBase64: "", captureJPEGData: jpeg)
+            let result = try await BotanyService.identifyPlantWithAI(
+                imageBase64: "",
+                captureJPEGData: jpeg,
+                accessToken: authViewModel.supabaseAccessToken
+            )
             let elapsed = Date().timeIntervalSince(requestStart)
             if elapsed < minimumAnalyzingDuration {
                 try? await Task.sleep(nanoseconds: UInt64((minimumAnalyzingDuration - elapsed) * 1_000_000_000))
             }
-            progressTask.cancel()
-            await MainActor.run {
-                withAnimation(.easeOut(duration: 0.38)) {
-                    densityProgress = 1
-                }
-            }
-            try await Task.sleep(nanoseconds: 550_000_000)
+            try await Task.sleep(nanoseconds: 700_000_000)
             await MainActor.run {
                 isAnalyzing = false
                 onComplete(result, jpeg)
             }
         } catch {
-            progressTask.cancel()
             #if canImport(UIKit)
             await MainActor.run {
                 UINotificationFeedbackGenerator().notificationOccurred(.error)

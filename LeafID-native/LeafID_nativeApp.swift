@@ -477,6 +477,9 @@ final class AuthViewModel: ObservableObject {
         guard let http = response as? HTTPURLResponse, (200 ... 299).contains(http.statusCode) else {
             throw AuthError.requestFailed
         }
+        #if DEBUG
+        NSLog("[LeafID] /auth/v1/user raw response: %@", String(data: data, encoding: .utf8) ?? "<undecodable>")
+        #endif
         return try JSONDecoder().decode(AuthUser.self, from: data)
     }
 
@@ -771,27 +774,29 @@ struct LoginView: View {
             .ignoresSafeArea()
 
             ScrollView(showsIndicators: false) {
-                VStack(spacing: LeafIDTheme.space24) {
-                    VStack(spacing: LeafIDTheme.space12) {
+                VStack(spacing: LeafIDTheme.space20) {
+                    VStack(spacing: LeafIDTheme.space10) {
                         Circle()
                             .fill(LeafIDTheme.primary.opacity(0.2))
-                            .frame(width: 68, height: 68)
+                            .frame(width: 48, height: 48)
                             .overlay {
                                 Image(systemName: "leaf.fill")
-                                    .font(.system(size: 28, weight: .semibold))
+                                    .font(.system(size: 20, weight: .semibold))
                                     .foregroundStyle(LeafIDTheme.primary)
                             }
+                        // Matches Paywall's hero scale — LeafIDTypography.displayTitle (34pt) is
+                        // this app's ceiling everywhere else; this screen shouldn't invent a bigger one.
                         Text(isSignUpMode ? String(localized: "Join LeafID") : String(localized: "Welcome Back"))
-                            .font(LeafIDFont.plusJakarta(size: 46, weight: .bold))
+                            .font(LeafIDFont.plusJakarta(size: LeafIDFont.boutiqueTitleSize, weight: .bold))
                             .minimumScaleFactor(0.7)
                             .lineLimit(1)
                             .foregroundStyle(LeafIDTheme.onSurface)
                         Text(isSignUpMode ? String(localized: "Create an account to save your journey") : String(localized: "Sign in to continue your journey"))
-                            .font(LeafIDFont.manrope(size: 20, weight: .medium))
+                            .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
                             .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                             .multilineTextAlignment(.center)
                     }
-                    .padding(.top, LeafIDTheme.space28)
+                    .padding(.top, LeafIDTheme.space20)
 
                     VStack(alignment: .leading, spacing: LeafIDTheme.space16) {
                         AuthFieldLabel(String(localized: "EMAIL ADDRESS"))
@@ -822,7 +827,6 @@ struct LoginView: View {
 
                         LeafPrimaryButton(
                             title: primaryEmailButtonTitle,
-                            leadingSystemImage: "arrow.right",
                             isEnabled: !authViewModel.isAuthenticatingEmail,
                             useSolidPrimaryFill: true
                         ) {
@@ -1062,14 +1066,14 @@ private struct AuthTextField: View {
     var body: some View {
         HStack(spacing: LeafIDTheme.space12) {
             Image(systemName: systemImage)
-                .font(.system(size: 17, weight: .semibold))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(LeafIDTheme.onSurfaceVariant)
             TextField(placeholder, text: $text)
-                .font(LeafIDFont.manrope(size: 17, weight: .medium))
+                .font(LeafIDFont.manrope(size: 16, weight: .medium))
                 .foregroundStyle(LeafIDTheme.onSurface)
         }
         .padding(.horizontal, LeafIDTheme.space16)
-        .padding(.vertical, LeafIDTheme.space16)
+        .padding(.vertical, LeafIDTheme.space12)
         .background(LeafIDTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: LeafIDTheme.radiusPrimaryButton, style: .continuous))
         .overlay {
@@ -1087,7 +1091,7 @@ private struct AuthSecureField: View {
     var body: some View {
         HStack(spacing: LeafIDTheme.space12) {
             Image(systemName: "lock.fill")
-                .font(.system(size: 17, weight: .semibold))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(LeafIDTheme.onSurfaceVariant)
 
             Group {
@@ -1097,20 +1101,20 @@ private struct AuthSecureField: View {
                     SecureField(placeholder, text: $text)
                 }
             }
-            .font(LeafIDFont.manrope(size: 17, weight: .medium))
+            .font(LeafIDFont.manrope(size: 16, weight: .medium))
             .foregroundStyle(LeafIDTheme.onSurface)
 
             Button {
                 showPassword.toggle()
             } label: {
                 Image(systemName: showPassword ? "eye.slash.fill" : "eye.fill")
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(LeafIDTheme.onSurfaceVariant)
             }
             .buttonStyle(.plain)
         }
         .padding(.horizontal, LeafIDTheme.space16)
-        .padding(.vertical, LeafIDTheme.space16)
+        .padding(.vertical, LeafIDTheme.space12)
         .background(LeafIDTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: LeafIDTheme.radiusPrimaryButton, style: .continuous))
         .overlay {

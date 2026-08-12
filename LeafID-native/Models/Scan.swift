@@ -166,6 +166,13 @@ extension Scan {
         guard let createdAt else { return String(localized: "Found recently") }
         let f = RelativeDateTimeFormatter()
         f.unitsStyle = .full
+        // RelativeDateTimeFormatter defaults to `Locale.current` (system region/locale),
+        // which can diverge from the language `String(localized:)` actually resolves to
+        // (Bundle.main's preferred localization) — that mismatch is what produced
+        // mixed-language output like "Found hace 1 hora". Force both onto the same language.
+        if let preferred = Bundle.main.preferredLocalizations.first {
+            f.locale = Locale(identifier: preferred)
+        }
         return "\(String(localized: "Found")) \(f.localizedString(for: createdAt, relativeTo: reference))"
     }
 
