@@ -1,0 +1,1568 @@
+<title>LeafID Icon Review</title>
+<style>
+  :root {
+    --bg: #F6F8F0;
+    --surface: #FFFFFF;
+    --surface-alt: #EEF3E4;
+    --border: #DCE4CC;
+    --ink: #16210F;
+    --ink-muted: #57654C;
+    --ink-faint: #8B9880;
+    --accent: #5E7A0E;
+    --accent-strong: #3E5308;
+    --accent-soft-bg: #E7EFD3;
+    --accent-soft-border: #C9D9A8;
+    --warn-ink: #8A5510;
+    --warn-bg: #FBEAC9;
+    --warn-border: #ECCB8D;
+    --swatch-alt-bg: #FFFDF6;
+    --font-display: -apple-system, "SF Pro Display", "SF Pro Text", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0B0F08;
+      --surface: #10150C;
+      --surface-alt: #1C2116;
+      --border: #2C3324;
+      --ink: #F2F5E7;
+      --ink-muted: #A9ADA0;
+      --ink-faint: #6C7263;
+      --accent: #93BC10;
+      --accent-strong: #ADDB2A;
+      --accent-soft-bg: #22281C;
+      --accent-soft-border: #3A4429;
+      --warn-ink: #F5A623;
+      --warn-bg: #2B2313;
+      --warn-border: #4A3A16;
+      --swatch-alt-bg: #171C10;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0B0F08;
+    --surface: #10150C;
+    --surface-alt: #1C2116;
+    --border: #2C3324;
+    --ink: #F2F5E7;
+    --ink-muted: #A9ADA0;
+    --ink-faint: #6C7263;
+    --accent: #93BC10;
+    --accent-strong: #ADDB2A;
+    --accent-soft-bg: #22281C;
+    --accent-soft-border: #3A4429;
+    --warn-ink: #F5A623;
+    --warn-bg: #2B2313;
+    --warn-border: #4A3A16;
+    --swatch-alt-bg: #171C10;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-display);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+  }
+
+  header.top {
+    margin-bottom: 40px;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 10px;
+  }
+
+  h1 {
+    font-size: 34px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0 0 14px;
+    text-wrap: balance;
+    font-weight: 700;
+  }
+
+  .lede {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink-muted);
+    max-width: 62ch;
+    margin: 0 0 28px;
+  }
+
+  .disclaimer {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink-faint);
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    max-width: 62ch;
+  }
+
+  .disclaimer code { font-family: var(--font-mono); font-size: 12px; }
+
+  .stats {
+    display: flex;
+    gap: 12px;
+    margin: 28px 0 0;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    min-width: 108px;
+  }
+
+  .stat b {
+    font-size: 22px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  .stat span {
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+
+  .stat.flag b { color: var(--warn-ink); }
+  .stat.alt b { color: var(--accent); }
+
+  .section {
+    margin-top: 48px;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+    margin-bottom: 4px;
+  }
+
+  .section-head h2 {
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0;
+  }
+
+  .section-head p {
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin: 0;
+    font-family: var(--font-mono);
+    text-align: right;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) auto;
+    gap: 20px;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .row:last-child { border-bottom: none; }
+
+  .row-label-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .usage {
+    font-size: 14.5px;
+    font-weight: 600;
+  }
+
+  .badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .badge-flag {
+    color: var(--warn-ink);
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+  }
+
+  .badge-alt {
+    color: var(--accent-strong);
+    background: var(--accent-soft-bg);
+    border: 1px solid var(--accent-soft-border);
+  }
+
+  .row-note {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--ink-muted);
+    margin: 6px 0 0;
+    max-width: 44ch;
+  }
+
+  .row-tiles {
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .variant-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .col-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-faint);
+  }
+
+  .variants {
+    display: flex;
+    gap: 8px;
+  }
+
+  .variant {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 76px;
+  }
+
+  .swatch-static {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--ink);
+  }
+
+  .swatch-alt {
+    background: var(--swatch-alt-bg);
+    border-color: var(--accent-soft-border);
+    color: var(--accent-strong);
+  }
+
+  .row-flag .swatch-alt {
+    border-color: var(--warn-border);
+    color: var(--warn-ink);
+  }
+
+  .ico {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .sym {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    color: var(--ink-faint);
+    text-align: center;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+
+  footer.end {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px;
+    color: var(--ink-faint);
+  }
+
+  @media (max-width: 620px) {
+    .row { grid-template-columns: 1fr; }
+    .row-tiles { justify-content: flex-start; }
+  }
+</style>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><svg
+  class="lucide lucide-home"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+  <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></symbol>
+<symbol id="i-map" viewBox="0 0 24 24"><svg
+  class="lucide lucide-map"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" />
+  <path d="M15 5.764v15" />
+  <path d="M9 3.236v15" /></symbol>
+<symbol id="i-leaf" viewBox="0 0 24 24"><svg
+  class="lucide lucide-leaf"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" /></symbol>
+<symbol id="i-circle-user" viewBox="0 0 24 24"><svg
+  class="lucide lucide-circle-user"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <circle cx="12" cy="12" r="10" />
+  <circle cx="12" cy="10" r="3" />
+  <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662" /></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24"><svg
+  class="lucide lucide-mail"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
+  <rect x="2" y="4" width="20" height="16" rx="2" /></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><svg
+  class="lucide lucide-lock"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+  <path d="M7 11V7a5 5 0 0 1 10 0v4" /></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><svg
+  class="lucide lucide-eye"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+  <circle cx="12" cy="12" r="3" /></symbol>
+<symbol id="i-eye-off" viewBox="0 0 24 24"><svg
+  class="lucide lucide-eye-off"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
+  <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
+  <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" />
+  <path d="m2 2 20 20" /></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><svg
+  class="lucide lucide-x"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M18 6 6 18" />
+  <path d="m6 6 12 12" /></symbol>
+<symbol id="i-chevron-left" viewBox="0 0 24 24"><svg
+  class="lucide lucide-chevron-left"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m15 18-6-6 6-6" /></symbol>
+<symbol id="i-chevron-right" viewBox="0 0 24 24"><svg
+  class="lucide lucide-chevron-right"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m9 18 6-6-6-6" /></symbol>
+<symbol id="i-share" viewBox="0 0 24 24"><svg
+  class="lucide lucide-share"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12 2v13" />
+  <path d="m16 6-4-4-4 4" />
+  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /></symbol>
+<symbol id="i-arrow-up-right" viewBox="0 0 24 24"><svg
+  class="lucide lucide-arrow-up-right"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M7 7h10v10" />
+  <path d="M7 17 17 7" /></symbol>
+<symbol id="i-circle-arrow-right" viewBox="0 0 24 24"><svg
+  class="lucide lucide-circle-arrow-right"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <circle cx="12" cy="12" r="10" />
+  <path d="m12 16 4-4-4-4" />
+  <path d="M8 12h8" /></symbol>
+<symbol id="i-refresh-cw" viewBox="0 0 24 24"><svg
+  class="lucide lucide-refresh-cw"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+  <path d="M21 3v5h-5" />
+  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+  <path d="M8 16H3v5" /></symbol>
+<symbol id="i-circle-check" viewBox="0 0 24 24"><svg
+  class="lucide lucide-circle-check"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <circle cx="12" cy="12" r="10" />
+  <path d="m9 12 2 2 4-4" /></symbol>
+<symbol id="i-triangle-alert" viewBox="0 0 24 24"><svg
+  class="lucide lucide-triangle-alert"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+  <path d="M12 9v4" />
+  <path d="M12 17h.01" /></symbol>
+<symbol id="i-scan" viewBox="0 0 24 24"><svg
+  class="lucide lucide-scan"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+  <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+  <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+  <path d="M7 21H5a2 2 0 0 1-2-2v-2" /></symbol>
+<symbol id="i-map-pin" viewBox="0 0 24 24"><svg
+  class="lucide lucide-map-pin"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+  <circle cx="12" cy="10" r="3" /></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><svg
+  class="lucide lucide-sun"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <circle cx="12" cy="12" r="4" />
+  <path d="M12 2v2" />
+  <path d="M12 20v2" />
+  <path d="m4.93 4.93 1.41 1.41" />
+  <path d="m17.66 17.66 1.41 1.41" />
+  <path d="M2 12h2" />
+  <path d="M20 12h2" />
+  <path d="m6.34 17.66-1.41 1.41" />
+  <path d="m19.07 4.93-1.41 1.41" /></symbol>
+<symbol id="i-droplet" viewBox="0 0 24 24"><svg
+  class="lucide lucide-droplet"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" /></symbol>
+<symbol id="i-locate-fixed" viewBox="0 0 24 24"><svg
+  class="lucide lucide-locate-fixed"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <line x1="2" x2="5" y1="12" y2="12" />
+  <line x1="19" x2="22" y1="12" y2="12" />
+  <line x1="12" x2="12" y1="2" y2="5" />
+  <line x1="12" x2="12" y1="19" y2="22" />
+  <circle cx="12" cy="12" r="7" />
+  <circle cx="12" cy="12" r="3" /></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><svg
+  class="lucide lucide-plus"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M5 12h14" />
+  <path d="M12 5v14" /></symbol>
+<symbol id="i-minus" viewBox="0 0 24 24"><svg
+  class="lucide lucide-minus"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M5 12h14" /></symbol>
+<symbol id="i-zap" viewBox="0 0 24 24"><svg
+  class="lucide lucide-zap"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z" /></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><svg
+  class="lucide lucide-globe"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <circle cx="12" cy="12" r="10" />
+  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+  <path d="M2 12h20" /></symbol>
+<symbol id="i-library" viewBox="0 0 24 24"><svg
+  class="lucide lucide-library"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m16 6 4 14" />
+  <path d="M12 6v14" />
+  <path d="M8 8v12" />
+  <path d="M4 4v16" /></symbol>
+<symbol id="i-grid-2x2" viewBox="0 0 24 24"><svg
+  class="lucide lucide-grid-2x2"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12 3v18" />
+  <path d="M3 12h18" />
+  <rect x="3" y="3" width="18" height="18" rx="2" /></symbol>
+<symbol id="i-archive" viewBox="0 0 24 24"><svg
+  class="lucide lucide-archive"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <rect width="20" height="5" x="2" y="3" rx="1" />
+  <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
+  <path d="M10 12h4" /></symbol>
+<symbol id="i-flame" viewBox="0 0 24 24"><svg
+  class="lucide lucide-flame"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4" /></symbol>
+<symbol id="i-file-text" viewBox="0 0 24 24"><svg
+  class="lucide lucide-file-text"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" />
+  <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+  <path d="M10 9H8" />
+  <path d="M16 13H8" />
+  <path d="M16 17H8" /></symbol>
+<symbol id="i-stethoscope" viewBox="0 0 24 24"><svg
+  class="lucide lucide-stethoscope"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M11 2v2" />
+  <path d="M5 2v2" />
+  <path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1" />
+  <path d="M8 15a6 6 0 0 0 12 0v-3" />
+  <circle cx="20" cy="10" r="2" /></symbol>
+<symbol id="i-briefcase-medical" viewBox="0 0 24 24"><svg
+  class="lucide lucide-briefcase-medical"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12 11v4" />
+  <path d="M14 13h-4" />
+  <path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+  <path d="M18 6v14" />
+  <path d="M6 6v14" />
+  <rect width="20" height="14" x="2" y="6" rx="2" /></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><svg
+  class="lucide lucide-book"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" /></symbol>
+  </defs>
+</svg>
+
+<div class="page">
+  <header class="top">
+    <p class="eyebrow">LeafID · design review</p>
+    <h1>Every icon in the app, current vs. alternative</h1>
+    <p class="lede">41 SF Symbols currently in use across LeafID, grouped by where they appear. Two are flagged as worth reconsidering; four more have a plausible alternative if you want to tighten things further.</p>
+    <p class="disclaimer">Apple's SF Symbols font can't be embedded on a web page, so the shapes below are open-source stand-ins (<a href="https://lucide.dev" style="color:inherit">Lucide</a>, ISC-licensed) chosen to match each symbol's silhouette as closely as possible — not Apple's exact artwork. Every <code>current</code> icon shown is confirmed live in the codebase; the real SF Symbol renders natively once you build.</p>
+    <div class="stats">
+      <div class="stat"><b>41</b><span>icons in use</span></div>
+      <div class="stat flag"><b>2</b><span>reconsider</span></div>
+      <div class="stat alt"><b>4</b><span>alt available</span></div>
+      <div class="stat"><b>35</b><span>no change</span></div>
+    </div>
+  </header>
+
+  <section class="section">
+  <div class="section-head">
+    <h2>Tab bar</h2>
+    <p>MainTabView.swift — primary navigation, unselected → selected state</p>
+  </div>
+  <div class="rows">
+    <div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Home</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-home"/></svg></span>
+  <code class="sym">house</code>
+</div><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-home"/></svg></span>
+  <code class="sym">house.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-alt">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Arboretum</span>
+      <span class="badge badge-alt">Alternative available</span>
+    </div>
+    <p class="row-note">Leans “explore” over “navigate” — optional, not a correctness issue.</p>
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-map"/></svg></span>
+  <code class="sym">map</code>
+</div><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-map"/></svg></span>
+  <code class="sym">map.fill</code>
+</div></div></div><div class="variant-group"><span class="col-label">Alternative</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static swatch-alt"><svg class="ico" aria-hidden="true"><use href="#i-globe"/></svg></span>
+  <code class="sym">globe.americas</code>
+</div><div class="variant">
+  <span class="swatch swatch-static swatch-alt"><svg class="ico" aria-hidden="true"><use href="#i-globe"/></svg></span>
+  <code class="sym">globe.americas.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-alt">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Herbarium</span>
+      <span class="badge badge-alt">Alternative available</span>
+    </div>
+    <p class="row-note">A herbarium is literally a specimen book — may read clearer than reusing “leaf.”</p>
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-leaf"/></svg></span>
+  <code class="sym">leaf</code>
+</div><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-leaf"/></svg></span>
+  <code class="sym">leaf.fill</code>
+</div></div></div><div class="variant-group"><span class="col-label">Alternative</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static swatch-alt"><svg class="ico" aria-hidden="true"><use href="#i-book"/></svg></span>
+  <code class="sym">book.closed</code>
+</div><div class="variant">
+  <span class="swatch swatch-static swatch-alt"><svg class="ico" aria-hidden="true"><use href="#i-book"/></svg></span>
+  <code class="sym">book.closed.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Druid</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-circle-user"/></svg></span>
+  <code class="sym">person.crop.circle</code>
+</div><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-circle-user"/></svg></span>
+  <code class="sym">person.crop.circle.fill</code>
+</div></div></div>
+  </div>
+</div>
+  </div>
+</section>
+<section class="section">
+  <div class="section-head">
+    <h2>Auth</h2>
+    <p>LeafID_nativeApp.swift — sign in / sign up</p>
+  </div>
+  <div class="rows">
+    <div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Branding header</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-leaf"/></svg></span>
+  <code class="sym">leaf.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Email field</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-mail"/></svg></span>
+  <code class="sym">envelope.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Password field</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-lock"/></svg></span>
+  <code class="sym">lock.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Show / hide password</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-eye"/></svg></span>
+  <code class="sym">eye.fill</code>
+</div><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-eye-off"/></svg></span>
+  <code class="sym">eye.slash.fill</code>
+</div></div></div>
+  </div>
+</div>
+  </div>
+</section>
+<section class="section">
+  <div class="section-head">
+    <h2>Buttons &amp; chrome</h2>
+    <p>UI/System/*.swift — shared components reused across screens</p>
+  </div>
+  <div class="rows">
+    <div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Modal / scanner close</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></span>
+  <code class="sym">xmark</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Back navigation</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-chevron-left"/></svg></span>
+  <code class="sym">chevron.left</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Disclosure (specimen cards)</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-chevron-right"/></svg></span>
+  <code class="sym">chevron.right</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Share</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-share"/></svg></span>
+  <code class="sym">square.and.arrow.up</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-alt">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">“View detail” on specimen cards</span>
+      <span class="badge badge-alt">Alternative available</span>
+    </div>
+    <p class="row-note">Would match the disclosure chevrons used everywhere else in the same list.</p>
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></span>
+  <code class="sym">arrow.up.forward.circle.fill</code>
+</div></div></div><div class="variant-group"><span class="col-label">Alternative</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static swatch-alt"><svg class="ico" aria-hidden="true"><use href="#i-chevron-right"/></svg></span>
+  <code class="sym">chevron.right</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-flag">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Flip botanical card (front ↔ back)</span>
+      <span class="badge badge-flag">Reconsider</span>
+    </div>
+    <p class="row-note">“Go forward” doesn’t match the action — this button flips the card in place.</p>
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-circle-arrow-right"/></svg></span>
+  <code class="sym">arrow.right.circle</code>
+</div></div></div><div class="variant-group"><span class="col-label">Alternative</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static swatch-alt"><svg class="ico" aria-hidden="true"><use href="#i-refresh-cw"/></svg></span>
+  <code class="sym">arrow.triangle.2.circlepath</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Toast: success</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-circle-check"/></svg></span>
+  <code class="sym">checkmark.circle.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Toast + scanner: error</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-triangle-alert"/></svg></span>
+  <code class="sym">exclamationmark.triangle.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Scan button</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg></span>
+  <code class="sym">camera.viewfinder</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Scanning pulse · map pin · phylum chip</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-leaf"/></svg></span>
+  <code class="sym">leaf.circle.fill</code>
+</div></div></div>
+  </div>
+</div>
+  </div>
+</section>
+<section class="section">
+  <div class="section-head">
+    <h2>Scan results</h2>
+    <p>ScanResultsView.swift — identification detail sheet</p>
+  </div>
+  <div class="rows">
+    <div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Location metadata</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-map-pin"/></svg></span>
+  <code class="sym">mappin.and.ellipse</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Sun exposure chip</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-sun"/></svg></span>
+  <code class="sym">sun.max.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Watering chip</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-droplet"/></svg></span>
+  <code class="sym">drop.fill</code>
+</div></div></div>
+  </div>
+</div>
+  </div>
+</section>
+<section class="section">
+  <div class="section-head">
+    <h2>Arboretum</h2>
+    <p>ArboretumView.swift · ArboretumComingSoonView.swift</p>
+  </div>
+  <div class="rows">
+    <div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Empty / coming-soon state</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-map"/></svg></span>
+  <code class="sym">map</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Map zoom controls</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg></span>
+  <code class="sym">plus</code>
+</div><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-minus"/></svg></span>
+  <code class="sym">minus</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Recenter on user location</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-locate-fixed"/></svg></span>
+  <code class="sym">location.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-alt">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Map pin marker</span>
+      <span class="badge badge-alt">Alternative available</span>
+    </div>
+    <p class="row-note">A conventional pin silhouette reads faster on a map than a leaf glyph.</p>
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-leaf"/></svg></span>
+  <code class="sym">leaf.circle.fill</code>
+</div></div></div><div class="variant-group"><span class="col-label">Alternative</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static swatch-alt"><svg class="ico" aria-hidden="true"><use href="#i-map-pin"/></svg></span>
+  <code class="sym">mappin.circle.fill</code>
+</div></div></div>
+  </div>
+</div>
+  </div>
+</section>
+<section class="section">
+  <div class="section-head">
+    <h2>Druid profile &amp; achievements</h2>
+    <p>DruidProfileView.swift · Services/Achievements.swift</p>
+  </div>
+  <div class="rows">
+    <div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Profile header</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-leaf"/></svg></span>
+  <code class="sym">leaf.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">XP / streak indicator</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-zap"/></svg></span>
+  <code class="sym">bolt.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Locale / region setting</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-globe"/></svg></span>
+  <code class="sym">globe</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Achievement: unlocked</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-circle-check"/></svg></span>
+  <code class="sym">checkmark.circle.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Achievement: locked</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-lock"/></svg></span>
+  <code class="sym">lock.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Achievement: first scan</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-home"/></svg></span>
+  <code class="sym">house.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Achievement: herbarium collection</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-library"/></svg></span>
+  <code class="sym">books.vertical.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Achievement: identify milestone</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-leaf"/></svg></span>
+  <code class="sym">leaf.circle.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Achievement: collection complete</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-grid-2x2"/></svg></span>
+  <code class="sym">square.grid.2x2.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Achievement: world explorer</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-globe"/></svg></span>
+  <code class="sym">globe.americas.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Achievement: archive</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-archive"/></svg></span>
+  <code class="sym">archivebox.fill</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Achievement: scanner</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg></span>
+  <code class="sym">camera.viewfinder</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Achievement: streak</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-flame"/></svg></span>
+  <code class="sym">flame.fill</code>
+</div></div></div>
+  </div>
+</div>
+  </div>
+</section>
+<section class="section">
+  <div class="section-head">
+    <h2>Paywall</h2>
+    <p>PaywallView.swift — benefit rows</p>
+  </div>
+  <div class="rows">
+    <div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Benefit: unlimited scans</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-scan"/></svg></span>
+  <code class="sym">camera.viewfinder</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-flag">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Benefit: plant health</span>
+      <span class="badge badge-flag">Reconsider</span>
+    </div>
+    <p class="row-note">“Stethoscope” reads as diagnosis; a first-aid case reads as injury/emergency.</p>
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-briefcase-medical"/></svg></span>
+  <code class="sym">cross.case.fill</code>
+</div></div></div><div class="variant-group"><span class="col-label">Alternative</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static swatch-alt"><svg class="ico" aria-hidden="true"><use href="#i-stethoscope"/></svg></span>
+  <code class="sym">stethoscope</code>
+</div></div></div>
+  </div>
+</div>
+<div class="row row-none">
+  <div class="row-label">
+    <div class="row-label-top">
+      <span class="usage">Benefit: PDF export</span>
+      
+    </div>
+    
+  </div>
+  <div class="row-tiles">
+    <div class="variant-group"><span class="col-label">Current</span><div class="variants"><div class="variant">
+  <span class="swatch swatch-static"><svg class="ico" aria-hidden="true"><use href="#i-file-text"/></svg></span>
+  <code class="sym">doc.richtext.fill</code>
+</div></div></div>
+  </div>
+</div>
+  </div>
+</section>
+
+  <footer class="end">
+    Generated from a live grep of <code style="font-family: var(--font-mono)">Image(systemName:</code> across the Swift source — every row traces back to an actual call site, not a guess.
+  </footer>
+</div>
