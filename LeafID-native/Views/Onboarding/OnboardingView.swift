@@ -100,7 +100,7 @@ private struct OnboardingCoverScreen: View {
                 .overlay {
                     LeafIDIcon(kind: .icon3_3, style: .filled, size: 80, color: LeafIDTheme.primary)
                 }
-                .padding(.top, 12)
+                .padding(.top, 15)
                 .padding(.bottom, 24)
 
             ZStack(alignment: .topLeading) {
