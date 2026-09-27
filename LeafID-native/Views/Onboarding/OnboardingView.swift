@@ -94,10 +94,6 @@ private struct OnboardingCoverScreen: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            LeafIDIcon(kind: .icon2_0, style: .outline, size: 20, weight: 2.5, color: LeafIDTheme.primary)
-                .padding(.top, 0)
-                .padding(.bottom, 20)
-
             ZStack(alignment: .topLeading) {
                 coverLine(0, headline: String(localized: "You just noticed something."))
                 coverLine(1, headline: String(localized: "Look closer at what it holds."))
@@ -198,30 +194,21 @@ private struct OnboardingBeatScreen: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .top, spacing: 20) {
-                VStack(alignment: .leading, spacing: 0) {
-                    OnboardingEyebrow(eyebrow)
-                        .padding(.top, 50)
-                        .offset(y: showContent ? 0 : -8)
-                        .opacity(showContent ? 1 : 0)
-                    LeafIDTypography.displayTitle(headline)
-                        .padding(.top, 20)
-                        .offset(y: showContent ? 0 : 8)
-                        .opacity(showContent ? 1 : 0)
-                    Text(bodyText)
-                        .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
-                        .foregroundStyle(LeafIDTheme.onSurfaceVariant)
-                        .padding(.top, 20)
-                        .offset(y: showContent ? 0 : 12)
-                        .opacity(showContent ? 1 : 0)
-                }
-                VStack(alignment: .center) {
-                    let heroIcon: LeafIDIcon.Kind = pageIndex == 1 ? .icon2_2 : .icon3_14
-                    LeafIDIcon(kind: heroIcon, style: .filled, size: pageIndex == 1 ? 48 : 56, color: LeafIDTheme.primary)
-                        .opacity(showContent ? 1 : 0)
-                        .scaleEffect(showContent ? 1 : 0.8)
-                    Spacer()
-                }
+            VStack(alignment: .leading, spacing: 0) {
+                OnboardingEyebrow(eyebrow)
+                    .padding(.top, 50)
+                    .offset(y: showContent ? 0 : -8)
+                    .opacity(showContent ? 1 : 0)
+                LeafIDTypography.displayTitle(headline)
+                    .padding(.top, 20)
+                    .offset(y: showContent ? 0 : 8)
+                    .opacity(showContent ? 1 : 0)
+                Text(bodyText)
+                    .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
+                    .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                    .padding(.top, 20)
+                    .offset(y: showContent ? 0 : 12)
+                    .opacity(showContent ? 1 : 0)
             }
 
             Spacer(minLength: LeafIDTheme.space32)
@@ -258,21 +245,15 @@ private struct OnboardingSignInScreen: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .top, spacing: 20) {
-                VStack(alignment: .leading, spacing: 0) {
-                    OnboardingEyebrow(String(localized: "THE PATH"))
-                        .padding(.top, 50)
-                    LeafIDTypography.displayTitle(String(localized: "Wandering Seed to Archdruid."))
-                        .padding(.top, 20)
-                    Text(String(localized: "Stay curious, and even the forest starts to notice."))
-                        .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
-                        .foregroundStyle(LeafIDTheme.onSurfaceVariant)
-                        .padding(.top, 20)
-                }
-                VStack(alignment: .center) {
-                    LeafIDIcon(kind: .icon2_3, style: .filled, size: 48, color: LeafIDTheme.primary.opacity(0.6))
-                    Spacer()
-                }
+            VStack(alignment: .leading, spacing: 0) {
+                OnboardingEyebrow(String(localized: "THE PATH"))
+                    .padding(.top, 50)
+                LeafIDTypography.displayTitle(String(localized: "Wandering Seed to Archdruid."))
+                    .padding(.top, 20)
+                Text(String(localized: "Stay curious, and even the forest starts to notice."))
+                    .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
+                    .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                    .padding(.top, 20)
             }
 
             Spacer(minLength: LeafIDTheme.space32)
