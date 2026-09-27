@@ -139,10 +139,16 @@ private struct OnboardingCoverScreen: View {
     private func coverLine(_ index: Int, headline: String, bodyText: String? = nil) -> some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
             if index == 2 {
-                Text(attributedHeadline())
+                (Text("The world expands when you uncover the deep behind the ")
                     .font(LeafIDFont.plusJakarta(size: 32, weight: .bold))
                     .tracking(-0.01)
-                    .foregroundColor(LeafIDTheme.onSurface)
+                + Text("green")
+                    .font(LeafIDFont.plusJakarta(size: 32, weight: .bold).italic())
+                    .tracking(-0.01)
+                + Text(".")
+                    .font(LeafIDFont.plusJakarta(size: 32, weight: .bold))
+                    .tracking(-0.01))
+                .foregroundColor(LeafIDTheme.onSurface)
             } else {
                 LeafIDTypography.displayTitle(headline)
             }
@@ -154,26 +160,6 @@ private struct OnboardingCoverScreen: View {
         }
         .opacity(beat == index ? 1 : 0)
         .offset(y: beat == index ? 0 : (beat > index ? -8 : 8))
-    }
-
-    private func attributedHeadline() -> AttributedString {
-        let fullText = "The world expands when you uncover the deep behind the green."
-        var result = AttributedString(fullText)
-
-        if let range = result.range(of: "green") {
-            var attrs = AttributeContainer()
-            attrs.font = LeafIDFont.plusJakarta(size: 32, weight: .bold).italic()
-            result[range].mergeAttributes(attrs, mergePolicy: .keepNew)
-        }
-
-        // Apply base attributes to all text
-        var baseAttrs = AttributeContainer()
-        baseAttrs.font = LeafIDFont.plusJakarta(size: 32, weight: .bold)
-        if result.font == nil {
-            result.font = LeafIDFont.plusJakarta(size: 32, weight: .bold)
-        }
-
-        return result
     }
 
     private func runSequence() async {
