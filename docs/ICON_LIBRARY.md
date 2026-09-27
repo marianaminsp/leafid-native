@@ -15,24 +15,38 @@ Custom-designed botanical icon library extracted from vector source files. All i
 ### Leaf Family (6 icons)
 Primary leaf forms used across navigation and UI.
 
-| Icon ID | Name | Use Case | Notes |
-|---------|------|----------|-------|
-| `icon2_0` | Maple Leaf | Primary, high detail | 5-pointed, complex vein structure |
-| `icon2_1` | Oak Leaf | Simple, versatile | Curved edges, iconic silhouette |
-| `icon2_2` | Samara | Winged seed | Seed-pod form |
-| `icon2_3` | Aloe | Succulent variant | Thick, structured leaves |
-| `icon2_4` | Monstera | Perforated leaf | Modern botanical |
-| `icon2_5` | Ivy | Trailing vine | Natural, organic |
+| Icon ID | Name | Use Case | Notes | Selected |
+|---------|------|----------|-------|----------|
+| `icon2_0` ⭐ | Maple Leaf | Primary, high detail | 5-pointed, complex vein structure | ✅ Onboarding |
+| `icon2_1` ⭐ | Oak Leaf | Simple, versatile | Curved edges, iconic silhouette | ✅ Onboarding |
+| `icon2_2` ⭐ | Samara | Winged seed | Seed-pod form | ✅ Onboarding |
+| `icon2_3` ⭐ | Aloe | Succulent variant | Thick, structured leaves | ✅ Onboarding |
+| `icon2_4` | Monstera | Perforated leaf | Modern botanical | — |
+| `icon2_5` | Ivy | Trailing vine | Natural, organic | — |
 
 ### Maple & Samara Grid (25 icons)
 Comprehensive maple poses, compound-leaf arrangements, seed clusters, buds, and seasonal variations.
 
-| Icon ID | Name | Category | Notes |
-|---------|------|----------|-------|
-| `icon3_0` to `icon3_18` | Maple variations | Poses/gestures | Multiple orientations, dynamic angles |
-| (Various) | Ash-compound leaves | Structural | Natural branching |
-| (Various) | Samara clusters | Seeds/flora | Organic scattering |
-| (Various) | Buds & stems | Details | Spring/growth theme |
+| Icon ID | Name | Category | Notes | Selected |
+|---------|------|----------|-------|----------|
+| `icon3_0` ⭐ | Maple variation | Poses/gestures | Multiple orientations, dynamic angles | ✅ Onboarding |
+| `icon3_1` to `icon3_2` | Maple variations | Poses | Additional orientations | — |
+| `icon3_3` ⭐ | Maple variation | Poses | Dynamic angle | ✅ Onboarding |
+| `icon3_4` to `icon3_13` | Grid variations | Mixed | Compounds, clusters, details | — |
+| `icon3_14` ⭐ | Samara/seed cluster | Seeds/flora | Organic arrangement | ✅ Onboarding |
+| `icon3_15` to `icon3_18` | Additional variations | Mixed | Fine details, buds | — |
+
+### Other Categories (Traced Variants & Details)
+Complex botanical forms traced from reference art.
+
+| Icon ID | Name | Category | Selected |
+|---------|------|----------|----------|
+| `icon_7` ⭐ | — | Traced variant | ✅ Onboarding |
+| `icon_11` ⭐ | — | Complex form | ✅ Onboarding |
+| `icon_12` ⭐ | — | Botanical detail | ✅ Onboarding |
+| `icon_19` ⭐ | — | Traced variant | ✅ Onboarding |
+| `icon_28` ⭐ | — | Complex detail | ✅ Onboarding |
+| `icon_29` ⭐ | — | Botanical form | ✅ Onboarding |
 
 **Traced from Reference Art** (using potrace): These icons maintain original aspect ratios and are not square like hand-authored glyphs.
 
@@ -44,13 +58,24 @@ Comprehensive maple poses, compound-leaf arrangements, seed clusters, buds, and 
 - Icon design & extraction (66 total)
 - Gallery documentation
 - Integration planning
+- **Icon selection for onboarding** (13 icons tagged)
 
-### ⏳ Ready to Wire Up
-- [ ] Herbarium tab icon
-- [ ] Home screen leaf icon
-- [ ] Arboretum tab icon
-- [ ] Card flip/interaction icon
-- [ ] Additional decorative/contextual icons
+### ⏳ In Progress: Onboarding Integration
+**Selected icons (13 total):**
+- Leaf Family: `icon2_0`, `icon2_1`, `icon2_2`, `icon2_3`
+- Maple Grid: `icon3_0`, `icon3_3`, `icon3_14`
+- Other: `icon_7`, `icon_11`, `icon_12`, `icon_19`, `icon_28`, `icon_29`
+
+**Integration path**: OnboardingView screens (cover, beats 1-3, sign-in)
+
+### ⏹️ Deferred: Main App Navigation
+Keeping current SF Symbols in:
+- Herbarium tab (`"leaf.fill"`)
+- Home screen (`"leaf.fill"`)
+- Arboretum tab (`"map"`)
+- Card flip (`"arrow.triangle.2.circlepath"`)
+
+*Decision: Keep familiar app icons; enhance onboarding with botanical richness*
 
 ### Not Yet Designed
 - Utility icons (xmark, chevron, share) — use SF Symbols (user expectation)
@@ -59,21 +84,39 @@ Comprehensive maple poses, compound-leaf arrangements, seed clusters, buds, and 
 
 ---
 
-## Recommended Replacements
+## Onboarding Icon Usage (Selected)
 
-Priority order for integration (visual impact first):
+**13 hand-picked icons** to enrich onboarding flow and immerse users in LeafID's botanical identity.
 
-### 🔴 HIGH IMPACT (Featured Navigation)
-1. **Herbarium Tab** → Leaf Family icon (likely `icon2_0` or `icon2_1`)
-2. **Home Screen Hero** → Leaf Family icon (likely `icon2_1` or `icon2_0`)
+### Leaf Family (4 selected)
+- `icon2_0` — Maple Leaf (high detail, complexity)
+- `icon2_1` — Oak Leaf (simple, iconic)
+- `icon2_2` — Samara (seed/discovery theme)
+- `icon2_3` — Aloe (succulent, structure)
 
-### 🟡 MEDIUM IMPACT (Navigation Tabs)
-3. **Arboretum Tab** → Tree/plant variation (from Maple Grid)
-4. **Card Flip Button** → Samara/seed icon (from Leaf Family or Grid)
+**Onboarding placement ideas:**
+- Cover screen (Screen 1): Rotate through Leaf Family variants
+- "How It Works" (Screen 2): Feature one iconic leaf
+- "Your Herbarium" (Screen 3): Showcase samara/seed theme
+- Sign-in (Screen 4): Display structured form (aloe)
 
-### ⚪ LOW IMPACT (Decorative)
-5. **Background accents** → Traced leaf sprays (complex detail)
-6. **Botanical variety** → Mixed icons for contextual richness
+### Maple & Samara Grid (3 selected)
+- `icon3_0` — Maple variation (organic, flowing)
+- `icon3_3` — Maple variation (dynamic angle)
+- `icon3_14` — Samara/seed cluster (organic arrangement)
+
+**Placement:** Accent elements, transitions, decorative backgrounds
+
+### Other Traced Variants (6 selected)
+- `icon_7`, `icon_11`, `icon_12`, `icon_19`, `icon_28`, `icon_29`
+
+**Placement:** Fine details, corner accents, botanical richness in backgrounds
+
+### Design Approach
+- **Rotate through 2-3 variants** on each screen to show botanical diversity
+- **Use as decorative accents** (corners, transitions) to reinforce brand
+- **Size range**: 16-48pt depending on context
+- **Color**: Primary green (#93BC10) with occasional opacity variations
 
 ---
 
