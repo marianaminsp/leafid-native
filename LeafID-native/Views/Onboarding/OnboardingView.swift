@@ -94,7 +94,7 @@ private struct OnboardingCoverScreen: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            LeafIDIcon(kind: .icon2_0, style: .filled, size: 80, color: LeafIDTheme.primary)
+            LeafIDIcon(kind: .icon2_0, style: .outline, size: 80, weight: 2.5, color: LeafIDTheme.primary)
                 .padding(.top, 15)
                 .padding(.bottom, 24)
 
