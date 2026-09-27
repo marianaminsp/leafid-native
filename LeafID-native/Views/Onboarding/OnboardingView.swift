@@ -278,17 +278,6 @@ private struct OnboardingSignInScreen: View {
 
             Spacer(minLength: LeafIDTheme.space32)
 
-            HStack(spacing: LeafIDTheme.space10) {
-                Circle()
-                    .fill(LeafIDTheme.primary)
-                    .frame(width: 8, height: 8)
-                Text(String(localized: "Archdruid"))
-                    .font(LeafIDFont.manrope(size: 15, weight: .semibold))
-                    .foregroundStyle(LeafIDTheme.onSurface)
-            }
-
-            Spacer(minLength: LeafIDTheme.space32)
-
             VStack(spacing: LeafIDTheme.space10) {
                 LeafPrimaryButton(
                     title: String(localized: "Continue with Google"),
