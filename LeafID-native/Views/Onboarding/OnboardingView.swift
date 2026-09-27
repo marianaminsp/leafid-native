@@ -88,9 +88,7 @@ private struct OnboardingCoverScreen: View {
                 .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.4), lineWidth: 1)
                 .frame(width: 52, height: 52)
                 .overlay {
-                    Image(systemName: "leaf.fill")
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundStyle(LeafIDTheme.primary)
+                    LeafIDIcon(kind: .mapleLeaf, style: .filled, size: 20, color: LeafIDTheme.primary)
                 }
 
             ZStack(alignment: .topLeading) {
