@@ -95,7 +95,7 @@ private struct OnboardingCoverScreen: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             LeafIDIcon(kind: .icon2_0, style: .outline, size: 20, weight: 2.5, color: LeafIDTheme.primary)
-                .padding(.top, 0)
+                .padding(.top, 50)
                 .padding(.bottom, 20)
 
             ZStack(alignment: .topLeading) {
@@ -108,6 +108,7 @@ private struct OnboardingCoverScreen: View {
                 )
             }
             .frame(minHeight: 170, alignment: .topLeading)
+            .padding(.top, 50)
 
             HStack(spacing: 6) {
                 ForEach(0 ..< 3) { index in
@@ -201,6 +202,8 @@ private struct OnboardingBeatScreen: View {
             HStack(alignment: .top, spacing: 20) {
                 VStack(alignment: .leading, spacing: 0) {
                     OnboardingEyebrow(eyebrow)
+                        .padding(.top, 50)
+                        .offset(y: showContent ? 0 : -8)
                         .opacity(showContent ? 1 : 0)
                     LeafIDTypography.displayTitle(headline)
                         .padding(.top, 20)
@@ -259,6 +262,7 @@ private struct OnboardingSignInScreen: View {
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
                     OnboardingEyebrow(String(localized: "THE PATH"))
+                        .padding(.top, 50)
                     Text(String(localized: "Wandering Seed to Archdruid."))
                         .font(LeafIDFont.plusJakarta(size: 26, weight: .bold))
                         .tracking(0.4)
