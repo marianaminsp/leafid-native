@@ -98,7 +98,7 @@ private struct OnboardingCoverScreen: View {
                 .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.4), lineWidth: 1)
                 .frame(width: 52, height: 52)
                 .overlay {
-                    LeafIDIcon(kind: .icon3_3, style: .filled, size: 20, color: LeafIDTheme.primary)
+                    LeafIDIcon(kind: .icon3_3, style: .filled, size: 80, color: LeafIDTheme.primary)
                 }
                 .padding(.top, 12)
                 .padding(.bottom, 24)
