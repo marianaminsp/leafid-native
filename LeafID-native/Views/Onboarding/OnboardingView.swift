@@ -98,7 +98,7 @@ private struct OnboardingCoverScreen: View {
                 .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.4), lineWidth: 1)
                 .frame(width: 52, height: 52)
                 .overlay {
-                    LeafIDIcon(kind: .mapleLeaf, style: .filled, size: 20, color: LeafIDTheme.primary)
+                    LeafIDIcon(kind: .icon3_3, style: .filled, size: 20, color: LeafIDTheme.primary)
                 }
                 .padding(.top, 12)
                 .padding(.bottom, 24)
@@ -138,7 +138,18 @@ private struct OnboardingCoverScreen: View {
     @ViewBuilder
     private func coverLine(_ index: Int, headline: String, bodyText: String? = nil) -> some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
-            if index == 2 {
+            if index == 0 {
+                (Text("You just noticed ")
+                    .font(LeafIDFont.plusJakarta(size: 32, weight: .bold))
+                    .tracking(-0.01)
+                + Text("something")
+                    .font(LeafIDFont.plusJakarta(size: 32, weight: .bold).italic())
+                    .tracking(-0.01)
+                + Text(".")
+                    .font(LeafIDFont.plusJakarta(size: 32, weight: .bold))
+                    .tracking(-0.01))
+                .foregroundColor(LeafIDTheme.onSurface)
+            } else if index == 2 {
                 (Text("The world expands when you uncover the deep behind the ")
                     .font(LeafIDFont.plusJakarta(size: 32, weight: .bold))
                     .tracking(-0.01)
