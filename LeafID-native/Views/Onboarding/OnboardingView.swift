@@ -178,18 +178,31 @@ private struct OnboardingBeatScreen: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            OnboardingEyebrow(eyebrow)
-                .opacity(showContent ? 1 : 0)
-            LeafIDTypography.displayTitle(headline)
-                .padding(.top, LeafIDTheme.space32)
-                .offset(y: showContent ? 0 : 8)
-                .opacity(showContent ? 1 : 0)
-            Text(bodyText)
-                .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
-                .foregroundStyle(LeafIDTheme.onSurfaceVariant)
-                .padding(.top, LeafIDTheme.space16)
-                .offset(y: showContent ? 0 : 12)
-                .opacity(showContent ? 1 : 0)
+            HStack {
+                VStack(alignment: .leading, spacing: 0) {
+                    OnboardingEyebrow(eyebrow)
+                        .opacity(showContent ? 1 : 0)
+                    LeafIDTypography.displayTitle(headline)
+                        .padding(.top, LeafIDTheme.space32)
+                        .offset(y: showContent ? 0 : 8)
+                        .opacity(showContent ? 1 : 0)
+                    Text(bodyText)
+                        .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
+                        .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                        .padding(.top, LeafIDTheme.space16)
+                        .offset(y: showContent ? 0 : 12)
+                        .opacity(showContent ? 1 : 0)
+                }
+                Spacer(minLength: LeafIDTheme.space16)
+                VStack {
+                    let heroIcon: LeafIDIcon.Kind = pageIndex == 1 ? .icon2_2 : .icon3_14
+                    LeafIDIcon(kind: heroIcon, style: .filled, size: pageIndex == 1 ? 48 : 56, color: LeafIDTheme.primary)
+                        .opacity(showContent ? 1 : 0)
+                        .scaleEffect(showContent ? 1 : 0.8)
+                    Spacer()
+                }
+                .frame(width: 80)
+            }
 
             Spacer(minLength: LeafIDTheme.space32)
 
@@ -225,16 +238,22 @@ private struct OnboardingSignInScreen: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            OnboardingEyebrow(String(localized: "THE PATH"))
-            Text(String(localized: "Wandering Seed to Archdruid."))
-                .font(LeafIDFont.plusJakarta(size: 26, weight: .bold))
-                .tracking(0.4)
-                .foregroundStyle(LeafIDTheme.onSurface)
-                .padding(.top, LeafIDTheme.space12)
-            Text(String(localized: "Stay curious, and even the forest starts to notice."))
-                .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
-                .foregroundStyle(LeafIDTheme.onSurfaceVariant)
-                .padding(.top, LeafIDTheme.space12)
+            HStack {
+                VStack(alignment: .leading, spacing: 0) {
+                    OnboardingEyebrow(String(localized: "THE PATH"))
+                    Text(String(localized: "Wandering Seed to Archdruid."))
+                        .font(LeafIDFont.plusJakarta(size: 26, weight: .bold))
+                        .tracking(0.4)
+                        .foregroundStyle(LeafIDTheme.onSurface)
+                        .padding(.top, LeafIDTheme.space12)
+                    Text(String(localized: "Stay curious, and even the forest starts to notice."))
+                        .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
+                        .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                        .padding(.top, LeafIDTheme.space12)
+                }
+                Spacer(minLength: LeafIDTheme.space16)
+                LeafIDIcon(kind: .icon2_3, style: .filled, size: 48, color: LeafIDTheme.primary.opacity(0.6))
+            }
 
             Spacer(minLength: LeafIDTheme.space32)
 
