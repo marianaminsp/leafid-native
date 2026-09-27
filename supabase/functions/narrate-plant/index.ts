@@ -328,7 +328,8 @@ serve(async (req) => {
             cultural_legacy: cached.cultural_legacy ?? undefined,
             colors: cached.colors ?? undefined,
           }
-        return new Response(JSON.stringify({ ...result, _debug: ["cache: hit"] }), {
+        console.log("narrate-plant: cache hit", cacheKey)
+        return new Response(JSON.stringify(result), {
           status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
@@ -376,14 +377,15 @@ serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify({ ...(result ?? {} satisfies NarrativeResult), _debug: debug }), {
+    if (debug.length) console.log("narrate-plant:", debug.join(" | "))
+    return new Response(JSON.stringify(result ?? {} satisfies NarrativeResult), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
     console.error("narrate-plant error:", error instanceof Error ? error.message : error)
     // Best-effort content — never fail the request; the client already has local textual fallbacks.
-    return new Response(JSON.stringify({ ...({} satisfies NarrativeResult), _debug: [String(error)] }), {
+    return new Response(JSON.stringify({} satisfies NarrativeResult), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

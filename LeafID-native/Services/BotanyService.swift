@@ -2,7 +2,7 @@
 //  BotanyService.swift
 //  LeafID-native
 //
-//  Port target: lib/botanyService.ts — identify-plant edge function, Storage `plant-images`, `scans` insert/fetch.
+//  Port target: lib/botanyService.ts — identify-plant edge function, Storage `plant-photos`, `scans` insert/fetch.
 //
 
 import Foundation
@@ -1608,14 +1608,14 @@ enum BotanyService {
         }
     }
 
-    // MARK: - Supabase Preserve (Storage `plant-images` + `public.scans` via PostgREST)
+    // MARK: - Supabase Preserve (Storage `plant-photos` + `public.scans` via PostgREST)
 
     /// When `false`, PostgREST inserts omit `latitude` / `longitude` / `locality` so inserts succeed if those columns are not migrated yet. Set to `true` after adding nullable columns on `public.scans`.
     private static let postgRESTScansIncludeGeoColumns = true
     /// Set `true` only if your `public.scans` table includes these optional narrative columns (see `docs/SWIFT_MIGRATION_GUIDE.md`).
     private static let postgRESTScansIncludeExtendedMetadata = false
 
-    private static let plantImagesBucketId = "plant-images"
+    private static let plantImagesBucketId = "plant-photos"
 
     private static func supabaseProjectRootURLString() -> String? {
         guard var base = LeafIDSupabaseConfig.urlString else { return nil }

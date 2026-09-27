@@ -146,16 +146,16 @@ private struct OnboardingCoverScreen: View {
             showContinue = true
             return
         }
-        try? await Task.sleep(for: .seconds(3.5))
-        withAnimation(.easeInOut(duration: 0.5)) { beat = 1 }
-        try? await Task.sleep(for: .seconds(3.5))
-        withAnimation(.easeInOut(duration: 0.5)) { beat = 2 }
-        try? await Task.sleep(for: .seconds(1.6))
-        withAnimation(.easeInOut(duration: 0.5)) { showContinue = true }
+        try? await Task.sleep(for: .seconds(2.8))
+        withAnimation(.easeInOut(duration: 0.42)) { beat = 1 }
+        try? await Task.sleep(for: .seconds(2.8))
+        withAnimation(.easeInOut(duration: 0.42)) { beat = 2 }
+        try? await Task.sleep(for: .seconds(1.2))
+        withAnimation(.easeInOut(duration: 0.48)) { showContinue = true }
     }
 }
 
-// MARK: - Screens 2–3: tap-through beats sharing one layout
+// MARK: - Screens 2–3: tap-through beats with auto-advance
 
 private struct OnboardingBeatScreen: View {
     let eyebrow: String
@@ -165,15 +165,23 @@ private struct OnboardingBeatScreen: View {
     let primaryTitle: String
     var onPrimary: () -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var showContent = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             OnboardingEyebrow(eyebrow)
+                .opacity(showContent ? 1 : 0)
             LeafIDTypography.displayTitle(headline)
                 .padding(.top, LeafIDTheme.space12)
+                .offset(y: showContent ? 0 : 8)
+                .opacity(showContent ? 1 : 0)
             Text(bodyText)
                 .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
                 .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                 .padding(.top, LeafIDTheme.space12)
+                .offset(y: showContent ? 0 : 12)
+                .opacity(showContent ? 1 : 0)
 
             Spacer(minLength: LeafIDTheme.space24)
 
@@ -184,6 +192,20 @@ private struct OnboardingBeatScreen: View {
         }
         .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
         .padding(.bottom, LeafIDTheme.space32)
+        .task {
+            guard !reduceMotion else {
+                showContent = true
+                return
+            }
+            try? await Task.sleep(for: .milliseconds(300))
+            withAnimation(.easeInOut(duration: 0.52)) {
+                showContent = true
+            }
+            try? await Task.sleep(for: .seconds(3.2))
+            withAnimation(.easeInOut(duration: 0.45)) {
+                onPrimary()
+            }
+        }
     }
 }
 

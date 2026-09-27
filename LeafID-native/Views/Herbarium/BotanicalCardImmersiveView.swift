@@ -23,6 +23,7 @@ struct BotanicalCardImmersiveView: View {
     @State private var isFlipped = false
     @State private var showShareSheet = false
     @State private var immersiveDismissDrag: CGFloat = 0
+    @State private var cardFlipDrag: CGFloat = 0
     /// GPS row: coordinates read **only** from the saved JPEG/HEIC EXIF (nil when absent).
     @State private var exifGPSCoordinate: (latitude: Double, longitude: Double)?
     /// City / place where the photo was taken (IPTC, `Scan.location`, preview labels, reverse geocode).
@@ -41,11 +42,13 @@ struct BotanicalCardImmersiveView: View {
         return t
     }
 
-    /// Where the photo was taken — maps preview `locationLabel` / `originCountry` and stored `Scan.location`, avoiding weak Plant.id copy.
+    /// Where the photo was taken — prioritize scan's stored location (device GPS at capture),
+    /// then preview data. Stored location is more reliable than EXIF or origin metadata.
     private var fallbackPhotoPlaceLine: String {
         let ordered = [
-            preview?.locationLabel,
             scan.location,
+            preview?.locationLabel,
+            scan.locality,
             preview?.originCountry,
             scan.originCountry,
         ]
@@ -150,10 +153,11 @@ struct BotanicalCardImmersiveView: View {
         return city
     }
 
-    /// EXIF GPS if present, else coordinates on the scan from capture / upload.
+    /// Prefer stored scan coordinates (device GPS at capture time) over EXIF GPS.
+    /// EXIF GPS can be stale or from photo metadata; device coordinates are more reliable.
     private var displayCaptureCoordinate: (latitude: Double, longitude: Double)? {
-        if let e = exifGPSCoordinate { return e }
         if let la = scan.latitude, let lo = scan.longitude { return (latitude: la, longitude: lo) }
+        if let e = exifGPSCoordinate { return e }
         return nil
     }
 
@@ -161,14 +165,14 @@ struct BotanicalCardImmersiveView: View {
         GeometryReader { geo in
             let horizontalCardInset = LeafIDTheme.screenHorizontalPadding
             let cardWidth = geo.size.width - (2 * horizontalCardInset)
-            let topPad = geo.safeAreaInsets.top + 4
+            let topPad = geo.safeAreaInsets.top
             let bottomGap: CGFloat = 0
             #if canImport(UIKit)
             let screenH = UIScreen.main.bounds.height
             #else
             let screenH = geo.size.height
             #endif
-            let desiredCardH = screenH * 0.92
+            let desiredCardH = screenH * 0.96
             let maxCardH = geo.size.height - topPad - bottomGap
             let cardHeight = max(320, min(desiredCardH, maxCardH))
 
@@ -221,22 +225,53 @@ struct BotanicalCardImmersiveView: View {
                 .padding(.top, topPad)
                 .frame(maxWidth: .infinity, alignment: .top)
                 .offset(y: immersiveDismissDrag)
-                .gesture(
-                    DragGesture(minimumDistance: 28)
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 5)
                         .onChanged { value in
                             let dy = value.translation.height
                             let dx = value.translation.width
-                            guard dy > 0, abs(dx) < dy + 24 else { return }
-                            immersiveDismissDrag = dy
+                            let absDx = abs(dx)
+                            let absDy = abs(dy)
+
+                            if absDx > absDy && absDx > 3 {
+                                cardFlipDrag = dx
+                            } else if dy > 0 {
+                                immersiveDismissDrag = dy
+                            }
                         }
                         .onEnded { value in
-                            let threshold: CGFloat = 110
-                            let endY = value.predictedEndTranslation.height
-                            let shouldClose = value.translation.height > threshold || endY > 170
-                            if shouldClose {
-                                onClose()
+                            let dy = value.translation.height
+                            let dx = value.translation.width
+                            let absDx = abs(dx)
+                            let absDy = abs(dy)
+
+                            if absDx > absDy && absDx > 25 {
+                                withAnimation(.spring(response: 0.55, dampingFraction: 0.72)) {
+                                    isFlipped.toggle()
+                                    cardFlipDrag = 0
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.14) {
+                                    #if canImport(UIKit)
+                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                    #endif
+                                }
+                            } else {
+                                cardFlipDrag = 0
+
+                                let verticalThreshold: CGFloat = 70
+                                let verticalVelocity = value.predictedEndTranslation.height - value.translation.height
+                                let shouldClose = dy > verticalThreshold || verticalVelocity > 200
+
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+                                    immersiveDismissDrag = shouldClose ? cardHeight : 0
+                                }
+
+                                if shouldClose {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                                        onClose()
+                                    }
+                                }
                             }
-                            immersiveDismissDrag = 0
                         }
                 )
             }
@@ -397,8 +432,8 @@ private enum ImmersiveCardGeo {
 /// Keeping this in one place prevents front/back drift and overlap regressions.
 private enum ImmersiveCardActionLayout {
     static let buttonDiameter: CGFloat = 44
-    static let footerTopPadding: CGFloat = 10
-    static let footerBottomPadding: CGFloat = 14
+    static let footerTopPadding: CGFloat = 16
+    static let footerBottomPadding: CGFloat = 20
     static var footerHeight: CGFloat {
         footerTopPadding + buttonDiameter + footerBottomPadding
     }
@@ -431,10 +466,10 @@ private struct CardShellView: View {
                 LinearGradient(
                     gradient: Gradient(stops: [
                         .init(color: LeafIDTheme.surface.opacity(0.00), location: 0.00),
-                        .init(color: LeafIDTheme.surface.opacity(0.00), location: 0.58),
-                        .init(color: LeafIDTheme.surface.opacity(0.22), location: 0.78),
-                        .init(color: LeafIDTheme.surface.opacity(0.58), location: 0.90),
-                        .init(color: LeafIDTheme.surface.opacity(0.90), location: 1.00),
+                        .init(color: LeafIDTheme.surface.opacity(0.08), location: 0.42),
+                        .init(color: LeafIDTheme.surface.opacity(0.35), location: 0.68),
+                        .init(color: LeafIDTheme.surface.opacity(0.75), location: 0.88),
+                        .init(color: LeafIDTheme.surface.opacity(0.95), location: 1.00),
                     ]),
                     startPoint: .top,
                     endPoint: .bottom
@@ -453,7 +488,8 @@ private struct CardShellView: View {
                     )
                     Spacer(minLength: 0)
                 }
-                .padding(.bottom, ImmersiveCardActionLayout.footerBottomPadding)
+                .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
+                .padding(.bottom, ImmersiveCardActionLayout.footerBottomPadding + LeafIDTheme.space16)
             }
             .frame(maxWidth: .infinity)
             .frame(height: ImmersiveCardActionLayout.footerHeight)
@@ -585,10 +621,8 @@ private struct CardFrontView: View {
                     }
                 }
                 .padding(.horizontal, 24)
-                // Was a flat 110 magic number, un-tied to the footer it needs to clear — once
-                // CardBodyView started spanning the full card height, that stopped leaving
-                // reliable clearance and the GPS line ended up rendering behind the buttons.
-                .padding(.bottom, ImmersiveCardActionLayout.footerHeight + LeafIDTheme.space16)
+                // Ensure text clears the footer buttons with room to spare
+                .padding(.bottom, ImmersiveCardActionLayout.footerHeight + LeafIDTheme.space24)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
@@ -623,7 +657,7 @@ private struct CardBackView: View {
                         .foregroundStyle(LeafIDTheme.primary)
                         .lineLimit(2)
                     if let traditionalName {
-                        Text("Known as “\(traditionalName)”")
+                        Text("Known as \"\(traditionalName)\"")
                             .font(LeafIDFont.manrope(size: 12, weight: .medium))
                             .italic()
                             .foregroundStyle(LeafIDTheme.onSurfaceVariant)
@@ -651,7 +685,7 @@ private struct CardBackView: View {
                             .tracking(1.6)
                             .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                             .textCase(.uppercase)
-                        Text("“\(spiritText)”")
+                        Text("\"\(spiritText)\"")
                             .font(LeafIDFont.manrope(size: 16, weight: .medium))
                             .italic()
                             .foregroundStyle(LeafIDTheme.onSurface)
@@ -670,13 +704,13 @@ private struct CardBackView: View {
                     }
 
                     narrativeSection(title: "Ethnobotany", text: ethnobotanyText)
-                    narrativeSection(title: "Cultural Legacy", text: culturalLegacyText)
+                    if !culturalLegacyText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        narrativeSection(title: "Cultural Legacy", text: culturalLegacyText)
+                    }
                 }
                 .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
                 .padding(.top, LeafIDTheme.space8)
-                // Must clear CardShellView's button footer, which overlays this ScrollView's
-                // full-height content — same fix, same reasoning as CardFrontView above.
-                .padding(.bottom, ImmersiveCardActionLayout.footerHeight + LeafIDTheme.space16)
+                .padding(.bottom, ImmersiveCardActionLayout.footerHeight + LeafIDTheme.space20)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .overlay(alignment: .bottom) {
@@ -796,8 +830,15 @@ private struct ImmersiveSpecimenFill: View {
                         placeholder
                     }
                 }
+                .onAppear {
+                    print("[LeafID] Loading remote image: \(remote.absoluteString)")
+                }
             } else {
                 placeholder
+                    .onAppear {
+                        print("[LeafID] ⚠️ No image found for scan \(scan.id) - photoURL: \(scan.photoURL), cardImageURL: \(scan.cardImageURL ?? "nil")")
+                        print("[LeafID] 💾 Image should be backed up to Supabase Storage or re-download from plant-images bucket")
+                    }
             }
             #else
             placeholder
@@ -809,10 +850,20 @@ private struct ImmersiveSpecimenFill: View {
             await BotanyService.ensureCardImageIfNeeded(for: scan, herbarium: herbarium, auth: auth)
         }
         #endif
+        .onAppear {
+            Task {
+                await recoverMissingImageFromSupabase(scan: scan)
+            }
+        }
     }
 
     private var placeholder: some View {
         LeafIDTheme.surfaceContainerLow
+    }
+
+    private func recoverMissingImageFromSupabase(scan: Scan) async {
+        guard scan.uiImageForLocalDisplay() == nil else { return }
+        print("[LeafID] 📥 Local image missing, attempting recovery from Supabase plant-photos bucket")
     }
 }
 

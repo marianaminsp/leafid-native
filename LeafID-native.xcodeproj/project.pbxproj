@@ -11,9 +11,11 @@
 		167C26458EE044BB6DDF3EB7 /* LeafID_nativeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB032EC4293372983E7DC408 /* LeafID_nativeTests.swift */; };
 		2805FA2A78F82BE0B1D8F22A /* AppMonitoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2ED6734285CFC408ACDF0C4 /* AppMonitoring.swift */; };
 		388D420653CD31E77EE46CF5 /* ArboretumComingSoonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD938ABEC1D8A0C52567944 /* ArboretumComingSoonView.swift */; };
+		62E0D2B8AAB320707EF28715 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BF78AE254EB173A7E3D4D7E /* OnboardingView.swift */; };
 		8FF8620AB758C39C281233B8 /* PostHog in Frameworks */ = {isa = PBXBuildFile; productRef = A649FBE528E122402AEE1514 /* PostHog */; };
 		A0134776E5296FC7ECBE31E7 /* KeychainTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A466B09C5D53DDD8529A2AA /* KeychainTokenStore.swift */; };
 		A221302A25F07F610660AF06 /* BotanicalCardImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EFF63FB5F8EC9823649D1F /* BotanicalCardImageProcessor.swift */; };
+		A422C9AB84A647D29B6EA380 /* ScrollOffsetReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9A5725BCDFA6F0AAE53DF5F /* ScrollOffsetReader.swift */; };
 		AA47991B7E30323D731CC43D /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = CD6F7E6936365C1D00209A34 /* Sentry */; };
 		E1A100000000000000000001 /* LeafID_nativeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000001 /* LeafID_nativeApp.swift */; };
 		E1A100000000000000000002 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000002 /* Theme.swift */; };
@@ -23,7 +25,6 @@
 		E1A100000000000000000006 /* ArboretumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000006 /* ArboretumView.swift */; };
 		E1A100000000000000000008 /* HerbariumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000008 /* HerbariumView.swift */; };
 		E1A100000000000000000009 /* DruidProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000009 /* DruidProfileView.swift */; };
-		62E0D2B8AAB320707EF28715 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BF78AE254EB173A7E3D4D7E /* OnboardingView.swift */; };
 		E1A10000000000000000000A /* HerbariumViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000000A /* HerbariumViewModel.swift */; };
 		E1A10000000000000000000B /* BotanyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000000B /* BotanyService.swift */; };
 		E1A10000000000000000000C /* Animation+LeafID.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000000C /* Animation+LeafID.swift */; };
@@ -35,10 +36,8 @@
 		E1A100000000000000000013 /* GreenDotMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000013 /* GreenDotMarker.swift */; };
 		E1A100000000000000000014 /* CompactSpecimenCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000014 /* CompactSpecimenCard.swift */; };
 		E1A100000000000000000015 /* LeafPrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000015 /* LeafPrimaryButton.swift */; };
-		A422C9AB84A647D29B6EA380 /* ScrollOffsetReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9A5725BCDFA6F0AAE53DF5F /* ScrollOffsetReader.swift */; };
 		E1A100000000000000000016 /* GlassStatTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000016 /* GlassStatTile.swift */; };
 		E1A100000000000000000017 /* ScanningLeafAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000017 /* ScanningLeafAnimationView.swift */; };
-		E1A100000000000000000041 /* LeafIDIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000041 /* LeafIDIcons.swift */; };
 		E1A100000000000000000018 /* DesignSystemGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000018 /* DesignSystemGalleryView.swift */; };
 		E1A100000000000000000019 /* IdentifyPreviewResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000019 /* IdentifyPreviewResult.swift */; };
 		E1A10000000000000000001B /* ScanResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000001B /* ScanResultsView.swift */; };
@@ -64,6 +63,7 @@
 		E1A100000000000000000030 /* CapturePickLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000030 /* CapturePickLocation.swift */; };
 		E1A100000000000000000031 /* LiveCameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000031 /* LiveCameraPreview.swift */; };
 		E1A100000000000000000032 /* ArboretumViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000032 /* ArboretumViewModel.swift */; };
+		E1A100000000000000000041 /* LeafIDIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000041 /* LeafIDIcons.swift */; };
 		E1A10000000000000000007B /* Achievements.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000007B /* Achievements.swift */; };
 		E1A10000000000000000007C /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000007C /* PaywallView.swift */; };
 		E1A10000000000000000007D /* ToastCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000007D /* ToastCenter.swift */; };
@@ -81,13 +81,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		05246439EFD4918AA442102C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		05246439EFD4918AA442102C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		0BF78AE254EB173A7E3D4D7E /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		4A466B09C5D53DDD8529A2AA /* KeychainTokenStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeychainTokenStore.swift; sourceTree = "<group>"; };
 		5E614D3E6FDABD490B7A73C1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		70799B872F8C07650054228B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		A0EFF63FB5F8EC9823649D1F /* BotanicalCardImageProcessor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BotanicalCardImageProcessor.swift; sourceTree = "<group>"; };
 		BB032EC4293372983E7DC408 /* LeafID_nativeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LeafID_nativeTests.swift; sourceTree = "<group>"; };
 		D56EC0009B5F05A4EE0142B2 /* LeafID-nativeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "LeafID-nativeTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D9A5725BCDFA6F0AAE53DF5F /* ScrollOffsetReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollOffsetReader.swift; sourceTree = "<group>"; };
 		E1A200000000000000000001 /* LeafID_nativeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeafID_nativeApp.swift; sourceTree = "<group>"; };
 		E1A200000000000000000002 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		E1A200000000000000000003 /* Scan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan.swift; sourceTree = "<group>"; };
@@ -96,7 +98,6 @@
 		E1A200000000000000000006 /* ArboretumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArboretumView.swift; sourceTree = "<group>"; };
 		E1A200000000000000000008 /* HerbariumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HerbariumView.swift; sourceTree = "<group>"; };
 		E1A200000000000000000009 /* DruidProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DruidProfileView.swift; sourceTree = "<group>"; };
-		0BF78AE254EB173A7E3D4D7E /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		E1A20000000000000000000A /* HerbariumViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HerbariumViewModel.swift; sourceTree = "<group>"; };
 		E1A20000000000000000000B /* BotanyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BotanyService.swift; sourceTree = "<group>"; };
 		E1A20000000000000000000C /* Animation+LeafID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Animation+LeafID.swift"; sourceTree = "<group>"; };
@@ -108,10 +109,8 @@
 		E1A200000000000000000013 /* GreenDotMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreenDotMarker.swift; sourceTree = "<group>"; };
 		E1A200000000000000000014 /* CompactSpecimenCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompactSpecimenCard.swift; sourceTree = "<group>"; };
 		E1A200000000000000000015 /* LeafPrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeafPrimaryButton.swift; sourceTree = "<group>"; };
-		D9A5725BCDFA6F0AAE53DF5F /* ScrollOffsetReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollOffsetReader.swift; sourceTree = "<group>"; };
 		E1A200000000000000000016 /* GlassStatTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassStatTile.swift; sourceTree = "<group>"; };
 		E1A200000000000000000017 /* ScanningLeafAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanningLeafAnimationView.swift; sourceTree = "<group>"; };
-		E1A200000000000000000041 /* LeafIDIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeafIDIcons.swift; sourceTree = "<group>"; };
 		E1A200000000000000000018 /* DesignSystemGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystemGalleryView.swift; sourceTree = "<group>"; };
 		E1A200000000000000000019 /* IdentifyPreviewResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifyPreviewResult.swift; sourceTree = "<group>"; };
 		E1A20000000000000000001B /* ScanResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanResultsView.swift; sourceTree = "<group>"; };
@@ -137,6 +136,7 @@
 		E1A200000000000000000030 /* CapturePickLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePickLocation.swift; sourceTree = "<group>"; };
 		E1A200000000000000000031 /* LiveCameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveCameraPreview.swift; sourceTree = "<group>"; };
 		E1A200000000000000000032 /* ArboretumViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArboretumViewModel.swift; sourceTree = "<group>"; };
+		E1A200000000000000000041 /* LeafIDIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeafIDIcons.swift; sourceTree = "<group>"; };
 		E1A20000000000000000007B /* Achievements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Achievements.swift; sourceTree = "<group>"; };
 		E1A20000000000000000007C /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		E1A20000000000000000007D /* ToastCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastCenter.swift; sourceTree = "<group>"; };
@@ -183,6 +183,14 @@
 				5E614D3E6FDABD490B7A73C1 /* Foundation.framework */,
 			);
 			name = iOS;
+			sourceTree = "<group>";
+		};
+		B968051A99B79FECB51930B1 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				0BF78AE254EB173A7E3D4D7E /* OnboardingView.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 		E1A400000000000000000001 = {
@@ -326,14 +334,6 @@
 				E1A20000000000000000007C /* PaywallView.swift */,
 			);
 			path = Druid;
-			sourceTree = "<group>";
-		};
-		B968051A99B79FECB51930B1 /* Onboarding */ = {
-			isa = PBXGroup;
-			children = (
-				0BF78AE254EB173A7E3D4D7E /* OnboardingView.swift */,
-			);
-			path = Onboarding;
 			sourceTree = "<group>";
 		};
 		E1A400000000000000000020 /* UI */ = {
@@ -702,8 +702,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "LeafID-native/Info.plist";
 				INFOPLIST_KEY_NSCameraUsageDescription = "LeafID uses the camera to capture leaf photos for plant identification.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LeafID uses your location to center Arboretum on your position and geotag discoveries on the map.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your photos to import plant images into your herbarium.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LeafID uses your location to record where each plant was found in your Herbarium.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "LeafID uses your photo library so you can identify plants from photos you've already taken.";
 				INFOPLIST_KEY_SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
 				INFOPLIST_KEY_SUPABASE_URL = "$(SUPABASE_URL)";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -737,8 +737,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "LeafID-native/Info.plist";
 				INFOPLIST_KEY_NSCameraUsageDescription = "LeafID uses the camera to capture leaf photos for plant identification.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LeafID uses your location to center Arboretum on your position and geotag discoveries on the map.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your photos to import plant images into your herbarium.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LeafID uses your location to record where each plant was found in your Herbarium.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "LeafID uses your photo library so you can identify plants from photos you've already taken.";
 				INFOPLIST_KEY_SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
 				INFOPLIST_KEY_SUPABASE_URL = "$(SUPABASE_URL)";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
