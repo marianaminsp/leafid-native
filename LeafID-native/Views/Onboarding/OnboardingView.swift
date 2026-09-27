@@ -334,7 +334,7 @@ private struct OnboardingGhostButton: View {
                 .font(LeafIDFont.manrope(size: 15, weight: .semibold))
                 .foregroundStyle(LeafIDTheme.onSurface)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, LeafIDTheme.space12)
+                .padding(.vertical, LeafIDTheme.space16)
                 .overlay {
                     RoundedRectangle(cornerRadius: LeafIDTheme.radiusPrimaryButton, style: .continuous)
                         .strokeBorder(LeafIDTheme.outlineVariant.opacity(0.5), lineWidth: 1)
