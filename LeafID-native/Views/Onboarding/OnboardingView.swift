@@ -94,9 +94,9 @@ private struct OnboardingCoverScreen: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            LeafIDIcon(kind: .icon2_0, style: .outline, size: 80, weight: 2.5, color: LeafIDTheme.primary)
-                .padding(.top, 15)
-                .padding(.bottom, 24)
+            LeafIDIcon(kind: .icon2_0, style: .outline, size: 20, weight: 2.5, color: LeafIDTheme.primary)
+                .padding(.top, 0)
+                .padding(.bottom, 20)
 
             ZStack(alignment: .topLeading) {
                 coverLine(0, headline: String(localized: "You just noticed something."))
@@ -116,7 +116,7 @@ private struct OnboardingCoverScreen: View {
                         .frame(width: index == beat ? 16 : 6, height: 6)
                 }
             }
-            .padding(.top, LeafIDTheme.space16)
+            .padding(.top, 20)
 
             Spacer(minLength: LeafIDTheme.space24)
 
@@ -198,47 +198,34 @@ private struct OnboardingBeatScreen: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
+            HStack(alignment: .top, spacing: 20) {
                 VStack(alignment: .leading, spacing: 0) {
                     OnboardingEyebrow(eyebrow)
                         .opacity(showContent ? 1 : 0)
-                    if pageIndex == 1 {
-                        Text(headline)
-                            .font(LeafIDFont.plusJakarta(size: 32, weight: .bold))
-                            .tracking(-0.01)
-                            .italic()
-                            .foregroundColor(LeafIDTheme.onSurface)
-                            .padding(.top, LeafIDTheme.space32)
-                            .offset(y: showContent ? 0 : 8)
-                            .opacity(showContent ? 1 : 0)
-                    } else {
-                        LeafIDTypography.displayTitle(headline)
-                            .padding(.top, LeafIDTheme.space32)
-                            .offset(y: showContent ? 0 : 8)
-                            .opacity(showContent ? 1 : 0)
-                    }
+                    LeafIDTypography.displayTitle(headline)
+                        .padding(.top, 20)
+                        .offset(y: showContent ? 0 : 8)
+                        .opacity(showContent ? 1 : 0)
                     Text(bodyText)
                         .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
                         .foregroundStyle(LeafIDTheme.onSurfaceVariant)
-                        .padding(.top, LeafIDTheme.space16)
+                        .padding(.top, 20)
                         .offset(y: showContent ? 0 : 12)
                         .opacity(showContent ? 1 : 0)
                 }
-                Spacer(minLength: LeafIDTheme.space16)
-                VStack {
+                VStack(alignment: .center) {
                     let heroIcon: LeafIDIcon.Kind = pageIndex == 1 ? .icon2_2 : .icon3_14
                     LeafIDIcon(kind: heroIcon, style: .filled, size: pageIndex == 1 ? 48 : 56, color: LeafIDTheme.primary)
                         .opacity(showContent ? 1 : 0)
                         .scaleEffect(showContent ? 1 : 0.8)
                     Spacer()
                 }
-                .frame(width: 80)
             }
 
             Spacer(minLength: LeafIDTheme.space32)
 
             OnboardingPageDots(total: 4, activeIndex: pageIndex)
-                .padding(.bottom, LeafIDTheme.space20)
+                .padding(.bottom, 20)
 
             OnboardingGhostButton(title: primaryTitle, action: onPrimary)
         }
