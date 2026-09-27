@@ -100,17 +100,18 @@ private struct OnboardingCoverScreen: View {
                 .overlay {
                     LeafIDIcon(kind: .mapleLeaf, style: .filled, size: 20, color: LeafIDTheme.primary)
                 }
+                .padding(.top, 12)
+                .padding(.bottom, 24)
 
             ZStack(alignment: .topLeading) {
                 coverLine(0, headline: String(localized: "You just noticed something."))
                 coverLine(1, headline: String(localized: "Look closer at what it holds."))
                 coverLine(
                     2,
-                    headline: String(localized: "The world expands when you uncover the history behind the green."),
+                    headline: String(localized: "The world expands when you uncover the deep behind the green."),
                     bodyText: String(localized: "Start with the leaf in front of you.")
                 )
             }
-            .padding(.top, LeafIDTheme.space20)
             .frame(minHeight: 170, alignment: .topLeading)
 
             HStack(spacing: 6) {
@@ -137,15 +138,42 @@ private struct OnboardingCoverScreen: View {
     @ViewBuilder
     private func coverLine(_ index: Int, headline: String, bodyText: String? = nil) -> some View {
         VStack(alignment: .leading, spacing: LeafIDTheme.space12) {
-            LeafIDTypography.displayTitle(headline)
+            if index == 2 {
+                Text(attributedHeadline())
+                    .font(LeafIDFont.plusJakarta(size: 32, weight: .bold))
+                    .tracking(-0.01)
+                    .foregroundColor(LeafIDTheme.onSurface)
+            } else {
+                LeafIDTypography.displayTitle(headline)
+            }
             if let bodyText {
                 Text(bodyText)
                     .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
-                    .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                    .foregroundColor(LeafIDTheme.onSurfaceVariant)
             }
         }
         .opacity(beat == index ? 1 : 0)
         .offset(y: beat == index ? 0 : (beat > index ? -8 : 8))
+    }
+
+    private func attributedHeadline() -> AttributedString {
+        let fullText = "The world expands when you uncover the deep behind the green."
+        var result = AttributedString(fullText)
+
+        if let range = result.range(of: "green") {
+            var attrs = AttributeContainer()
+            attrs.font = LeafIDFont.plusJakarta(size: 32, weight: .bold).italic()
+            result[range].mergeAttributes(attrs, mergePolicy: .keepNew)
+        }
+
+        // Apply base attributes to all text
+        var baseAttrs = AttributeContainer()
+        baseAttrs.font = LeafIDFont.plusJakarta(size: 32, weight: .bold)
+        if result.font == nil {
+            result.font = LeafIDFont.plusJakarta(size: 32, weight: .bold)
+        }
+
+        return result
     }
 
     private func runSequence() async {
@@ -182,10 +210,21 @@ private struct OnboardingBeatScreen: View {
                 VStack(alignment: .leading, spacing: 0) {
                     OnboardingEyebrow(eyebrow)
                         .opacity(showContent ? 1 : 0)
-                    LeafIDTypography.displayTitle(headline)
-                        .padding(.top, LeafIDTheme.space32)
-                        .offset(y: showContent ? 0 : 8)
-                        .opacity(showContent ? 1 : 0)
+                    if pageIndex == 1 {
+                        Text(headline)
+                            .font(LeafIDFont.plusJakarta(size: 32, weight: .bold))
+                            .tracking(-0.01)
+                            .italic()
+                            .foregroundColor(LeafIDTheme.onSurface)
+                            .padding(.top, LeafIDTheme.space32)
+                            .offset(y: showContent ? 0 : 8)
+                            .opacity(showContent ? 1 : 0)
+                    } else {
+                        LeafIDTypography.displayTitle(headline)
+                            .padding(.top, LeafIDTheme.space32)
+                            .offset(y: showContent ? 0 : 8)
+                            .opacity(showContent ? 1 : 0)
+                    }
                     Text(bodyText)
                         .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
                         .foregroundStyle(LeafIDTheme.onSurfaceVariant)
