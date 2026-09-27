@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct LeafGhostButton: View {
     let title: String
@@ -16,7 +19,9 @@ struct LeafGhostButton: View {
 
     var body: some View {
         Button(action: {
+            #if canImport(UIKit)
             LeafIDHaptics.impact(.light)
+            #endif
             action()
         }) {
             Text(title)
