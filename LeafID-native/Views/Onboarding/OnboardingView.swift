@@ -259,22 +259,21 @@ private struct OnboardingSignInScreen: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
+            HStack(alignment: .top, spacing: 20) {
                 VStack(alignment: .leading, spacing: 0) {
                     OnboardingEyebrow(String(localized: "THE PATH"))
                         .padding(.top, 50)
-                    Text(String(localized: "Wandering Seed to Archdruid."))
-                        .font(LeafIDFont.plusJakarta(size: 26, weight: .bold))
-                        .tracking(0.4)
-                        .foregroundStyle(LeafIDTheme.onSurface)
-                        .padding(.top, LeafIDTheme.space12)
+                    LeafIDTypography.displayTitle(String(localized: "Wandering Seed to Archdruid."))
+                        .padding(.top, 20)
                     Text(String(localized: "Stay curious, and even the forest starts to notice."))
                         .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
                         .foregroundStyle(LeafIDTheme.onSurfaceVariant)
-                        .padding(.top, LeafIDTheme.space12)
+                        .padding(.top, 20)
                 }
-                Spacer(minLength: LeafIDTheme.space16)
-                LeafIDIcon(kind: .icon2_3, style: .filled, size: 48, color: LeafIDTheme.primary.opacity(0.6))
+                VStack(alignment: .center) {
+                    LeafIDIcon(kind: .icon2_3, style: .filled, size: 48, color: LeafIDTheme.primary.opacity(0.6))
+                    Spacer()
+                }
             }
 
             Spacer(minLength: LeafIDTheme.space32)
