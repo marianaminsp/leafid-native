@@ -12,6 +12,7 @@ import UIKit
 #if canImport(CoreLocation)
 import CoreLocation
 #endif
+import PostHog
 
 struct BotanicalCardImmersiveView: View {
     let scan: Scan
@@ -215,7 +216,14 @@ struct BotanicalCardImmersiveView: View {
                     CardShellView(
                         isFlipped: isFlipped,
                         onClose: onClose,
-                        onShare: { showShareSheet = true },
+                        onShare: {
+                            PostHogSDK.shared.capture("plant_shared", properties: [
+                                "plant_id": scan.id.uuidString,
+                                "share_method": "system_share",
+                                "timestamp": Date().timeIntervalSince1970
+                            ])
+                            showShareSheet = true
+                        },
                         onFlip: triggerFlip
                     )
                     .frame(width: cardWidth, height: cardHeight)
@@ -248,6 +256,12 @@ struct BotanicalCardImmersiveView: View {
                             if absDx > absDy && absDx > 25 {
                                 withAnimation(.spring(response: 0.55, dampingFraction: 0.72)) {
                                     isFlipped.toggle()
+                                    PostHogSDK.shared.capture("card_flipped", properties: [
+                                        "plant_id": scan.id.uuidString,
+                                        "view": isFlipped ? "back" : "front",
+                                        "flip_method": "gesture",
+                                        "timestamp": Date().timeIntervalSince1970
+                                    ])
                                     cardFlipDrag = 0
                                 }
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.14) {
@@ -267,6 +281,11 @@ struct BotanicalCardImmersiveView: View {
                                 }
 
                                 if shouldClose {
+                                    PostHogSDK.shared.capture("card_dismissed", properties: [
+                                        "plant_id": scan.id.uuidString,
+                                        "dismissal_method": "gesture",
+                                        "timestamp": Date().timeIntervalSince1970
+                                    ])
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
                                         onClose()
                                     }
@@ -307,6 +326,12 @@ struct BotanicalCardImmersiveView: View {
     private func triggerFlip() {
         withAnimation(.spring(response: 0.55, dampingFraction: 0.72)) {
             isFlipped.toggle()
+            PostHogSDK.shared.capture("card_flipped", properties: [
+                "plant_id": scan.id.uuidString,
+                "view": isFlipped ? "back" : "front",
+                "flip_method": "button",
+                "timestamp": Date().timeIntervalSince1970
+            ])
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.14) {
             #if canImport(UIKit)

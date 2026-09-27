@@ -6,6 +6,7 @@
 //
 
 import CryptoKit
+import PostHog
 import Security
 import SwiftUI
 
@@ -391,6 +392,19 @@ final class AuthViewModel: ObservableObject {
             isAuthenticated = true
             lastError = nil
             authNotice = nil
+
+            let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
+            let scansCount = defaults.integer(forKey: profileScansCountKey)
+            let isPremium = defaults.bool(forKey: profileIsPremiumKey)
+            PostHogSDK.shared.identify(supabaseUserId?.uuidString ?? "", userProperties: [
+                "email": email,
+                "display_name": displayName,
+                "total_scans": scansCount,
+                "is_premium": isPremium,
+                "app_version": appVersion,
+                "timestamp": Date().timeIntervalSince1970
+            ])
+
             NotificationCenter.default.post(name: .druidAuthDidChange, object: nil)
         } catch {
             clearSession()

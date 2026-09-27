@@ -8,6 +8,7 @@
 //
 
 import SwiftUI
+import PostHog
 
 struct OnboardingView: View {
     var onFinished: () -> Void
@@ -58,6 +59,11 @@ struct OnboardingView: View {
     }
 
     private func advance() {
+        PostHogSDK.shared.capture("onboarding_screen_advanced", properties: [
+            "from_screen": step,
+            "to_screen": step + 1,
+            "timestamp": Date().timeIntervalSince1970
+        ])
         step += 1
     }
 
@@ -68,6 +74,10 @@ struct OnboardingView: View {
             return
         }
         authViewModel.lastError = nil
+        PostHogSDK.shared.capture("onboarding_google_signin_initiated", properties: [
+            "flow": "onboarding",
+            "timestamp": Date().timeIntervalSince1970
+        ])
         openURL(url)
         onFinished()
     }

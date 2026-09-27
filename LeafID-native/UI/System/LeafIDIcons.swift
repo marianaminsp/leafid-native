@@ -1030,6 +1030,114 @@ private enum LeafIDGlyphPaths {
         return path
     }
 
+    // Onboarding custom icon variants (from 66-icon library)
+    static func icon2_0(_ rect: CGRect) -> Path { mapleLeaf(rect) }
+    static func icon2_1(_ rect: CGRect) -> Path { oakLeaf(rect) }
+    static func icon2_2(_ rect: CGRect) -> Path { samara(rect) }
+
+    static func icon2_3(_ rect: CGRect) -> Path {
+        var path = Path()
+        func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { LeafIDGlyphPaths.pt(rect, x, y) }
+        path.move(to: pt(50, 8))
+        path.addCurve(to: pt(40, 22), control1: pt(40, 12), control2: pt(38, 18))
+        path.addCurve(to: pt(50, 45), control1: pt(42, 28), control2: pt(48, 38))
+        path.addCurve(to: pt(60, 22), control1: pt(52, 38), control2: pt(58, 28))
+        path.addCurve(to: pt(50, 8), control1: pt(62, 18), control2: pt(60, 12))
+        path.closeSubpath()
+        path.move(to: pt(45, 35))
+        path.addLine(to: pt(45, 50))
+        path.move(to: pt(55, 35))
+        path.addLine(to: pt(55, 50))
+        path.move(to: pt(50, 45))
+        path.addLine(to: pt(50, 60))
+        return path
+    }
+
+    static func icon3_0(_ rect: CGRect) -> Path {
+        var path = Path()
+        func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { LeafIDGlyphPaths.pt(rect, x, y) }
+        path.move(to: pt(50, 10))
+        path.addCurve(to: pt(70, 35), control1: pt(65, 15), control2: pt(75, 25))
+        path.addCurve(to: pt(50, 50), control1: pt(65, 45), control2: pt(55, 50))
+        path.addCurve(to: pt(30, 35), control1: pt(45, 50), control2: pt(35, 45))
+        path.addCurve(to: pt(50, 10), control1: pt(25, 25), control2: pt(35, 15))
+        path.closeSubpath()
+        return path
+    }
+
+    static func icon3_3(_ rect: CGRect) -> Path {
+        var path = Path()
+        func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { LeafIDGlyphPaths.pt(rect, x, y) }
+        path.move(to: pt(50, 15))
+        path.addCurve(to: pt(65, 30), control1: pt(58, 18), control2: pt(65, 22))
+        path.addCurve(to: pt(50, 55), control1: pt(65, 42), control2: pt(58, 50))
+        path.addCurve(to: pt(35, 30), control1: pt(42, 50), control2: pt(35, 42))
+        path.addCurve(to: pt(50, 15), control1: pt(35, 22), control2: pt(42, 18))
+        path.closeSubpath()
+        return path
+    }
+
+    static func icon3_14(_ rect: CGRect) -> Path {
+        var path = Path()
+        func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { LeafIDGlyphPaths.pt(rect, x, y) }
+        path.move(to: pt(30, 40))
+        path.addCurve(to: pt(40, 50), control1: pt(32, 45), control2: pt(36, 48))
+        path.addCurve(to: pt(30, 60), control1: pt(36, 52), control2: pt(32, 55))
+        path.closeSubpath()
+        path.move(to: pt(50, 30))
+        path.addCurve(to: pt(60, 40), control1: pt(52, 34), control2: pt(56, 37))
+        path.addCurve(to: pt(50, 50), control1: pt(56, 43), control2: pt(52, 46))
+        path.closeSubpath()
+        path.move(to: pt(70, 45))
+        path.addCurve(to: pt(80, 55), control1: pt(72, 49), control2: pt(76, 52))
+        path.addCurve(to: pt(70, 65), control1: pt(76, 58), control2: pt(72, 61))
+        path.closeSubpath()
+        return path
+    }
+
+    static func icon_7(_ rect: CGRect) -> Path { leafSpray1(rect) }
+    static func icon_11(_ rect: CGRect) -> Path { leafSpray2(rect) }
+    static func icon_12(_ rect: CGRect) -> Path { leafSpray3(rect) }
+
+    static func icon_19(_ rect: CGRect) -> Path {
+        var path = Path()
+        func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { LeafIDGlyphPaths.pt(rect, x, y) }
+        path.move(to: pt(50, 20))
+        path.addQuadCurve(to: pt(70, 40), control: pt(65, 25))
+        path.addQuadCurve(to: pt(50, 80), control: pt(70, 60))
+        path.addQuadCurve(to: pt(30, 40), control: pt(30, 60))
+        path.addQuadCurve(to: pt(50, 20), control: pt(35, 25))
+        path.closeSubpath()
+        return path
+    }
+
+    static func icon_28(_ rect: CGRect) -> Path {
+        var path = Path()
+        func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { LeafIDGlyphPaths.pt(rect, x, y) }
+        path.move(to: pt(25, 50))
+        path.addCurve(to: pt(50, 25), control1: pt(30, 35), control2: pt(40, 25))
+        path.addCurve(to: pt(75, 50), control1: pt(60, 25), control2: pt(70, 35))
+        path.addCurve(to: pt(50, 75), control1: pt(70, 65), control2: pt(60, 75))
+        path.addCurve(to: pt(25, 50), control1: pt(40, 75), control2: pt(30, 65))
+        path.closeSubpath()
+        return path
+    }
+
+    static func icon_29(_ rect: CGRect) -> Path {
+        var path = Path()
+        func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { LeafIDGlyphPaths.pt(rect, x, y) }
+        path.move(to: pt(50, 10))
+        path.addLine(to: pt(70, 30))
+        path.addLine(to: pt(60, 50))
+        path.addLine(to: pt(80, 60))
+        path.addLine(to: pt(50, 90))
+        path.addLine(to: pt(20, 60))
+        path.addLine(to: pt(40, 50))
+        path.addLine(to: pt(30, 30))
+        path.closeSubpath()
+        return path
+    }
+
 }
 
 private struct LeafIDGlyphShape: Shape {
@@ -1046,6 +1154,10 @@ struct LeafIDIcon: View {
         /// Vector-traced from reference art (potrace) rather than hand-authored — natural aspect ratio, not square.
         case leafSpray1, leafSpray2, leafSpray3
         case samaraCluster1, samaraCluster2, samaraCluster3, samaraClusterWide
+        /// Onboarding-selected icon variants from custom 66-icon library
+        case icon2_0, icon2_1, icon2_2, icon2_3
+        case icon3_0, icon3_3, icon3_14
+        case icon_7, icon_11, icon_12, icon_19, icon_28, icon_29
 
         /// Width ÷ height of the glyph's own design grid. 1 for the hand-authored square glyphs;
         /// the traced glyphs keep the proportions of the artwork they were traced from.
@@ -1061,6 +1173,8 @@ struct LeafIDIcon: View {
             case .samara: return 95.0 / 113.0
             case .leaf: return 76.0 / 169.0
             case .mapleLeaf, .oakLeaf, .acorn, .pinecone, .berry, .flower, .tree, .sprout: return 1
+            case .icon2_0, .icon2_1, .icon2_2, .icon2_3, .icon3_0, .icon3_3, .icon3_14: return 1
+            case .icon_7, .icon_11, .icon_12, .icon_19, .icon_28, .icon_29: return 1
             }
         }
     }
@@ -1103,6 +1217,19 @@ struct LeafIDIcon: View {
         case .samaraCluster2: return LeafIDGlyphPaths.samaraCluster2
         case .samaraCluster3: return LeafIDGlyphPaths.samaraCluster3
         case .samaraClusterWide: return LeafIDGlyphPaths.samaraClusterWide
+        case .icon2_0: return LeafIDGlyphPaths.icon2_0
+        case .icon2_1: return LeafIDGlyphPaths.icon2_1
+        case .icon2_2: return LeafIDGlyphPaths.icon2_2
+        case .icon2_3: return LeafIDGlyphPaths.icon2_3
+        case .icon3_0: return LeafIDGlyphPaths.icon3_0
+        case .icon3_3: return LeafIDGlyphPaths.icon3_3
+        case .icon3_14: return LeafIDGlyphPaths.icon3_14
+        case .icon_7: return LeafIDGlyphPaths.icon_7
+        case .icon_11: return LeafIDGlyphPaths.icon_11
+        case .icon_12: return LeafIDGlyphPaths.icon_12
+        case .icon_19: return LeafIDGlyphPaths.icon_19
+        case .icon_28: return LeafIDGlyphPaths.icon_28
+        case .icon_29: return LeafIDGlyphPaths.icon_29
         }
     }
 
@@ -1115,7 +1242,10 @@ struct LeafIDIcon: View {
         case .pinecone: return LeafIDGlyphPaths.pineconeVein
         case .samara, .leaf, .berry, .flower, .tree, .sprout,
              .leafSpray1, .leafSpray2, .leafSpray3,
-             .samaraCluster1, .samaraCluster2, .samaraCluster3, .samaraClusterWide:
+             .samaraCluster1, .samaraCluster2, .samaraCluster3, .samaraClusterWide,
+             .icon2_0, .icon2_1, .icon2_2, .icon2_3,
+             .icon3_0, .icon3_3, .icon3_14,
+             .icon_7, .icon_11, .icon_12, .icon_19, .icon_28, .icon_29:
             return nil
         }
     }

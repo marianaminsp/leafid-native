@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PostHog
 
 struct HerbariumView: View {
     @EnvironmentObject private var viewModel: HerbariumViewModel
@@ -64,6 +65,11 @@ struct HerbariumView: View {
                                 ForEach(viewModel.scans) { scan in
                                     Button {
                                         immersiveUseMatchedGeometry = true
+                                        PostHogSDK.shared.capture("specimen_selected", properties: [
+                                            "plant_id": scan.id.uuidString,
+                                            "common_name": scan.commonName,
+                                            "timestamp": Date().timeIntervalSince1970
+                                        ])
                                         withAnimation(.leafIDSpring) { selectedScan = scan }
                                     } label: {
                                         HerbariumSpecimenRowCard(
@@ -85,6 +91,9 @@ struct HerbariumView: View {
                         )
                     }
                     .refreshable {
+                        PostHogSDK.shared.capture("herbarium_refreshed", properties: [
+                            "timestamp": Date().timeIntervalSince1970
+                        ])
                         await viewModel.hydrateFromSupabase(auth: auth)
                     }
                 }
@@ -115,7 +124,13 @@ struct HerbariumView: View {
             }
         }
         .preferredColorScheme(.dark)
-        .onAppear { presentPendingScanIfNeeded() }
+        .onAppear {
+            PostHogSDK.shared.capture("herbarium_viewed", properties: [
+                "total_plants": viewModel.scans.count,
+                "timestamp": Date().timeIntervalSince1970
+            ])
+            presentPendingScanIfNeeded()
+        }
         .onChange(of: pendingPresentScan.wrappedValue?.id) { _ in
             presentPendingScanIfNeeded()
         }

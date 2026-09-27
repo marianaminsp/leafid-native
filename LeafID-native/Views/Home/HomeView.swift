@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PostHog
 
 private struct ScanFlowOutcome: Identifiable {
     let id = UUID()
@@ -181,6 +182,12 @@ struct HomeView: View {
                         }
 
                         HomeUploadGalleryButton {
+                            PostHogSDK.shared.capture("scan_initiated", properties: [
+                                "method": "gallery",
+                                "scans_count": scansCount,
+                                "is_premium": isPremium,
+                                "timestamp": Date().timeIntervalSince1970
+                            ])
                             if ImagePickerAvailability.photoLibraryAvailable() {
                                 showLibraryPicker = true
                             }
@@ -298,6 +305,12 @@ struct HomeView: View {
             showPaywall = true
             return
         }
+        PostHogSDK.shared.capture("scan_initiated", properties: [
+            "method": "camera",
+            "scans_count": scansCount,
+            "is_premium": isPremium,
+            "timestamp": Date().timeIntervalSince1970
+        ])
         if ImagePickerAvailability.cameraAvailable() {
             showCameraPicker = true
         } else {
