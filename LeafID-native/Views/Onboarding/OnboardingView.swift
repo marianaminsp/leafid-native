@@ -147,9 +147,9 @@ private struct OnboardingCoverScreen: View {
             return
         }
         try? await Task.sleep(for: .seconds(2.8))
-        withAnimation(.easeInOut(duration: 0.42)) { beat = 1 }
+        withAnimation(.easeInOut(duration: 0.52)) { beat = 1 }
         try? await Task.sleep(for: .seconds(2.8))
-        withAnimation(.easeInOut(duration: 0.42)) { beat = 2 }
+        withAnimation(.easeInOut(duration: 0.52)) { beat = 2 }
         try? await Task.sleep(for: .seconds(1.2))
         withAnimation(.easeInOut(duration: 0.48)) { showContinue = true }
     }
@@ -173,20 +173,20 @@ private struct OnboardingBeatScreen: View {
             OnboardingEyebrow(eyebrow)
                 .opacity(showContent ? 1 : 0)
             LeafIDTypography.displayTitle(headline)
-                .padding(.top, LeafIDTheme.space12)
+                .padding(.top, LeafIDTheme.space32)
                 .offset(y: showContent ? 0 : 8)
                 .opacity(showContent ? 1 : 0)
             Text(bodyText)
                 .font(LeafIDFont.manrope(size: LeafIDFont.boutiqueSubtitleSize, weight: .medium))
                 .foregroundStyle(LeafIDTheme.onSurfaceVariant)
-                .padding(.top, LeafIDTheme.space12)
+                .padding(.top, LeafIDTheme.space16)
                 .offset(y: showContent ? 0 : 12)
                 .opacity(showContent ? 1 : 0)
 
-            Spacer(minLength: LeafIDTheme.space24)
+            Spacer(minLength: LeafIDTheme.space32)
 
             OnboardingPageDots(total: 4, activeIndex: pageIndex)
-                .padding(.bottom, LeafIDTheme.space16)
+                .padding(.bottom, LeafIDTheme.space20)
 
             OnboardingGhostButton(title: primaryTitle, action: onPrimary)
         }
@@ -215,8 +215,6 @@ private struct OnboardingSignInScreen: View {
     var onContinueWithGoogle: () -> Void
     var onNotNow: () -> Void
 
-    private let ranks = ["Wandering Seed", "Forest Sprout", "Oak Guardian", "Archdruid"]
-
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             OnboardingEyebrow(String(localized: "THE PATH"))
@@ -230,27 +228,18 @@ private struct OnboardingSignInScreen: View {
                 .foregroundStyle(LeafIDTheme.onSurfaceVariant)
                 .padding(.top, LeafIDTheme.space12)
 
-            VStack(alignment: .leading, spacing: LeafIDTheme.space10) {
-                ForEach(Array(ranks.enumerated()), id: \.offset) { index, rank in
-                    HStack(spacing: LeafIDTheme.space10) {
-                        Circle()
-                            .fill(index == ranks.count - 1 ? LeafIDTheme.primary : LeafIDTheme.outlineVariant)
-                            .frame(width: 8, height: 8)
-                        Text(String(localized: String.LocalizationValue(rank)))
-                            .font(LeafIDFont.manrope(size: 15, weight: index == ranks.count - 1 ? .semibold : .medium))
-                            .foregroundStyle(index == ranks.count - 1 ? LeafIDTheme.onSurface : LeafIDTheme.onSurfaceVariant)
-                    }
-                    if index < ranks.count - 1 {
-                        Rectangle()
-                            .fill(LeafIDTheme.outlineVariant)
-                            .frame(width: 1, height: 12)
-                            .padding(.leading, 3.5)
-                    }
-                }
-            }
-            .padding(.top, LeafIDTheme.space24)
+            Spacer(minLength: LeafIDTheme.space32)
 
-            Spacer(minLength: LeafIDTheme.space24)
+            HStack(spacing: LeafIDTheme.space10) {
+                Circle()
+                    .fill(LeafIDTheme.primary)
+                    .frame(width: 8, height: 8)
+                Text(String(localized: "Archdruid"))
+                    .font(LeafIDFont.manrope(size: 15, weight: .semibold))
+                    .foregroundStyle(LeafIDTheme.onSurface)
+            }
+
+            Spacer(minLength: LeafIDTheme.space32)
 
             VStack(spacing: LeafIDTheme.space10) {
                 LeafPrimaryButton(
