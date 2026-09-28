@@ -27,10 +27,10 @@ These change what goes into the P0/P1 lists below.
   Full context in the "Daily scan quota" section below and [ADR-0005](DECISIONS/ADR-0005-identify-daily-scan-quota.md).
   If D1 = (a), this quota becomes the *only* protection for the shared free-tier provider budget.
   That argues for shipping it in the first build.
-- [ ] **D3: Sign in with Apple, or drop Google?** Google OAuth is offered (login, onboarding, Druid).
-  Apple Sign-In isn't. Guideline 4.8 requires an equivalent option. It usually surfaces at App Store
-  review, sometimes already at Beta App Review. Adding Apple Sign-In (Supabase supports it) is the
-  standard answer.
+- [x] **D3: Sign in with Apple.** **Decided + client done 2026-09-28 (keep both providers).** Native
+  `SignInWithAppleButton` added everywhere Google is (login, onboarding, Druid), wired to Supabase's
+  `id_token` grant with a hashed/raw nonce. **Two manual steps remain before it works end to end** (see
+  P1 "Resolve D3" below) — both need the Apple Developer + Supabase dashboards.
 - [ ] **D4: iPad and landscape.** `TARGETED_DEVICE_FAMILY = "1,2"` and iPhone landscape are declared
   (pbxproj lines 712–713, 723), but no view has an iPad or landscape layout. **Recommendation:** iPhone-only
   and portrait-only for v1. Otherwise App Review tests on iPad and the stretched layout is a rejection risk.
@@ -71,7 +71,14 @@ These change what goes into the P0/P1 lists below.
   FK to `auth.users`), then `profiles`, best-effort storage cleanup across `plant-photos` + `plant-images`
   with lowercased-userId keys, then `auth.admin.deleteUser`. **Verified:** unauth call → 401.
   **Still to do:** one real end-to-end delete with a throwaway account (destructive, do manually).
-- [ ] **Resolve D3** (Sign in with Apple).
+- [~] **Resolve D3** (Sign in with Apple). *Client implemented 2026-09-28 (native button + Supabase
+  `id_token` exchange, entitlement added, builds clean, button renders). Remaining manual setup:*
+  1. *Apple Developer portal: enable "Sign in with Apple" capability on App ID `com.marianaminafro.leafid`
+     (Automatic signing then regenerates the profile — required for device/Archive builds).*
+  2. *Create a "Services ID" + a Sign in with Apple key, and configure the **Apple provider** in Supabase
+     Auth (Dashboard → Authentication → Providers → Apple) with the Services ID, Team ID, Key ID, and key.*
+  *Until both are done, tapping the button shows Apple's sheet but the token exchange returns a provider
+  error. Then verify end to end on a real device with an Apple ID.*
 - [ ] **Resolve D4** (iPhone-only / portrait-only), or test iPad properly.
 - [ ] **Real app icon.** The asset is still `AppIcon-placeholder-1024.png`.
 - [ ] **Privacy policy update.** Hosted and linked from Druid
