@@ -327,6 +327,33 @@ final class AuthViewModel: ObservableObject {
         clearSession()
     }
 
+    func userJWT() -> String? {
+        KeychainTokenStore.string(forKey: sessionAccessTokenKey)?.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    func deleteAccount(jwt: String) async throws {
+        guard let supabaseUrl = supabaseRootURLString() else {
+            throw NSError(domain: "AuthViewModel", code: -1, userInfo: [NSLocalizedDescriptionKey: "Supabase URL not configured"])
+        }
+
+        let url = URL(string: "\(supabaseUrl)/functions/v1/delete-account")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(jwt)", forHTTPHeaderField: "Authorization")
+
+        let (_, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NSError(domain: "AuthViewModel", code: -2, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+        }
+
+        guard httpResponse.statusCode == 200 else {
+            throw NSError(domain: "AuthViewModel", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Failed to delete account (HTTP \(httpResponse.statusCode))"])
+        }
+
+        clearSession()
+    }
+
     private func restoreSession() async {
         defer { isLoadingSession = false }
         guard let accessToken = KeychainTokenStore.string(forKey: sessionAccessTokenKey), !accessToken.isEmpty else {

@@ -12,6 +12,8 @@ struct DruidProfileView: View {
     @EnvironmentObject private var herbarium: HerbariumViewModel
     @StateObject private var viewModel = DruidProfileViewModel()
     @State private var showPaywall = false
+    @State private var showDeleteConfirmation = false
+    @State private var isDeleting = false
     /// Raw `UIScrollView.contentOffset.y` — 0 at rest, positive as the user scrolls down.
     @State private var rawScrollOffsetY: CGFloat = 0
     @Environment(\.openURL) private var openURL
@@ -49,7 +51,11 @@ struct DruidProfileView: View {
                                 rankBadgeCard
                                 quotaCard
                                 achievementsRow
+                                #if DEBUG
+                                // D1 Decision (2026-09-28): Hide support card during beta (PaywallView not functional)
+                                #else
                                 supportCard
+                                #endif
                                 signOutFooter
                             }
                             .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
@@ -185,12 +191,18 @@ struct DruidProfileView: View {
                 .scaleEffect(x: 1, y: 1.4, anchor: .center)
                 .clipShape(Capsule())
 
+            #if DEBUG
+            Text(String(localized: "Daily scan quota: 25 scans per day (server-side protection active)."))
+                .font(LeafIDFont.manrope(size: 12, weight: .medium))
+                .foregroundStyle(LeafIDTheme.slateMuted)
+            #else
             Text(viewModel.isPremium ? String(localized: "Premium unlocked. You can scan without limits.") : String(localized: "You have 3 free scans. Unlock more to keep exploring."))
                 .font(LeafIDFont.manrope(size: 12, weight: .medium))
                 .foregroundStyle(LeafIDTheme.slateMuted)
             LeafPrimaryButton(title: String(localized: "Unlock more"), useSolidPrimaryFill: true, compact: true) {
                 showPaywall = true
             }
+            #endif
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(LeafIDTheme.space14)
@@ -284,6 +296,14 @@ struct DruidProfileView: View {
             ) {
                 authViewModel.signOut()
             }
+            if authViewModel.isAuthenticated {
+                Button(action: { showDeleteConfirmation = true }) {
+                    Text(String(localized: "Delete account"))
+                        .font(LeafIDFont.manrope(size: 13, weight: .medium))
+                        .foregroundStyle(LeafIDTheme.slateMuted)
+                }
+                .padding(.top, LeafIDTheme.space4)
+            }
             if let privacyPolicyURL {
                 Link(String(localized: "Privacy Policy"), destination: privacyPolicyURL)
                     .font(LeafIDFont.manrope(size: 13, weight: .medium))
@@ -292,10 +312,41 @@ struct DruidProfileView: View {
             }
         }
         .padding(.top, LeafIDTheme.space10)
+        .confirmationDialog(
+            String(localized: "Delete Account"),
+            isPresented: $showDeleteConfirmation,
+            actions: {
+                Button(String(localized: "Delete"), role: .destructive) {
+                    Task { await deleteAccount() }
+                }
+                Button(String(localized: "Cancel"), role: .cancel) {}
+            },
+            message: {
+                Text(String(localized: "This will permanently delete your account, all scans, and photos. This cannot be undone."))
+            }
+        )
     }
 
     private var privacyPolicyURL: URL? {
         URL(string: "https://marianaminsp.github.io/leafid-native/docs/PRIVACY_POLICY.html")
+    }
+
+    private func deleteAccount() async {
+        isDeleting = true
+        defer { isDeleting = false }
+        showDeleteConfirmation = false
+
+        guard let jwt = authViewModel.userJWT() else {
+            authViewModel.lastError = "No authentication token available"
+            return
+        }
+
+        do {
+            try await authViewModel.deleteAccount(jwt: jwt)
+            authViewModel.signOut()
+        } catch {
+            authViewModel.lastError = "Failed to delete account: \(error.localizedDescription)"
+        }
     }
 
     private var loginOverlay: some View {

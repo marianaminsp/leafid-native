@@ -10,7 +10,13 @@ import Foundation
 
 @MainActor
 final class DruidProfileViewModel: ObservableObject {
-    private static let freeScanLimit = 3
+    // D1 Decision (2026-09-28): Disable client-side gate for beta testing.
+    // Server-side daily quota (25/day) provides protection. Real gate will be StoreKit IAP in v2.
+    #if DEBUG
+    private static let freeScanLimit = 10_000  // Disabled for beta testing
+    #else
+    private static let freeScanLimit = 3       // Production gate (will be removed for app store)
+    #endif
     private static let googleClientID = "133761573510-233kdml7mn0p0d19pksj62h1t27oaide.apps.googleusercontent.com"
 
     @Published private(set) var profile: Profile?
