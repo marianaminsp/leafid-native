@@ -104,6 +104,7 @@ private struct OnboardingCoverScreen: View {
                 )
             }
             .frame(minHeight: 170, alignment: .topLeading)
+            .padding(.top, 50)
 
             HStack(spacing: 6) {
                 ForEach(0 ..< 3) { index in
@@ -196,11 +197,10 @@ private struct OnboardingBeatScreen: View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
                 OnboardingEyebrow(eyebrow)
-                    .padding(.top, 50)
                     .offset(y: showContent ? 0 : -8)
                     .opacity(showContent ? 1 : 0)
                 LeafIDTypography.displayTitle(headline)
-                    .padding(.top, 20)
+                    .padding(.top, 50)
                     .offset(y: showContent ? 0 : 8)
                     .opacity(showContent ? 1 : 0)
                 Text(bodyText)
