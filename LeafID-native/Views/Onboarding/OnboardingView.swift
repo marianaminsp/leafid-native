@@ -210,6 +210,7 @@ private struct OnboardingBeatScreen: View {
                     .offset(y: showContent ? 0 : 12)
                     .opacity(showContent ? 1 : 0)
             }
+            .padding(.top, 100)
 
             Spacer(minLength: LeafIDTheme.space32)
 
