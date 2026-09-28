@@ -29,6 +29,7 @@
 		E1A10000000000000000000B /* BotanyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000000B /* BotanyService.swift */; };
 		E1A10000000000000000000C /* Animation+LeafID.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000000C /* Animation+LeafID.swift */; };
 		E1A10000000000000000000D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000000D /* Assets.xcassets */; };
+		E1A2000000000000000000A3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E1A2000000000000000000A0 /* InfoPlist.strings */; };
 		E1A10000000000000000000E /* LiquidGlass.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A20000000000000000000E /* LiquidGlass.swift */; };
 		E1A10000000000000000000F /* GlassContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000010 /* GlassContainer.swift */; };
 		E1A100000000000000000011 /* BoutiqueHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A200000000000000000011 /* BoutiqueHeader.swift */; };
@@ -143,6 +144,8 @@
 		E1A20000000000000000007E /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		E1A200000000000000000081 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		E1A200000000000000000082 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		E1A2000000000000000000A1 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E1A2000000000000000000A2 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E1A2000000000000000000FF /* LeafID-native.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LeafID-native.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2ED6734285CFC408ACDF0C4 /* AppMonitoring.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppMonitoring.swift; sourceTree = "<group>"; };
 		FBD938ABEC1D8A0C52567944 /* ArboretumComingSoonView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ArboretumComingSoonView.swift; sourceTree = "<group>"; };
@@ -218,6 +221,7 @@
 				E1A400000000000000000015 /* Extensions */,
 				E1A20000000000000000000D /* Assets.xcassets */,
 				E1A200000000000000000080 /* Localizable.strings */,
+				E1A2000000000000000000A0 /* InfoPlist.strings */,
 				05246439EFD4918AA442102C /* PrivacyInfo.xcprivacy */,
 			);
 			path = "LeafID-native";
@@ -502,6 +506,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E1A10000000000000000000D /* Assets.xcassets in Resources */,
+				E1A2000000000000000000A3 /* InfoPlist.strings in Resources */,
 				160999D0354EC2E83E55C01E /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -598,6 +603,15 @@
 				E1A200000000000000000082 /* es */,
 			);
 			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		E1A2000000000000000000A0 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E1A2000000000000000000A1 /* en */,
+				E1A2000000000000000000A2 /* es */,
+			);
+			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

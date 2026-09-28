@@ -1,0 +1,3 @@
+"NSCameraUsageDescription" = "LeafID usa la cámara para capturar fotos de hojas e identificar plantas.";
+"NSLocationWhenInUseUsageDescription" = "LeafID usa tu ubicación para registrar dónde encontraste cada planta en tu Herbario.";
+"NSPhotoLibraryUsageDescription" = "LeafID accede a tu fototeca para identificar plantas a partir de fotos que ya hiciste.";
