@@ -200,7 +200,7 @@ private struct OnboardingBeatScreen: View {
                     .offset(y: showContent ? 0 : -8)
                     .opacity(showContent ? 1 : 0)
                 LeafIDTypography.displayTitle(headline)
-                    .padding(.top, 50)
+                    .padding(.top, 16)
                     .offset(y: showContent ? 0 : 8)
                     .opacity(showContent ? 1 : 0)
                 Text(bodyText)
