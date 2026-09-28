@@ -4,6 +4,77 @@ Chronological record of development sessions, features completed, and key decisi
 
 ---
 
+## Session: 2026-09-28 - TestFlight backlog: D1, account deletion, i18n, observability, Sign in with Apple
+
+**Focus**: Burn down P0/P1 launch blockers + onboarding UI polish
+**Status**: ✅ Code complete for the items below; some need manual dashboard/device steps before "done"
+
+### Completed (with commits)
+
+1. **Onboarding/tutorial spacing + headline alignment**
+   - Cover paragraphs: 50px top margin. Tutorial headline anchored at 50px so it lands on the
+     *same baseline* as the onboarding headline (verified 4px apart in simulator); the eyebrow is an
+     overlay above it, so its height never shifts the headline.
+   - Files: `Views/Onboarding/OnboardingView.swift`. Commits `c32ee62`, `87557c6`, `0acf56e`, `da03bf2`.
+
+2. **D1 — free-tier gate + dead paywall (P0)** — `a038160`
+   - Single source of truth `FeatureFlags.premiumGatingEnabled = false` (top of `DruidProfileViewModel.swift`).
+   - When false: `canUserScan()` in `HomeView` + `DruidProfileViewModel` short-circuit to true (no gate,
+     paywall never opens); Druid quota card shows the daily-quota message; "Buy me a coffee" card hidden.
+   - Replaces the earlier `#if DEBUG` hack that left the gate live in Release/TestFlight.
+   - Flip the flag to `true` to re-enable gating once real StoreKit IAP exists.
+
+3. **In-app account deletion (P1)** — `2756bb2`, `c178ab4`
+   - `supabase/functions/delete-account/index.ts` (deployed to project `yuflikryfeunofptgrtr`, v1,
+     verify_jwt=true). Deletes `scans` → `profiles` → best-effort storage (`plant-photos` + `plant-images`,
+     lowercased-userId keys) → `auth.admin.deleteUser`.
+   - Druid → "Delete account" with confirmation; `AuthViewModel.deleteAccount`.
+   - Verified: unauth call → 401. NOT verified: real end-to-end delete (needs a throwaway account).
+
+4. **Localized permission prompts (P1)** — `a6ad0a9`
+   - Added `en.lproj/InfoPlist.strings` + `es.lproj/InfoPlist.strings` (camera/location/photos),
+     registered the variant group in Copy Bundle Resources. Verified bundled via `plutil`.
+
+5. **Quota observability (P1)** — `2df2c98`
+   - `BotanyService.identifyPlantWithAI` emits PostHog `scan_quota_exceeded` and `scan_identify_result`
+     (provider, provider_chain, provider_fallback_used, fallback, diagnostic_code, confidence).
+   - NOT verified live (needs a real signed-in scan to confirm events land).
+
+6. **Sign in with Apple (D3, P1)** — `d6d1fdf`, `505061e`
+   - Native `SignInWithAppleButton` on LoginView, onboarding, Druid overlay. Supabase `id_token` grant
+     with hashed/raw nonce, reusing `persistSessionTokens`/`hydrateSession`.
+   - Added `LeafID-native.entitlements` (`com.apple.developer.applesignin`) + `CODE_SIGN_ENTITLEMENTS`.
+   - Verified: builds clean, button renders (auto-localizes). NOT working end-to-end yet — see below.
+
+### ⚠️ Pending manual steps (need Mariana's dashboards/device — cannot be done from code)
+
+- **Sign in with Apple:** (1) enable "Sign in with Apple" capability on App ID `com.marianaminafro.leafid`
+  in the Apple Developer portal; (2) create a Services ID + Sign in with Apple key and configure the Apple
+  provider in Supabase (Auth → Providers → Apple). Then verify on a real device with an Apple ID.
+- **Account deletion:** run one real end-to-end delete with a throwaway account (destructive).
+- **Quota observability:** do a real signed-in scan and confirm events land in PostHog.
+
+### Next up (tomorrow)
+
+- **D4 — iPhone-only / portrait-only** (verifiable in-repo: `TARGETED_DEVICE_FAMILY` + orientation in
+  pbxproj/Info.plist). Recommended for v1 to avoid iPad-layout rejection.
+- **Real app icon** (replace `AppIcon-placeholder-1024.png`) — needs a design asset.
+- **Privacy policy + App Store Connect privacy label** (add Sentry/PostHog/AI providers).
+- Remaining P0 that needs the Apple account: signing/ASC record, release-config secrets in an Archive,
+  release-build device smoke test, provider-quota health-check.
+
+### Environment / how to resume (verified this session)
+
+- **Build:** `xcodebuild -scheme LeafID-native -destination 'platform=iOS Simulator,name=iPhone 17' build`
+  — do NOT pass `-derivedDataPath` (it triggers a stale Sentry XCFramework path error; default DerivedData
+  works). iPhone 16 sim isn't installed; iPhone 17 is.
+- **Run/screenshot:** simulator runs headless (no GUI window, can't mouse-tap). Use
+  `xcrun simctl install/launch booted com.marianaminafro.leafid` + `xcrun simctl io booted screenshot`.
+  Jump straight to LoginView with the launch arg `-hasCompletedOnboarding YES` (NSArgumentDomain).
+- Full item status + the D3 manual steps are checked off/annotated in `docs/BACKLOG.md`.
+
+---
+
 ## Session: 2026-09-27 - Bug Framework Setup
 
 **Duration**: 2 hours  
