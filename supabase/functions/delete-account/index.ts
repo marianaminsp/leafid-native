@@ -104,21 +104,22 @@ serve(async (req) => {
       );
     }
 
-    // 3. Delete storage (scan photos)
-    const { data: storageObjects, error: listError } = await adminClient
-      .storage.from("scan-images")
-      .list(`${userId}`);
-
-    if (!listError && storageObjects) {
-      const filePaths = storageObjects.map((file) => `${userId}/${file.name}`);
-      if (filePaths.length > 0) {
-        const { error: deleteStorageError } = await adminClient
-          .storage.from("scan-images")
-          .remove(filePaths);
-
-        if (deleteStorageError) {
-          console.error("Error deleting storage:", deleteStorageError);
-        }
+    // 3. Delete storage photos (best-effort — never block account deletion on this).
+    // Object keys are `{userId-lowercased}/{scanId}{suffix}.jpg` (BotanyService.swift).
+    // The app uploads to `plant-photos` at runtime while migration 0005 provisioned
+    // `plant-images`; clean both so deletion is complete regardless of which is live.
+    const ownerPrefix = userId.toLowerCase();
+    for (const bucket of ["plant-photos", "plant-images"]) {
+      try {
+        const { data: objects, error: listErr } = await adminClient
+          .storage.from(bucket)
+          .list(ownerPrefix);
+        if (listErr || !objects || objects.length === 0) continue;
+        const paths = objects.map((o) => `${ownerPrefix}/${o.name}`);
+        const { error: rmErr } = await adminClient.storage.from(bucket).remove(paths);
+        if (rmErr) console.error(`storage remove failed for ${bucket}:`, rmErr);
+      } catch (e) {
+        console.error(`storage cleanup error for ${bucket}:`, e);
       }
     }
 
