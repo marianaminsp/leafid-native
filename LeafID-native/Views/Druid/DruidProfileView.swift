@@ -5,6 +5,7 @@
 //  The Druid — passport-style identity & progression (PDR §2 / protocol Tab 4).
 //
 
+import AuthenticationServices
 import SwiftUI
 
 struct DruidProfileView: View {
@@ -383,6 +384,16 @@ struct DruidProfileView: View {
                     .clipShape(RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous))
                 }
                 .buttonStyle(.plain)
+
+                SignInWithAppleButton(.continue) { request in
+                    authViewModel.prepareAppleSignInRequest(request)
+                } onCompletion: { result in
+                    Task { await authViewModel.handleAppleSignIn(result) }
+                }
+                .signInWithAppleButtonStyle(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous))
             }
             .padding(LeafIDTheme.space24)
             .background(LeafIDTheme.surfaceContainerHigh)

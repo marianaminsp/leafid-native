@@ -7,6 +7,7 @@
 //  sign-in screen that reuses AuthViewModel's Google OAuth flow.
 //
 
+import AuthenticationServices
 import SwiftUI
 import PostHog
 
@@ -249,6 +250,8 @@ private struct OnboardingSignInScreen: View {
     var onContinueWithGoogle: () -> Void
     var onNotNow: () -> Void
 
+    @EnvironmentObject private var authViewModel: AuthViewModel
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
@@ -270,6 +273,15 @@ private struct OnboardingSignInScreen: View {
                     useSolidPrimaryFill: true,
                     action: onContinueWithGoogle
                 )
+                SignInWithAppleButton(.continue) { request in
+                    authViewModel.prepareAppleSignInRequest(request)
+                } onCompletion: { result in
+                    Task { await authViewModel.handleAppleSignIn(result) }
+                }
+                .signInWithAppleButtonStyle(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 52)
+                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous))
                 OnboardingGhostButton(title: String(localized: "Not now"), action: onNotNow)
             }
         }

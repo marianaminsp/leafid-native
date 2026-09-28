@@ -5,6 +5,7 @@
 //  Created by Mariana Minafro Spinelli on 11/04/2026.
 //
 
+import AuthenticationServices
 import CryptoKit
 import PostHog
 import Security
@@ -82,6 +83,10 @@ final class AuthViewModel: ObservableObject {
     private let googleIOSRedirectURI = "com.googleusercontent.apps.133761573510-233kdml7mn0p0d19pksj62h1t27oaide://auth"
     private let oauthPKCEVerifierKey = "auth.oauth.pkce.verifier"
 
+    /// Raw (un-hashed) nonce for the in-flight Sign in with Apple request. Apple receives its SHA256
+    /// hash; Supabase receives this raw value to validate the returned identity token against.
+    private var appleSignInRawNonce: String?
+
     /// Same role as JS `resetPasswordForEmail(..., { redirectTo })`: value comes from `PASSWORD_RESET_REDIRECT` in Info.plist (xcconfig → build).
     private var passwordResetRedirectURI: String {
         guard let raw = Bundle.main.object(forInfoDictionaryKey: "PASSWORD_RESET_REDIRECT") as? String else {
@@ -124,6 +129,76 @@ final class AuthViewModel: ObservableObject {
             URLQueryItem(name: "scopes", value: "openid email profile"),
         ]
         return components?.url
+    }
+
+    // MARK: - Sign in with Apple (native, via Supabase id_token grant)
+
+    /// Configure an Apple ID request: request name/email and attach the SHA256 of a fresh raw nonce.
+    /// Call from `SignInWithAppleButton`'s `onRequest`.
+    func prepareAppleSignInRequest(_ request: ASAuthorizationAppleIDRequest) {
+        let rawNonce = makePKCEVerifier() ?? UUID().uuidString
+        appleSignInRawNonce = rawNonce
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = pkceChallengeS256(verifier: rawNonce)
+    }
+
+    /// Handle the `SignInWithAppleButton` completion: pull the identity token and exchange it with
+    /// Supabase for a session. Call from the button's `onCompletion`.
+    func handleAppleSignIn(_ result: Result<ASAuthorization, Error>) async {
+        switch result {
+        case let .failure(error):
+            if (error as? ASAuthorizationError)?.code == .canceled {
+                lastError = nil
+            } else {
+                lastError = String(localized: "Apple sign-in could not be completed. Try again.")
+            }
+            appleSignInRawNonce = nil
+        case let .success(authorization):
+            guard
+                let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
+                let tokenData = credential.identityToken,
+                let idToken = String(data: tokenData, encoding: .utf8),
+                let rawNonce = appleSignInRawNonce
+            else {
+                lastError = String(localized: "Apple sign-in returned no identity token. Try again.")
+                appleSignInRawNonce = nil
+                return
+            }
+            appleSignInRawNonce = nil
+            do {
+                let session = try await exchangeAppleIDToken(idToken: idToken, rawNonce: rawNonce)
+                let expiresAtEpoch = Date().timeIntervalSince1970 + TimeInterval(session.expiresIn)
+                persistSessionTokens(
+                    accessToken: session.accessToken,
+                    refreshToken: session.refreshToken,
+                    expiresAtEpoch: expiresAtEpoch
+                )
+                await hydrateSession(accessToken: session.accessToken)
+            } catch {
+                clearSession()
+                lastError = String(localized: "Could not complete Apple sign-in. Try again.")
+            }
+        }
+    }
+
+    private func exchangeAppleIDToken(idToken: String, rawNonce: String) async throws -> AuthSession {
+        guard let root = supabaseRootURLString(), let anon = supabaseAnonKey(),
+              let url = URL(string: "\(root)/auth/v1/token?grant_type=id_token")
+        else { throw AuthError.configuration }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(anon, forHTTPHeaderField: "apikey")
+        request.httpBody = try JSONEncoder().encode(
+            AppleIDTokenPayload(provider: "apple", idToken: idToken, nonce: rawNonce)
+        )
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse, (200 ... 299).contains(http.statusCode) else {
+            throw AuthError.requestFailed
+        }
+        return try JSONDecoder().decode(AuthSession.self, from: data)
     }
 
     func handleIncomingURL(_ url: URL) async {
@@ -738,6 +813,18 @@ private struct PKCEExchangePayload: Encodable {
     }
 }
 
+private struct AppleIDTokenPayload: Encodable {
+    let provider: String
+    let idToken: String
+    let nonce: String
+
+    enum CodingKeys: String, CodingKey {
+        case provider
+        case idToken = "id_token"
+        case nonce
+    }
+}
+
 private struct EmailPasswordPayload: Encodable {
     let email: String
     let password: String
@@ -909,6 +996,16 @@ struct LoginView: View {
                     .buttonStyle(.plain)
                     .disabled(authViewModel.isHandlingOAuthCallback)
                     .opacity(authViewModel.isHandlingOAuthCallback ? 0.55 : 1)
+
+                    SignInWithAppleButton(.continue) { request in
+                        authViewModel.prepareAppleSignInRequest(request)
+                    } onCompletion: { result in
+                        Task { await authViewModel.handleAppleSignIn(result) }
+                    }
+                    .signInWithAppleButtonStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+                    .clipShape(RoundedRectangle(cornerRadius: CornerRadius.card, style: .continuous))
 
                     HStack(spacing: LeafIDTheme.space6) {
                         Text(isSignUpMode ? String(localized: "Already have an account?") : String(localized: "Don't have an account?"))
