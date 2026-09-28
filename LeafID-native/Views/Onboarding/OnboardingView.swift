@@ -196,11 +196,16 @@ private struct OnboardingBeatScreen: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
-                OnboardingEyebrow(eyebrow)
-                    .offset(y: showContent ? 0 : -8)
-                    .opacity(showContent ? 1 : 0)
+                // Headline anchored at 50px — identical to the onboarding cover, so the two
+                // headlines land on the same baseline. The eyebrow floats above as an overlay
+                // (no layout space), so its height never pushes the headline down.
                 LeafIDTypography.displayTitle(headline)
-                    .padding(.top, 16)
+                    .overlay(alignment: .topLeading) {
+                        OnboardingEyebrow(eyebrow)
+                            .alignmentGuide(.top) { $0[.bottom] + 12 }
+                            .offset(y: showContent ? 0 : -8)
+                            .opacity(showContent ? 1 : 0)
+                    }
                     .offset(y: showContent ? 0 : 8)
                     .opacity(showContent ? 1 : 0)
                 Text(bodyText)
@@ -210,7 +215,7 @@ private struct OnboardingBeatScreen: View {
                     .offset(y: showContent ? 0 : 12)
                     .opacity(showContent ? 1 : 0)
             }
-            .padding(.top, 14)
+            .padding(.top, 50)
 
             Spacer(minLength: LeafIDTheme.space32)
 
