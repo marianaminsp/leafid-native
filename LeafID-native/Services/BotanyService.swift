@@ -18,6 +18,7 @@ import ImageIO
 #if canImport(CoreLocation)
 import CoreLocation
 #endif
+import PostHog
 
 enum BotanyServiceError: Error, LocalizedError {
     case emptyImagePayload
@@ -269,6 +270,10 @@ enum BotanyService {
         }
 
         if decoded.quota_exceeded == true {
+            PostHogSDK.shared.capture("scan_quota_exceeded", properties: [
+                "diagnostic_code": decoded.diagnostic_code ?? "daily_quota_exceeded",
+                "provider_chain": (decoded.provider_chain ?? []).joined(separator: " -> "),
+            ])
             throw BotanyServiceError.dailyQuotaExceeded
         }
 
@@ -282,14 +287,25 @@ enum BotanyService {
             ?? "Field identification from your specimen."
         let confidence = decoded.confidence.map { min(1, max(0, $0)) } ?? 0.2
         let fallback = decoded.fallback ?? false
-        #if DEBUG
+
         let provider = decoded.provider?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty ?? "unspecified"
         let chain = (decoded.provider_chain ?? []).joined(separator: " -> ")
+        let diagnosticCode = decoded.diagnostic_code?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
+        // Provider-pressure observability (backlog "Quota observability"): lets us watch which
+        // providers are carrying load / falling back while testers are active.
+        PostHogSDK.shared.capture("scan_identify_result", properties: [
+            "provider": provider,
+            "provider_chain": chain.isEmpty ? "<none>" : chain,
+            "provider_fallback_used": decoded.provider_fallback_used == true,
+            "fallback": fallback,
+            "diagnostic_code": diagnosticCode ?? "<none>",
+            "confidence": confidence,
+        ])
+        #if DEBUG
         print("[LeafID] identify provider: \(provider); fallback_used=\(decoded.provider_fallback_used == true); chain=\(chain.isEmpty ? "<none>" : chain)")
         if fallback {
             let diag = decoded.diagnostic_error?.trimmingCharacters(in: .whitespacesAndNewlines)
-            let code = decoded.diagnostic_code?.trimmingCharacters(in: .whitespacesAndNewlines)
-            print("[LeafID] identify-plant fallback diagnostic_error: \(diag?.isEmpty == false ? diag! : "<none>") | code=\(code?.isEmpty == false ? code! : "<none>")")
+            print("[LeafID] identify-plant fallback diagnostic_error: \(diag?.isEmpty == false ? diag! : "<none>") | code=\(diagnosticCode ?? "<none>")")
         }
         #endif
 
