@@ -8,15 +8,17 @@
 import Combine
 import Foundation
 
+/// Build-wide feature switches. Single source of truth so gating logic isn't scattered.
+enum FeatureFlags {
+    /// D1 (ADR-0005): v1 ships without StoreKit, so the client-side scan gate and the paywall
+    /// stay off. The server-side daily scan quota is the only free-tier protection. Flip this to
+    /// `true` once real IAP exists to re-enable the free-tier gate and paywall.
+    static let premiumGatingEnabled = false
+}
+
 @MainActor
 final class DruidProfileViewModel: ObservableObject {
-    // D1 Decision (2026-09-28): Disable client-side gate for beta testing.
-    // Server-side daily quota (25/day) provides protection. Real gate will be StoreKit IAP in v2.
-    #if DEBUG
-    private static let freeScanLimit = 10_000  // Disabled for beta testing
-    #else
-    private static let freeScanLimit = 3       // Production gate (will be removed for app store)
-    #endif
+    private static let freeScanLimit = 3
     private static let googleClientID = "133761573510-233kdml7mn0p0d19pksj62h1t27oaide.apps.googleusercontent.com"
 
     @Published private(set) var profile: Profile?
@@ -58,7 +60,7 @@ final class DruidProfileViewModel: ObservableObject {
     }
 
     func canUserScan() -> Bool {
-        isPremium || scansCount < Self.freeScanLimit
+        !FeatureFlags.premiumGatingEnabled || isPremium || scansCount < Self.freeScanLimit
     }
 
     func googleSignInURL() -> URL? {

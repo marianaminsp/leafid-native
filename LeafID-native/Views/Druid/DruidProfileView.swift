@@ -51,11 +51,11 @@ struct DruidProfileView: View {
                                 rankBadgeCard
                                 quotaCard
                                 achievementsRow
-                                #if DEBUG
-                                // D1 Decision (2026-09-28): Hide support card during beta (PaywallView not functional)
-                                #else
-                                supportCard
-                                #endif
+                                // Support card opens PaywallView, which has no StoreKit behind it.
+                                // Hidden until premium gating ships (D1 / ADR-0005).
+                                if FeatureFlags.premiumGatingEnabled {
+                                    supportCard
+                                }
                                 signOutFooter
                             }
                             .padding(.horizontal, LeafIDTheme.screenHorizontalPadding)
@@ -173,36 +173,36 @@ struct DruidProfileView: View {
                     .font(LeafIDFont.plusJakarta(size: 16, weight: .bold))
                     .foregroundStyle(LeafIDTheme.onSurface)
                 Spacer(minLength: 0)
-                if viewModel.isPremium {
-                    Text(String(localized: "Unlimited"))
-                        .font(LeafIDFont.manrope(size: 13, weight: .semibold))
-                        .foregroundStyle(LeafIDTheme.leafGreen)
-                } else {
+                if FeatureFlags.premiumGatingEnabled, !viewModel.isPremium {
                     Text(viewModel.scanEnergyCounterLabel)
                         .font(LeafIDFont.manrope(size: 13, weight: .bold))
                         .monospacedDigit()
                         .foregroundStyle(LeafIDTheme.onSurfaceVariant)
+                } else {
+                    Text(String(localized: "Unlimited"))
+                        .font(LeafIDFont.manrope(size: 13, weight: .semibold))
+                        .foregroundStyle(LeafIDTheme.leafGreen)
                 }
             }
 
-            ProgressView(value: viewModel.energyProgress, total: 1)
-                .tint(LeafIDTheme.leafGreen)
-                .progressViewStyle(.linear)
-                .scaleEffect(x: 1, y: 1.4, anchor: .center)
-                .clipShape(Capsule())
+            if FeatureFlags.premiumGatingEnabled {
+                ProgressView(value: viewModel.energyProgress, total: 1)
+                    .tint(LeafIDTheme.leafGreen)
+                    .progressViewStyle(.linear)
+                    .scaleEffect(x: 1, y: 1.4, anchor: .center)
+                    .clipShape(Capsule())
 
-            #if DEBUG
-            Text(String(localized: "Daily scan quota: 25 scans per day (server-side protection active)."))
-                .font(LeafIDFont.manrope(size: 12, weight: .medium))
-                .foregroundStyle(LeafIDTheme.slateMuted)
-            #else
-            Text(viewModel.isPremium ? String(localized: "Premium unlocked. You can scan without limits.") : String(localized: "You have 3 free scans. Unlock more to keep exploring."))
-                .font(LeafIDFont.manrope(size: 12, weight: .medium))
-                .foregroundStyle(LeafIDTheme.slateMuted)
-            LeafPrimaryButton(title: String(localized: "Unlock more"), useSolidPrimaryFill: true, compact: true) {
-                showPaywall = true
+                Text(viewModel.isPremium ? String(localized: "Premium unlocked. You can scan without limits.") : String(localized: "You have 3 free scans. Unlock more to keep exploring."))
+                    .font(LeafIDFont.manrope(size: 12, weight: .medium))
+                    .foregroundStyle(LeafIDTheme.slateMuted)
+                LeafPrimaryButton(title: String(localized: "Unlock more"), useSolidPrimaryFill: true, compact: true) {
+                    showPaywall = true
+                }
+            } else {
+                Text(String(localized: "Up to 25 scans per day. The daily limit resets each morning."))
+                    .font(LeafIDFont.manrope(size: 12, weight: .medium))
+                    .foregroundStyle(LeafIDTheme.slateMuted)
             }
-            #endif
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(LeafIDTheme.space14)

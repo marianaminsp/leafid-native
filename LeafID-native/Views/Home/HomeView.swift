@@ -297,7 +297,9 @@ struct HomeView: View {
     }
 
     private func canUserScan() -> Bool {
-        isPremium || ProfileStatsLocalStore.scansForFreeTierGate(appStorageQuota: scansCount) < 3
+        !FeatureFlags.premiumGatingEnabled
+            || isPremium
+            || ProfileStatsLocalStore.scansForFreeTierGate(appStorageQuota: scansCount) < 3
     }
 
     private func handleOpenCameraAction() {
