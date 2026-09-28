@@ -16,15 +16,13 @@ Items are grouped by the stage they block.
 
 These change what goes into the P0/P1 lists below.
 
-- [ ] **D1: Free-tier gate for beta testers.** The client blocks scanning after **3 lifetime scans**
-  (`DruidProfileViewModel.swift:13`, `freeScanLimit = 3`) and opens `PaywallView`, whose upgrade button
-  is a no-op with no StoreKit behind it (`PaywallView.swift:16`, copy says "not connected yet").
-  A tester is at a dead end after scan #3. Options: (a) raise/disable the client gate for beta and rely
-  on the server daily quota (D2), or (b) mark beta accounts `is_premium` in `profiles`.
-  **Recommendation:** (a). Ship no paywall until StoreKit exists.
-  **Interim decision (2026-09-26):** only the owner's account is set `is_premium = true` in `profiles`
-  (via the SQL Editor), with no code change. **Revisit before inviting any other tester.** Anyone else
-  still hits the 3-scan dead end.
+- [x] **D1: Free-tier gate for beta testers.** **Resolved 2026-09-28 (option a).** A single build-wide
+  flag `FeatureFlags.premiumGatingEnabled = false` (`DruidProfileViewModel.swift`) now switches off the
+  client scan gate and the paywall in *all* configs (not just DEBUG). `canUserScan()` in `HomeView` and
+  `DruidProfileViewModel` short-circuit to `true`; the Druid quota card shows the daily-quota message and
+  the support/"Buy me a coffee" card is hidden while `PaywallView` has no StoreKit. Server-side daily
+  quota (D2) is the only free-tier protection. Flip the flag to `true` to re-enable gating once real IAP
+  ships. The interim per-owner `is_premium` hack is no longer needed for testers.
 - [x] **D2: Ship the server daily scan quota in the first build?** **Yes. Live 2026-09-26:** migration `0010` applied via the SQL Editor and `identify-plant` v62 deployed. Still open: the manual in-app test (step 2 below) and PostHog events.
   Full context in the "Daily scan quota" section below and [ADR-0005](DECISIONS/ADR-0005-identify-daily-scan-quota.md).
   If D1 = (a), this quota becomes the *only* protection for the shared free-tier provider budget.
@@ -41,10 +39,10 @@ These change what goes into the P0/P1 lists below.
 
 ## P0 — Blocks the first internal TestFlight upload
 
-- [ ] **Accept the Xcode license.** `git` and `xcodebuild` currently fail with "You have not agreed to
-  the Xcode license agreements" (probably after an Xcode update). Run `sudo xcodebuild -license` in
-  Terminal, then re-confirm a clean build (last confirmed 2026-09-18).
-- [ ] **Resolve D1** (3-scan gate + dead paywall). Without this, every tester stalls on day one.
+- [x] **Accept the Xcode license.** *(No longer blocking as of 2026-09-28: repeated clean `xcodebuild`
+  runs succeeded this session, so the license is accepted.)*
+- [x] **Resolve D1** (3-scan gate + dead paywall). *(Done 2026-09-28 — see D1 above. Gate + paywall off
+  via `FeatureFlags.premiumGatingEnabled` in all build configs.)*
 - [x] **Export compliance key.** *(Done 2026-09-26 in `Info.plist`.)* Add `ITSAppUsesNonExemptEncryption = NO` (the app only uses HTTPS).
   Otherwise every upload stops at the export-compliance question in App Store Connect.
 - [ ] **Check signing and the App Store Connect record.** Team `497XL32H55`, bundle id
@@ -67,10 +65,12 @@ These change what goes into the P0/P1 lists below.
 
 ## P1 — Blocks external TestFlight (Beta App Review)
 
-- [ ] **In-app account deletion.** Required by Guideline 5.1.1(v) for any app with account creation.
-  Nothing exists today (no client UI, no edge function). Needs a Druid → "Delete account" action and a
-  `delete-account` edge function (service role: delete storage images, `scans`, `profiles`, then
-  `auth.admin.deleteUser`).
+- [x] **In-app account deletion.** *(Implemented + deployed 2026-09-28.)* Druid → "Delete account" with a
+  confirmation dialog (`DruidProfileView`), `AuthViewModel.deleteAccount` calls the `delete-account` edge
+  function (deployed to `yuflikryfeunofptgrtr`, v1, `verify_jwt=true`). Order: delete `scans` (non-cascade
+  FK to `auth.users`), then `profiles`, best-effort storage cleanup across `plant-photos` + `plant-images`
+  with lowercased-userId keys, then `auth.admin.deleteUser`. **Verified:** unauth call → 401.
+  **Still to do:** one real end-to-end delete with a throwaway account (destructive, do manually).
 - [ ] **Resolve D3** (Sign in with Apple).
 - [ ] **Resolve D4** (iPhone-only / portrait-only), or test iPad properly.
 - [ ] **Real app icon.** The asset is still `AppIcon-placeholder-1024.png`.
@@ -80,16 +80,21 @@ These change what goes into the P0/P1 lists below.
   `PrivacyInfo.xcprivacy`. Also cover the AI providers photos are sent to (Pl@ntNet, Google Gemini, Groq).
 - [ ] **App Store Connect privacy label.** Fill it to match `PrivacyInfo.xcprivacy`: email, precise
   location, photos, crash data, product interaction. All linked, none used for tracking.
-- [ ] **Permission strings.** *(EN rewritten 2026-09-26 in pbxproj. Still to do: there is no `InfoPlist.strings`, so the prompts show in English for Spanish users. Add `es.lproj/InfoPlist.strings`.)* The location string still says "center Arboretum on your position and
-  geotag discoveries on the map", but the map is shelved (ADR-0002). Reword it to describe what
-  happens today (geotagging scans). "We need access to your photos…" is fine, but should use the same
-  voice as the others. Check the Spanish versions too.
+- [x] **Permission strings.** *(Done 2026-09-28.)* EN rewritten 2026-09-26 in pbxproj (location string
+  already describes Herbarium geotagging, no shelved-map wording). Added `en.lproj/InfoPlist.strings` and
+  `es.lproj/InfoPlist.strings` (camera / location / photo-library) and registered the variant group in
+  Copy Bundle Resources, so prompts now localize per device language. Verified: clean build bundles both
+  `.lproj/InfoPlist.strings`; `plutil` confirms the Spanish values with accents intact.
 - [x] **Remove the `_debug` field** *(Done and deployed 2026-09-26, `narrate-plant` v6.)* from `narrate-plant` responses (`index.ts:331,379,386`). It leaks
   provider/error strings to the client. Replace it with server logs.
 - [ ] **Beta App Review info.** Write the beta description and a "What to Test" note. Add a working
   demo account (email and password, pre-confirmed) in review notes. Add a contact email.
-- [ ] **Quota observability.** Send `provider_chain` / `diagnostic_code` / `quota_exceeded` to PostHog
-  (currently `print()` only). This is how you'll see provider pressure while testers are active.
+- [x] **Quota observability.** *(Done 2026-09-28.)* `BotanyService.identifyPlantWithAI` now captures two
+  PostHog events (reusing the initialized SDK): `scan_quota_exceeded` (with `diagnostic_code`,
+  `provider_chain`) before throwing `dailyQuotaExceeded`, and `scan_identify_result` on every identify
+  (`provider`, `provider_chain`, `provider_fallback_used`, `fallback`, `diagnostic_code`, `confidence`).
+  DEBUG `print()`s kept for local debugging. **Not yet verified live** — needs a real signed-in scan to
+  confirm events land in PostHog.
 
 ## P2 — Before App Store submission (not needed for TestFlight)
 
@@ -134,7 +139,7 @@ path in the app.
    the "come back tomorrow" message shows.
 3. Replace the placeholder `p_daily_limit = 25` with a number sized against the current Pl@ntNet and
    Gemini free-tier limits (not re-checked since 2026-08-07).
-4. PostHog events for quota pressure (see P1 "Quota observability").
+4. ~~PostHog events for quota pressure~~ *(Done 2026-09-28 — see P1 "Quota observability".)*
 
 ---
 
